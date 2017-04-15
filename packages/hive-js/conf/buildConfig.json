@@ -1,0 +1,40 @@
+{
+    "OUTPUT_DEL": [
+        "./dist/**/*",
+        "./tst/coverage/**/*"
+    ],
+    "OUTPUT_SCRIPTS": "./dist",
+    "OUTPUT_ZIP": [
+        "bin/**/*",
+        "conf/**/*",
+        "dist/**/*",
+        "npm-shrinkwrap.json",
+        "package.json"
+    ],
+
+    "SRC_GULPFILE": "./gulpfile.babel.js",
+    "SRC_SCRIPTS": "./src/**/*.js",
+    "BABEL": {
+        "plugins": [
+            "transform-es2015-destructuring",
+            "transform-runtime"
+        ],
+        "presets": ["es2017"]
+    },
+
+    "TST_UNIT": "./tst/specs/**/*.js",
+    "MOCHA": {
+        "reporter": "spec"
+    },
+    "ISTANBUL": {
+        "INIT": {
+            "includeUntested": true
+        },
+        "WRITE": {
+            "dir": "./tst/coverage",
+            "reportOpts": {
+                "dir": "./tst/coverage"
+            }
+        }
+    }
+}
