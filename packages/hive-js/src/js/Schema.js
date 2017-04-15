@@ -60,7 +60,7 @@ export default class Schema {
         for (let property in spec) {
 
             // if property is a nested Schema to recursively validate nested Schemas
-            if (spec[property].name === 'Schema') this.validate(data[property], spec[property].spec);
+            if (spec[property].constructor.name === 'Schema') this.validate(data[property], spec[property].spec);
 
             // else if only the data type has been provided
             else if (!spec[property].type) valid = this.assertType(data[property], spec[property]);
