@@ -1,0 +1,11 @@
+{
+    "plugins": [
+        "add-module-exports",
+        "transform-async-to-generator",
+        "transform-class-properties",
+        "transform-object-rest-spread"
+    ],
+    "presets": [
+        "es2015"
+    ]
+}
