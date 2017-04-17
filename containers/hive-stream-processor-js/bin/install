@@ -1,0 +1,65 @@
+#!/bin/bash
+
+###
+# environment install script for Alpine Linux on Docker
+###
+runInstall () {
+    local DIVIDER="===================="
+    local TEMPLATE="\n\n${DIVIDER}${DIVIDER}${DIVIDER}\n%s\n\n\n"
+
+    ###
+    # NOTE: setup script dependencies
+    ###
+    printf "${TEMPLATE}" "Installing supporting scripts"
+    setupScripts
+    baseInstall
+
+    ###
+    # NOTE: install Node.js LTS build dependencies
+    ###
+    nodeDepsInstall
+
+    ###
+    # NOTE: setup project
+    ###
+    if [[ "${NODE_ENV}" == "development" ]]; then
+        printf "${TEMPLATE}" "Installing Node.js Dev Dependencies"
+        npm install --quiet -g gulp-cli
+    fi
+    projectInstall
+
+    ###
+    # NOTE: add additional file/folder removal here for all images
+    ###
+    if [[ "${NODE_ENV}" == "production" ]]; then
+        printf "${TEMPLATE}" "Removing Alpine Linux Package Cache, /tmp, and Node.js dependencies"
+        nodeDepsUninstall
+    fi
+    clearApkCache
+}
+
+setupScripts () {
+    apk add \
+        ca-certificates \
+        openssl
+    update-ca-certificates
+
+    mkdir -p /opt/scripts
+    wget -O- https://github.com/aeilers/docker-script-lib/archive/master.tar.gz | tar xzf - -C /opt/scripts
+    cp -r /opt/scripts/docker-script-lib-master/* /opt/scripts/
+    rm -r /opt/scripts/docker-script-lib-master/
+
+    find /opt/scripts/ -mindepth 1 -maxdepth 1 -type d \
+        -not -name base \
+        -not -name nodejs \
+        -not -name "." \
+        -exec rm -rf {} \;
+
+    chmod +x /opt/scripts/base/*
+    ln -s /opt/scripts/base/* /usr/local/bin/
+
+    chmod +x /opt/scripts/nodejs/*
+    ln -s /opt/scripts/nodejs/* /usr/local/bin/
+}
+
+runInstall && exit 0
