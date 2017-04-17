@@ -1,7 +1,7 @@
 {
-  "name": "docker-nodejs-starter",
+  "name": "docker-nodejs-stream-processor-starter",
   "version": "1.0.0",
-  "description": "Starter kit for server-side Node.js w/ Koa2 implementations in Docker",
+  "description": "Starter kit for server-side Kafka Stream Processors in Node.js w/ Koa2 implementations in Docker",
   "main": "./bin/start",
   "scripts": {
     "build": "NODE_ENV=production gulp zip",
@@ -10,12 +10,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aeilers/docker-alpine-nodejs-starter.git"
+    "url": "git+https://github.com/aeilers/docker-nodejs-stream-processor-starter.git"
   },
   "bugs": {
-    "url": "https://github.com/aeilers/docker-alpine-nodejs-starter/issues"
+    "url": "https://github.com/aeilers/docker-nodejs-stream-processor-starter/issues"
   },
-  "homepage": "https://github.com/aeilers/docker-alpine-nodejs-starter#readme",
+  "homepage": "https://github.com/aeilers/docker-nodejs-stream-processor-starter#readme",
   "author": "Adam Eilers <adam.eilers@gmail.com>",
   "license": "MIT",
   "engines": {
