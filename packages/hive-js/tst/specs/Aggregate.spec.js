@@ -2,33 +2,40 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import Aggregate from '../../src/js/Aggregate';
+import Schema from '../../src/js/Schema';
 
 describe('Aggregate class', () => {
     let aggregate;
 
     describe('#constructor', () => {
-        const data = [undefined, { id: 'id', sequence: 1 }];
+        const data = [undefined, { id: 'id', version: 1 }],
+            schemas = [
+                new Schema(),
+                new Schema({ id: String, version: Number })
+            ];
 
         beforeEach(() => {
-            aggregate = new Aggregate('id', {}, data.shift());
+            aggregate = new Aggregate(data.shift(), schemas.shift());
         });
 
         it('should create the initial Aggregate object with no data', () => {
             expect(aggregate).to.exist;
 
-            expect(aggregate.cache.id).to.equal('id');
-            expect(aggregate.cache.version).to.equal(-1);
-            expect(aggregate.schema).to.be.an('object');
-
-            expect(aggregate.apply).to.be.a('function');
+            expect(aggregate.applyEvent).to.be.a('function');
             expect(aggregate.applySequence).to.be.a('function');
-            expect(aggregate.validate).to.be.a('function');
+            expect(aggregate.create).to.be.a('function');
+            expect(aggregate.update).to.be.a('function');
+            expect(aggregate.assign).to.be.a('function');
         });
 
         it('should create a fully initialized Aggregate object with data', () => {
             expect(aggregate).to.exist;
 
-            expect(aggregate.cache.version).to.equal(1);
+            expect(aggregate.id).to.be.a('string');
+            expect(aggregate.id).to.equal('id');
+
+            expect(aggregate.version).to.be.a('number');
+            expect(aggregate.version).to.equal(1);
         });
 
         after(() => {
@@ -36,99 +43,59 @@ describe('Aggregate class', () => {
         });
     });
 
-    describe('#apply', () => {
-        const data = [{ id: 'id', sequence: 0 }, [{ id: 'id', sequence: 0 }]];
-        let applySequenceSpy, result;
+    describe('#applyEvent', () => {
+        const events = [
+                { id: 'id', sequence: 1 },
+                { id: 'id', sequence: 0 }
+            ],
+            schemas = [
+                new Schema({ id: String, version: Number }),
+                new Schema({ id: String, version: Number })
+            ];
 
         beforeEach(() => {
-            applySequenceSpy = sinon.spy();
-
-            aggregate = new Aggregate('id', {});
-            aggregate.applySequence = applySequenceSpy;
-
-            result = aggregate.apply(data.shift());
+            aggregate = new Aggregate({ id: 'id', version: 0 }, schemas.shift());
         });
 
-        it('should apply a single event', () => {
-            expect(applySequenceSpy.called).to.be.false;
+        it('should apply a single event successfully', () => {
+            aggregate.applyEvent(events.shift());
 
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('id');
+            expect(aggregate.id).to.be.a('string');
+            expect(aggregate.id).to.equal('id');
 
-            expect(result.version).to.be.a('number');
-            expect(result.version).to.equal(0);
+            expect(aggregate.version).to.be.a('number');
+            expect(aggregate.version).to.equal(1);
         });
 
-        it('should apply a sequence of events', () => {
-            expect(applySequenceSpy.calledOnce).to.be.true;
-            expect(applySequenceSpy.calledWith([{ id: 'id', sequence: 0 }])).to.be.true;
+        it('should throw a RangeError if there is a version/sequence mismatch', () => {
+            expect(() => aggregate.applyEvent(events.shift())).to.throw(RangeError);
         });
 
         afterEach(() => {
-            applySequenceSpy = null;
             aggregate = null;
         });
     });
 
     describe('#applySequence', () => {
-        const data = [{ id: 'id', sequence: 0 }, { id: 'id', sequence: 1 }];
-        let applyStub, result;
+        const sequence = [{ id: 'id', sequence: 0 }, { id: 'id', sequence: 1 }],
+            schema = new Schema({ id: String, version: Number });
 
         before(() => {
-            applyStub = sinon.stub().returns({ id: 'stub', version: 100 });
-
-            aggregate = new Aggregate('id', {});
-            aggregate.apply = applyStub;
-
-            result = aggregate.applySequence(data);
+            aggregate = new Aggregate({}, schema);
         });
 
         it('should apply a sequence of events', () => {
-            expect(applyStub.calledTwice).to.be.true;
+            aggregate.applySequence(sequence);
 
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('stub');
+            expect(aggregate.id).to.be.a('string');
+            expect(aggregate.id).to.equal('id');
 
-            expect(result.version).to.be.a('number');
-            expect(result.version).to.equal(100);
+            expect(aggregate.version).to.be.a('number');
+            expect(aggregate.version).to.equal(1);
         });
 
         after(() => {
-            applyStub = null;
             aggregate = null;
-        });
-    });
-
-    describe('#validate', () => {
-        const data = [{ id: 'id', sequence: 0 }, { id: 'id', sequence: 1 }];
-        let schemaValidateStub, result;
-
-        beforeEach(() => {
-            schemaValidateStub = sinon.stub().returns(true);
-
-            aggregate = new Aggregate('id', { validate: schemaValidateStub });
-
-            result = aggregate.validate(data.shift());
-        });
-
-        it('should successfully validate the data against the aggregate\'s current state', () => {
-            expect(schemaValidateStub.calledOnce).to.be.true;
-
-            expect(result).to.be.a('boolean');
-            expect(result).to.equal(true);
-        });
-
-        it('should unsuccessfully validate the data due to sequence error', () => {
-            expect(schemaValidateStub.called).to.be.false;
-
-            expect(result).to.be.a('boolean');
-            expect(result).to.equal(false);
-        });
-
-        afterEach(() => {
-            schemaValidateStub = null;
-            aggregate = null;
-            result = null;
         });
     });
 

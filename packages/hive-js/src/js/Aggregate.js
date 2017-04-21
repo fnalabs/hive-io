@@ -1,50 +1,31 @@
-export const CACHE = Symbol('reference to the data cache for internal processing');
-export const SCHEMA = Symbol('reference to the Schema associated with the Aggregate');
+import Model from './Model';
 
-export default class Aggregate {
 
-    constructor(id, schema, data) {
-        this[CACHE] = { id, version: -1 };
-        this[SCHEMA] = schema;
+export default class Aggregate extends Model {
 
-        if (data) this[CACHE] = this.apply(data);
-    }
-
-    /*
-     * getters/setters
-     */
-    get cache() {
-        return { ...this[CACHE] };
-    }
-
-    get schema() {
-        return { ...this[SCHEMA] };
+    constructor(data = {}, spec) {
+        super(data, spec);
     }
 
     /*
      * apply methods
      */
-    apply(data) {
-        if (Array.isArray(data)) return this.applySequence(data);
+    applyEvent(data) {
+        if (data.sequence !== this.version + 1) throw new RangeError(`${data.name} out of sequence`);
 
-        return {
-            ...this[CACHE],
-            ...data,
-            version: data.sequence
-        };
+        return this.update(data);
     }
 
     applySequence(data) {
-        return data.reduce(log => this.apply(log), this[CACHE]);
+        return data.reduce((ret, log) => this.update(log), undefined);
     }
 
-    /*
-     * utility methods
-     */
-    validate(data) {
-        if (data.sequence !== this[CACHE].version + 1) return false;
+    update(data) {
+        data.version = data.sequence;
 
-        return this[SCHEMA].validate(data);
+        delete data.sequence;
+
+        super.update(data);
     }
 
 }
