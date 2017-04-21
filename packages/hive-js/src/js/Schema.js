@@ -1,107 +1,76 @@
-export const SPEC = Symbol('reference to Specification object that defines the data model');
-
 export default class Schema {
 
     constructor(spec = { id: String }) {
-        this[SPEC] = spec;
-    }
-
-    get spec() {
-        return { ...this[SPEC] };
-    }
-
-    /*
-     * create
-     */
-    create(data, spec = this[SPEC]) {
-        for (let property in spec) {
-
-            // if property is a nested Schema, recursively create them too
-            if (spec[property].constructor.name === 'Schema') this.create(data[property], spec[property].spec);
-
-            else {
-                if (spec[property].default) {
-                    data[property] = this.evalProperty(spec[property].default);
-                }
-
-                if (spec[property].value) {
-                    data[property] = this.evalProperty(spec[property].value);
-                }
-            }
-        }
-
-        return data;
-    }
-
-    /*
-     * update
-     */
-    update(data, spec = this[SPEC]) {
-        for (let property in spec) {
-
-            // if property is a nested Schema, recursively update them too
-            if (spec[property].constructor.name === 'Schema') this.update(data[property], spec[property].spec);
-
-            else if (spec[property].value) {
-                data[property] = this.evalProperty(spec[property].value);
-            }
-        }
-
-        return data;
+        this.assign(spec);
     }
 
     /*
      * validate
      */
-    validate(data, spec = this[SPEC]) {
-        let valid = true;
+    validate(value, rule) {
+        // if only the data type has been provided
+        if (value !== null && typeof value !== 'undefined' && !rule.type) this.assertType(value, rule);
 
-        // loop over properties in the spec to validate the data
-        for (let property in spec) {
+        else {
+            // if property is set and type is defined, then assert type
+            if (value !== null && typeof value !== 'undefined') this.assertType(value, rule.type);
 
-            // if property is a nested Schema to recursively validate nested Schemas
-            if (spec[property].constructor.name === 'Schema') this.validate(data[property], spec[property].spec);
+            // if property is required and not defined
+            if (rule.required && typeof value === 'undefined') throw new ReferenceError('expected a required value to exist');
 
-            // else if only the data type has been provided
-            else if (!spec[property].type) valid = this.assertType(data[property], spec[property]);
-
-            else {
-                if (data[property] && spec[property].type) valid = this.assertType(data[property], spec[property].type);
-
-                // if still valid, validate if property is required
-                if (valid && spec[property].required && !data[property]) valid = false;
-
-                // if still valid, validate if custom validation function is defined
-                if (valid && typeof spec[property].validate === 'function') valid = spec[property].validate(data[property]);
-            }
-
-            // break loop immediately on first error
-            if (!valid) break;
+            // if custom validation function is defined
+            if (typeof rule.validate === 'function') rule.validate(value);
         }
-
-        return valid;
     }
 
     /*
-     * assertions
+     * assertion(s)
      */
     assertType(value, type) {
-        if (Array.isArray(type) && Array.isArray(value)) return this.assertList(value, type[0].spec);
+        if (Array.isArray(type) && Array.isArray(value)) return true;
 
-        return typeof value === type.name.toLowerCase();
-    }
-
-    assertList(list, spec) {
-        for (let value of list) {
-            if (!this.validate(value, spec)) return false;
-        }
+        if (typeof value !== type.name.toLowerCase()) throw new TypeError(`expected ${value} to be a(n) ${type.name}`);
 
         return true;
     }
 
     /*
+     * iterator(s)
+     */
+    *[Symbol.iterator]() {
+        const keys = Object.keys(this);
+
+        for (const key of keys) {
+            yield [key, this[key]];
+        }
+    }
+
+    *iterator(obj) {
+        const keys = Object.keys(obj);
+
+        for (const key of keys) {
+            yield [key, obj[key]];
+        }
+    }
+
+    /*
      * utility method(s)
      */
+    assign(data) {
+        const assign = (object, source) => {
+            // iterate over object/array passed as source data
+            for (let [key, value] of this.iterator(source)) {
+                if (value && typeof value === 'object' && value.constructor.name !== 'Schema') {
+                    if (Array.isArray(value)) object[key] = assign([], value);
+                    else object[key] = assign({}, value);
+                }
+                else object[key] = value;
+            }
+            return object;
+        };
+        return assign(this, data);
+    }
+
     evalProperty(value) {
         return typeof value === 'function' ? value() : value;
     }

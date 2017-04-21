@@ -7,7 +7,14 @@ describe('Schema class', () => {
     let schema;
 
     describe('#constructor', () => {
-        const schemas = [undefined, { id: String }];
+        const idSchema = new Schema(),
+            schemas = [
+                undefined,
+                { id: { type: Number, required: true } },
+                { id: String, itemRef: idSchema },
+                { id: String, data: [Number] },
+                { id: { type: String, required: true }, data: [idSchema] }
+            ];
 
         beforeEach(() => {
             schema = new Schema(schemas.shift());
@@ -16,353 +23,138 @@ describe('Schema class', () => {
         it('should create a Schema object successfully using defaults', () => {
             expect(schema).to.exist;
 
-            expect(schema.create).to.be.a('function');
-            expect(schema.update).to.be.a('function');
             expect(schema.validate).to.be.a('function');
             expect(schema.assertType).to.be.a('function');
-            expect(schema.assertList).to.be.a('function');
+            expect(schema.iterator).to.be.a('generatorfunction');
+            expect(schema.assign).to.be.a('function');
             expect(schema.evalProperty).to.be.a('function');
 
-            expect(schema.spec.id.name).to.equal('String');
+            expect(schema.id).to.equal(String);
         });
 
-        it('should create a Schema object successfully using a custom schema definition', () => {
-            expect(schema).to.exist;
-
-            expect(schema.spec.id.name).to.equal('String');
-            expect(schema.spec.version).to.be.undefined;
+        it('should create a Schema object successfully using a more complex property', () => {
+            expect(schema.id.type).to.equal(Number);
+            expect(schema.id.required).to.be.true;
         });
 
-        afterEach(() => {
-            schema = null;
-        });
-    });
-
-    describe('#create', () => {
-        const idSchema = new Schema();
-        const schemas = [
-            undefined,
-            { id: { default: 'stub' } },
-            { id: { value: 'stub' } },
-            { id: idSchema }
-        ];
-        const data = [
-            { id: 'id' },
-            { id: 'id' },
-            { id: 'id' },
-            { id: { id: 'id' } }
-        ];
-        let evalPropertyStub, result;
-
-        beforeEach(() => {
-            evalPropertyStub = sinon.stub().returns('stub');
-
-            schema = new Schema(schemas.shift());
-            schema.evalProperty = evalPropertyStub;
-
-            result = schema.create(data.shift());
+        it('should create a Schema object successfully using another Schema as a property', () => {
+            expect(schema.id).to.equal(String);
+            expect(schema.itemRef).to.be.an.instanceof(Schema);
+            expect(schema.itemRef.id).to.equal(String);
         });
 
-        it('should return the test object unmodified', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('id');
-
-            expect(evalPropertyStub.called).to.be.false;
+        it('should create a Schema object successfully using a property defined as an Array', () => {
+            expect(schema.id).to.equal(String);
+            expect(schema.data).to.be.an.instanceof(Array);
+            expect(schema.data[0]).to.equal(Number);
         });
 
-        it('should return the test object with the provided default', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('stub');
-
-            expect(evalPropertyStub.calledOnce).to.be.true;
-        });
-
-        it('should return the test object with the provided value', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('stub');
-
-            expect(evalPropertyStub.calledOnce).to.be.true;
-        });
-
-        it('should return the test object with the provided nested schema data', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id.id).to.be.a('string');
-            expect(result.id.id).to.equal('id');
-
-            expect(evalPropertyStub.called).to.be.false;
+        it('should create a Schema object successfully using a more complex property and another as an Array', () => {
+            expect(schema.id.type).to.equal(String);
+            expect(schema.id.required).to.be.true;
+            expect(schema.data).to.be.an.instanceof(Array);
+            expect(schema.data[0]).to.be.an.instanceof(Schema);
         });
 
         afterEach(() => {
             schema = null;
-            result = null;
-        });
-    });
-
-    describe('#update', () => {
-        const idSchema = new Schema();
-        const schemas = [
-            undefined,
-            { id: { default: 'stub' } },
-            { id: { value: 'stub' } },
-            { id: idSchema }
-        ];
-        const data = [
-            { id: 'id' },
-            { id: 'id' },
-            { id: 'id' },
-            { id: { id: 'id' } }
-        ];
-        let evalPropertyStub, result;
-
-        beforeEach(() => {
-            evalPropertyStub = sinon.stub().returns('stub');
-
-            schema = new Schema(schemas.shift());
-            schema.evalProperty = evalPropertyStub;
-
-            result = schema.update(data.shift());
-        });
-
-        it('should return the test object unmodified', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('id');
-
-            expect(evalPropertyStub.called).to.be.false;
-        });
-
-        it('should return the test object unmodified even with a default value defined', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('id');
-
-            expect(evalPropertyStub.called).to.be.false;
-        });
-
-        it('should return the test object with the provided value', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id).to.be.a('string');
-            expect(result.id).to.equal('stub');
-
-            expect(evalPropertyStub.calledOnce).to.be.true;
-        });
-
-        it('should return the test object with the provided nested schema data', () => {
-            expect(result).to.be.an('object');
-
-            expect(result.id.id).to.be.a('string');
-            expect(result.id.id).to.equal('id');
-
-            expect(evalPropertyStub.called).to.be.false;
-        });
-
-        afterEach(() => {
-            schema = null;
-            result = null;
         });
     });
 
     describe('#validate', () => {
-        const idSchema = new Schema();
         const schemas = [
             undefined,
             { id: { type: String } },
-            { id: idSchema },
             { id: { type: String, required: true } },
             { id: { type: String, required: true } },
             { id: { type: String, validate: () => true } },
-            { id: { type: String, validate: () => false } },
-            {}
+            { id: { type: String, validate: sinon.stub().throws('Error') } }
+        ],
+        data = [
+            'id',
+            'id',
+            'id',
+            undefined,
+            'id',
+            'id'
         ];
-        const data = [
-            { id: 'id' },
-            { id: 'id' },
-            { id: { id: 'id' } },
-            { id: 'id' },
-            { test: 'test' },
-            { id: 'id' },
-            { id: 'id' },
-            {}
-        ];
-        let assertTypeStub, result;
+        let assertTypeStub;
 
         beforeEach(() => {
             assertTypeStub = sinon.stub().returns(true);
 
             schema = new Schema(schemas.shift());
             schema.assertType = assertTypeStub;
-
-            result = schema.validate(data.shift());
         });
 
-        it('should return true for default type assertion', () => {
-            expect(result).to.be.true;
+        it('should run without error for default type assertion', () => {
+            schema.validate(data.shift(), schema.id);
 
             expect(assertTypeStub.calledOnce).to.be.true;
         });
 
-        it('should return true for type property definition', () => {
-            expect(result).to.be.true;
+        it('should run without error for type property definition', () => {
+            schema.validate(data.shift(), schema.id);
 
             expect(assertTypeStub.calledOnce).to.be.true;
         });
 
-        it('should return true for nested Schema definition', () => {
-            expect(result).to.be.true;
+        it('should run without error for required value', () => {
+            schema.validate(data.shift(), schema.id);
 
             expect(assertTypeStub.calledOnce).to.be.true;
         });
 
-        it('should return true for required value', () => {
-            expect(result).to.be.true;
-
-            expect(assertTypeStub.calledOnce).to.be.true;
-        });
-
-        it('should return false for required value', () => {
-            expect(result).to.be.false;
+        it('should throw error for required value', () => {
+            expect(() => schema.validate(data.shift(), schema.id)).to.throw(ReferenceError);
 
             expect(assertTypeStub.called).to.be.false;
         });
 
-        it('should return true for assigned custom validate function', () => {
-            expect(result).to.be.true;
+        it('should run without error for assigned custom validate function', () => {
+            schema.validate(data.shift(), schema.id);
 
             expect(assertTypeStub.calledOnce).to.be.true;
         });
 
-        it('should return false for assigned custom validate function', () => {
-            expect(result).to.be.false;
+        it('should throw error for assigned custom validate function', () => {
+            expect(() => schema.validate(data.shift(), schema.id)).to.throw(Error);
 
             expect(assertTypeStub.calledOnce).to.be.true;
-        });
-
-        it('should return true for empty schema assignment', () => {
-            expect(result).to.be.true;
-
-            expect(assertTypeStub.called).to.be.false;
         });
 
         afterEach(() => {
             schema = null;
-            result = null;
         });
     });
 
     describe('#assertType', () => {
-        const testSchema = new Schema();
-        const values = [ [], [], 'test', 0 ],
-            assertListStubs = [
-                sinon.stub().returns(true),
-                sinon.stub().returns(false),
-                sinon.stub().returns(true),
-                sinon.stub().returns(true)
-            ],
+        const testSchema = new Schema(),
+            values = [ [], 'test', 0 ],
             types = [
-                [testSchema],
                 [testSchema],
                 String,
                 String
             ];
-        let assertListStub, result;
 
         beforeEach(() => {
-            assertListStub = assertListStubs.shift();
-
             schema = new Schema();
-            schema.assertList = assertListStub;
-
-            result = schema.assertType(values.shift(), types.shift());
         });
 
         it('should return true if Array assertion passed', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.true;
-
-            expect(assertListStub.calledOnce).to.be.true;
-        });
-
-        it('should return false if Array assertion failed', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.false;
-
-            expect(assertListStub.calledOnce).to.be.true;
+            expect(schema.assertType(values.shift(), types.shift())).to.be.true;
         });
 
         it('should return true if type assertion passed', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.true;
-
-            expect(assertListStub.called).to.be.false;
+            expect(schema.assertType(values.shift(), types.shift())).to.be.true;
         });
 
-        it('should return false if type assertion failed', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.false;
-
-            expect(assertListStub.called).to.be.false;
+        it('should throw error if type assertion failed', () => {
+            expect(() => schema.assertType(values.shift(), types.shift())).to.throw(TypeError);
         });
 
         afterEach(() => {
             schema = null;
-            result = null;
-            assertListStub = null;
-        });
-    });
-
-    describe('#assertList', () => {
-        const values = [ [], [{}], [{}, {}] ],
-            validateStubs = [
-                sinon.stub().returns(true),
-                sinon.stub().returns(true),
-                sinon.stub().onFirstCall().returns(true).onSecondCall().returns(false)
-            ];
-        let validateStub, result;
-
-        beforeEach(() => {
-            validateStub = validateStubs.shift();
-
-            schema = new Schema();
-            schema.validate = validateStub;
-
-            result = schema.assertList(values.shift(), {});
-        });
-
-        it('should return true if list is empty', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.true;
-
-            expect(validateStub.called).to.be.false;
-        });
-
-        it('should assert values in a list successfully', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.true;
-
-            expect(validateStub.calledOnce).to.be.true;
-        });
-
-        it('should fail validation if an invalid value is found', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.false;
-
-            expect(validateStub.calledTwice).to.be.true;
-        });
-
-        afterEach(() => {
-            schema = null;
-            result = null;
-            validateStub = null;
         });
     });
 
