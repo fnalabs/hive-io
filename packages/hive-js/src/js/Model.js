@@ -19,6 +19,7 @@ export default class Model {
             for (let [property, specification] of spec) {
                 // if specification is a nested Schema, recursively create them too
                 if (specification instanceof Schema) create(source[property], specification);
+                else if (Array.isArray(specification)) create(source[property], specification[0]);
                 else {
                     spec.validate(source[property], specification);
 
@@ -42,27 +43,26 @@ export default class Model {
      * update
      */
     update(data) {
-        const update = (object, source, spec = this[SPEC]) => {
-            for (let [property, value] of this.iterator(source)) {
-                // if property is a nested Model, recursively update them too
-                if (spec[property] instanceof Schema) object[property] = update({}, value, spec[property]);
+        const update = (source, spec = this[SPEC]) => {
+            for (let [property, specification] of spec) {
+                // if specification is a nested Schema, recursively update them too
+                if (specification instanceof Schema) update(source[property], specification);
+                else if (Array.isArray(specification)) update(source[property], specification[0]);
                 else {
-                    // if specification is defined, validate the value
-                    if (spec[property]) spec.validate(value, spec[property]);
+                    // if specification is defined, validate the source value
+                    if (specification) spec.validate(source[property], specification);
 
                     // if a default value/function is defined, use it
-                    if (spec[property].value) {
-                        object[property] = spec.evalProperty(spec[property].value);
+                    if (specification.value) {
+                        source[property] = spec.evalProperty(specification.value);
                     }
-
-                    else object[property] = value;
                 }
 
             }
 
-            return object;
+            return this.assign(source);
         };
-        return update(this, data);
+        return update(data);
     }
 
     /*
