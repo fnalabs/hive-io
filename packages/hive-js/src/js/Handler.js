@@ -10,16 +10,11 @@ export default class Handler {
 
     handle(data, aggregate) {
         const command = new this[COMMAND](data);
-        let event;
+        const event = new this[EVENT](command);
 
-        if (command.validate() && aggregate.validate(command)) {
-            event = this.execute(command);
-        }
+        aggregate.applyEvent(event);
+
         return event;
-    }
-
-    execute(command) {
-        return new this[EVENT](command);
     }
 
 }

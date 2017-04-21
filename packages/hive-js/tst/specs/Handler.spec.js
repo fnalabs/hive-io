@@ -17,7 +17,6 @@ describe('Handler class', () => {
             expect(handler).to.exist;
 
             expect(handler.handle).to.be.a('function');
-            expect(handler.execute).to.be.a('function');
         });
 
         after(() => {
@@ -26,53 +25,19 @@ describe('Handler class', () => {
     });
 
     describe('#handle', () => {
-        let executeSpy, result;
-        const aggregateValidationResults = [true, false, true],
-            commandValidationResults = [true, true, false];
+        let applyEventSpy, result;
 
-        beforeEach(() => {
-            executeSpy = sinon.stub().returns(true);
-            Command.prototype.validate = sinon.stub().returns(commandValidationResults.shift());
+        before(() => {
+            applyEventSpy = sinon.stub().returns(true);
 
             handler = new Handler(Command, Event);
-            handler.execute = executeSpy;
 
-            result = handler.handle({ id: 'id', sequence: 0 }, { validate: sinon.stub().returns(aggregateValidationResults.shift()) });
+            result = handler.handle({ id: 'id', sequence: 0 }, { applyEvent: applyEventSpy });
         });
 
         it('should handle the command data successfully', () => {
-            expect(result).to.be.a('boolean');
-            expect(result).to.be.true;
 
-            expect(executeSpy.calledOnce).to.be.true;
-        });
-
-        it('should return an undefined event if aggregate validation fails', () => {
-            expect(result).to.be.undefined;
-            expect(executeSpy.called).to.be.false;
-        });
-
-        it('should return an undefined event if command validation fails', () => {
-            expect(result).to.be.undefined;
-            expect(executeSpy.called).to.be.false;
-        });
-
-        afterEach(() => {
-            handler = null;
-        });
-    });
-
-    describe('#execute', () => {
-        let result;
-
-        beforeEach(() => {
-            handler = new Handler(Command, Event);
-
-            result = handler.execute(new Command({ id: 'id', sequence: 0 }));
-        });
-
-        it('should handle the command data successfully', () => {
-            expect(result).to.be.an('object');
+            expect(result).to.be.an.instanceof(Event);
 
             expect(result.id).to.be.a('string');
             expect(result.id).to.equal('id');
@@ -82,6 +47,8 @@ describe('Handler class', () => {
 
             expect(result.timestamp).to.be.a('string');
             expect(Date.parse(result.timestamp)).to.be.a('number');
+
+            expect(applyEventSpy.calledOnce).to.be.true;
         });
 
         after(() => {

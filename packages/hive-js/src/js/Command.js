@@ -4,8 +4,10 @@ export default class Command extends Message {
 
     constructor(data) {
         super(data);
+
+        this.validate();
     }
 
-    validate() { return true; }
+    validate() {}
 
 }

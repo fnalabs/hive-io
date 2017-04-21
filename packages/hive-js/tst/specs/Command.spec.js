@@ -1,61 +1,44 @@
-import proxyquire from 'proxyquire';
 import { expect } from 'chai';
-import sinon from 'sinon';
+
+import Command from '../../src/js/Command';
 
 describe('Command class', () => {
-    let Command, command;
+    let command;
 
     describe('#constructor', () => {
-        let constructorSpy;
-
-        before(() => {
-            constructorSpy = sinon.spy();
-            Command = proxyquire('../../src/js/Command', {
-                './Message': class Message {
-                    constructor() {
-                        constructorSpy();
-                    }
-                }
-            });
-
-            command = new Command();
-        });
-
         it('should create a Command object successfully', () => {
+            command = new Command({ id: 'id', sequence: 1 });
+
             expect(command).to.exist;
 
             expect(command.validate).to.be.a('function');
 
-            expect(constructorSpy.calledOnce).to.be.true;
+            expect(command.id).to.be.a('string');
+            expect(command.id).to.equal('id');
+
+            expect(command.sequence).to.be.a('number');
+            expect(command.sequence).to.equal(1);
         });
 
-        after(() => {
-            Command = null;
+        it('should throw a type error with undefined data', () => {
+            expect(() => new Command()).to.throw(TypeError);
+        });
+
+        afterEach(() => {
             command = null;
         });
     });
 
     describe('#validate', () => {
-        let result;
-
         before(() => {
-            Command = proxyquire('../../src/js/Command', {
-                './Message': class Message {
-                    constructor() {}
-                }
-            });
-
-            command = new Command();
-
-            result = command.validate();
+            command = new Command({ id: 'id', sequence: 1 });
         });
 
-        it('should return true by default if no validations have overridden default behavior', () => {
-            expect(result).to.be.true;
+        it('should not error by default if no validations have overridden default behavior', () => {
+            expect(command.validate).to.not.throw(Error);
         });
 
         after(() => {
-            Command = null;
             command = null;
         });
     });
