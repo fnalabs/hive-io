@@ -13,7 +13,8 @@ describe('Schema class', () => {
                 { id: { type: Number, required: true } },
                 { id: String, itemRef: idSchema },
                 { id: String, data: [Number] },
-                { id: { type: String, required: true }, data: [idSchema] }
+                { id: { type: String, required: true }, data: [idSchema] },
+                { id: { type: String, required: true }, counts: [Number] }
             ];
 
         beforeEach(() => {
@@ -49,11 +50,18 @@ describe('Schema class', () => {
             expect(schema.data[0]).to.equal(Number);
         });
 
-        it('should create a Schema object successfully using a more complex property and another as an Array', () => {
+        it('should create a Schema object successfully using a more complex property and another as an Array of Schemas', () => {
             expect(schema.id.type).to.equal(String);
             expect(schema.id.required).to.be.true;
             expect(schema.data).to.be.an.instanceof(Array);
             expect(schema.data[0]).to.be.an.instanceof(Schema);
+        });
+
+        it('should create a Schema object successfully using a more complex property and another as a "typed" Array', () => {
+            expect(schema.id.type).to.equal(String);
+            expect(schema.id.required).to.be.true;
+            expect(schema.counts).to.be.an.instanceof(Array);
+            expect(schema.counts[0]).to.be.equal(Number);
         });
 
         afterEach(() => {
@@ -130,8 +138,10 @@ describe('Schema class', () => {
 
     describe('#assertType', () => {
         const testSchema = new Schema(),
-            values = [ [], 'test', 0 ],
+            values = [ [], [1, 2, 3, 4], 0, 'test', 0 ],
             types = [
+                [testSchema],
+                [Number],
                 [testSchema],
                 String,
                 String
@@ -141,12 +151,20 @@ describe('Schema class', () => {
             schema = new Schema();
         });
 
-        it('should return true if Array assertion passed', () => {
-            expect(schema.assertType(values.shift(), types.shift())).to.be.true;
+        it('should not throw error if Array assertion passed', () => {
+            expect(() => schema.assertType(values.shift(), types.shift())).to.not.throw(TypeError);
         });
 
-        it('should return true if type assertion passed', () => {
-            expect(schema.assertType(values.shift(), types.shift())).to.be.true;
+        it('should not throw error if TypedArray assertion passed', () => {
+            expect(() => schema.assertType(values.shift(), types.shift())).to.not.throw(TypeError);
+        });
+
+        it('should throw error if TypedArray assertion passed', () => {
+            expect(() => schema.assertType(values.shift(), types.shift())).to.throw(TypeError);
+        });
+
+        it('should not throw error if type assertion passed', () => {
+            expect(() => schema.assertType(values.shift(), types.shift())).to.not.throw(TypeError);
         });
 
         it('should throw error if type assertion failed', () => {

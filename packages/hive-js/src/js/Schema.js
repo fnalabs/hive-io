@@ -12,11 +12,13 @@ export default class Schema {
         if (value !== null && typeof value !== 'undefined' && !rule.type) this.assertType(value, rule);
 
         else {
+            // if property is required and not defined
+            if (rule.required && typeof value === 'undefined') {
+                throw new ReferenceError('expected a required value to exist');
+            }
+
             // if property is set and type is defined, then assert type
             if (value !== null && typeof value !== 'undefined') this.assertType(value, rule.type);
-
-            // if property is required and not defined
-            if (rule.required && typeof value === 'undefined') throw new ReferenceError('expected a required value to exist');
 
             // if custom validation function is defined
             if (typeof rule.validate === 'function') rule.validate(value);
@@ -27,11 +29,22 @@ export default class Schema {
      * assertion(s)
      */
     assertType(value, type) {
-        if (Array.isArray(type) && Array.isArray(value)) return true;
+        if (Array.isArray(type)) {
+            if (!Array.isArray(value)) throw new TypeError(`expected ${JSON.stringify(value)} to be an Array`);
+            else if (typeof type[0] === 'function') this.assertTypedArray(value, type[0]);
+        }
+        else if (typeof value !== type.name.toLowerCase()) {
+            throw new TypeError(`expected ${JSON.stringify(value)} to be a(n) ${type.name}`);
+        }
+    }
 
-        if (typeof value !== type.name.toLowerCase()) throw new TypeError(`expected ${value} to be a(n) ${type.name}`);
-
-        return true;
+    assertTypedArray(array, type) {
+        if (!Array.isArray(array)) throw new TypeError(`expected ${JSON.stringify(array)} is not an Array`);
+        else {
+            for (const value of array) {
+                this.assertType(value, type);
+            }
+        }
     }
 
     /*
