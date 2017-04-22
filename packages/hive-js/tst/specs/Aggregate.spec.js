@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
 
 import Aggregate from '../../src/js/Aggregate';
 import Schema from '../../src/js/Schema';
@@ -23,9 +22,9 @@ describe('Aggregate class', () => {
 
             expect(aggregate.applyEvent).to.be.a('function');
             expect(aggregate.applySequence).to.be.a('function');
-            expect(aggregate.create).to.be.a('function');
             expect(aggregate.update).to.be.a('function');
             expect(aggregate.assign).to.be.a('function');
+            expect(aggregate.initialize).to.be.a('function');
         });
 
         it('should create a fully initialized Aggregate object with data', () => {
