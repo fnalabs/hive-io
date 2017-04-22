@@ -8,25 +8,6 @@ describe('Model class', () => {
     let model;
 
     describe('#constructor', () => {
-        before(() => {
-            model = new Model();
-        });
-
-        it('should create a Model object successfully using defaults', () => {
-            expect(model).to.exist;
-
-            expect(model.create).to.be.a('function');
-            expect(model.update).to.be.a('function');
-            expect(model.iterator).to.be.a('generatorfunction');
-            expect(model.assign).to.be.a('function');
-        });
-
-        after(() => {
-            model = null;
-        });
-    });
-
-    describe('#create', () => {
         const schemas = [
             new Schema(),
             new Schema(),
@@ -35,7 +16,8 @@ describe('Model class', () => {
             new Schema({ id: { type: String, value: 'stub' } }),
             new Schema({ id: String, itemRef: new Schema() }),
             new Schema({ id: String, meta: new Schema({ created: { type: Number, default: Date.now } }) }),
-            new Schema({ id: String, availableRefs: [new Schema()] })
+            new Schema({ id: String, availableRefs: [new Schema()] }),
+            new Schema({ id: String, counts: [Number] })
         ];
         const data = [
             { id: 'id' },
@@ -45,13 +27,19 @@ describe('Model class', () => {
             { id: 'id' },
             { id: 'id', itemRef: { id: 'id' } },
             { id: 'id', meta: { created: null } },
-            { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] }
+            { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] },
+            { id: 'id', counts: [1, 2, 3, 4] }
         ];
 
         it('should return the test object unmodified', () => {
             model = new Model(data.shift(), schemas.shift());
 
             expect(model).to.be.an('object');
+
+            expect(model.update).to.be.a('function');
+            expect(model.iterator).to.be.a('generatorfunction');
+            expect(model.assign).to.be.a('function');
+            expect(model.initialize).to.be.a('function');
 
             expect(model.id).to.be.a('string');
             expect(model.id).to.equal('id');
@@ -129,6 +117,27 @@ describe('Model class', () => {
             expect(model.availableRefs[1].id).to.equal('id2');
         });
 
+        it('should return the test object with a nested array of values', () => {
+            model = new Model(data.shift(), schemas.shift());
+
+            expect(model).to.be.an('object');
+
+            expect(model.id).to.be.a('string');
+            expect(model.id).to.equal('id');
+
+            expect(model.counts[0]).to.be.a('number');
+            expect(model.counts[0]).to.equal(1);
+
+            expect(model.counts[1]).to.be.a('number');
+            expect(model.counts[1]).to.equal(2);
+
+            expect(model.counts[2]).to.be.a('number');
+            expect(model.counts[2]).to.equal(3);
+
+            expect(model.counts[3]).to.be.a('number');
+            expect(model.counts[3]).to.equal(4);
+        });
+
         afterEach(() => {
             model = null;
         });
@@ -141,7 +150,8 @@ describe('Model class', () => {
             new Schema({ id: { type: String, value: 'stub' } }),
             new Schema({ id: new Schema() }),
             new Schema({ id: String, meta: new Schema({ updated: { type: Number, default: Date.now } }) }),
-            new Schema({ id: String, availableRefs: [new Schema()] })
+            new Schema({ id: String, availableRefs: [new Schema()] }),
+            new Schema({ id: String, counts: [Number] })
         ];
         const data = [
             { id: 'id' },
@@ -149,7 +159,8 @@ describe('Model class', () => {
             { id: 'id' },
             { id: { id: 'id' } },
             { id: 'id', meta: { updated: null } },
-            { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] }
+            { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] },
+            { id: 'id', counts: [1, 2] }
         ];
         const update = [
             { id: 'update' },
@@ -157,7 +168,8 @@ describe('Model class', () => {
             { id: 'update' },
             { id: { id: 'update' } },
             { id: 'update', meta: { updated: Date.now() } },
-            { id: 'update', availableRefs: [{ id: 'id1' }, { id: 'id2' }, { id: 'id3' }] }
+            { id: 'update', availableRefs: [{ id: 'id1' }, { id: 'id2' }, { id: 'id3' }] },
+            { id: 'id', counts: [1, 2, 3, 4] }
         ];
 
         beforeEach(() => {
@@ -248,6 +260,30 @@ describe('Model class', () => {
             expect(model.availableRefs[1].id).to.equal('id2');
             expect(model.availableRefs[2].id).to.be.a('string');
             expect(model.availableRefs[2].id).to.equal('id3');
+        });
+
+        it('should return the test object with a nested array of values', () => {
+            expect(model).to.be.an('object');
+            expect(model.id).to.be.a('string');
+            expect(model.id).to.equal('id');
+            expect(model.counts[0]).to.be.a('number');
+            expect(model.counts[0]).to.equal(1);
+            expect(model.counts[1]).to.be.a('number');
+            expect(model.counts[1]).to.equal(2);
+
+            model.update(update.shift());
+
+            expect(model).to.be.an('object');
+            expect(model.id).to.be.a('string');
+            expect(model.id).to.equal('id');
+            expect(model.counts[0]).to.be.a('number');
+            expect(model.counts[0]).to.equal(1);
+            expect(model.counts[1]).to.be.a('number');
+            expect(model.counts[1]).to.equal(2);
+            expect(model.counts[2]).to.be.a('number');
+            expect(model.counts[2]).to.equal(3);
+            expect(model.counts[3]).to.be.a('number');
+            expect(model.counts[3]).to.equal(4);
         });
 
         afterEach(() => {

@@ -8,61 +8,16 @@ export default class Model {
     constructor(data = { id: 'id' }, spec = new Schema()) {
         this[SPEC] = spec;
 
-        this.create(data);
-    }
-
-    /*
-     * create
-     */
-    create(data) {
-        const create = (source, spec = this[SPEC]) => {
-            for (let [property, specification] of spec) {
-                // if specification is a nested Schema, recursively create them too
-                if (specification instanceof Schema) create(source[property], specification);
-                else if (Array.isArray(specification)) create(source[property], specification[0]);
-                else {
-                    spec.validate(source[property], specification);
-
-                    // if a default value/function is defined, use it
-                    if (specification.value) {
-                        source[property] = spec.evalProperty(specification.value);
-                    }
-
-                    else if (specification.default && !source[property]) {
-                        source[property] = spec.evalProperty(specification.default);
-                    }
-                }
-            }
-
-            return this.assign(source);
-        };
-        return create(data);
+        this.update(data);
     }
 
     /*
      * update
      */
     update(data) {
-        const update = (source, spec = this[SPEC]) => {
-            for (let [property, specification] of spec) {
-                // if specification is a nested Schema, recursively update them too
-                if (specification instanceof Schema) update(source[property], specification);
-                else if (Array.isArray(specification)) update(source[property], specification[0]);
-                else {
-                    // if specification is defined, validate the source value
-                    if (specification) spec.validate(source[property], specification);
+        this.initialize(data, this[SPEC]);
 
-                    // if a default value/function is defined, use it
-                    if (specification.value) {
-                        source[property] = spec.evalProperty(specification.value);
-                    }
-                }
-
-            }
-
-            return this.assign(source);
-        };
-        return update(data);
+        return this.assign(data);
     }
 
     /*
@@ -102,4 +57,26 @@ export default class Model {
         return assign(this, data);
     }
 
+    initialize(data, spec) {
+        for (let [property, specification] of spec) {
+            // if specification is a nested Schema
+            if (specification instanceof Schema) this.initialize(data[property], specification);
+            // else if specification is an array of objects
+            else if (Array.isArray(specification) && typeof specification[0] !== 'function') {
+                this.initialize(data[property], specification[0]);
+            }
+            else {
+                spec.validate(data[property], specification);
+
+                // if a default value/function is defined, use it
+                if (specification.value) {
+                    data[property] = spec.evalProperty(specification.value);
+                }
+
+                else if (specification.default && !data[property]) {
+                    data[property] = spec.evalProperty(specification.default);
+                }
+            }
+        }
+    }
 }
