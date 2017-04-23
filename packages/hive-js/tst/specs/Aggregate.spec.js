@@ -7,11 +7,18 @@ describe('Aggregate class', () => {
     let aggregate;
 
     describe('#constructor', () => {
-        const data = [undefined, { id: 'id', version: 1 }],
-            schemas = [
-                new Schema(),
-                new Schema({ id: String, version: Number })
-            ];
+        const data = [
+            undefined,
+            { id: 'id', version: 1 },
+            { id: 'id', sequence: 1 },
+            { id: 'id', sequence: 1, name: 'Create' }
+        ];
+        const schemas = [
+            new Schema(),
+            new Schema({ id: String, version: Number }),
+            new Schema({ id: String, version: Number }),
+            new Schema({ id: String, version: Number })
+        ];
 
         beforeEach(() => {
             aggregate = new Aggregate(data.shift(), schemas.shift());
@@ -23,6 +30,8 @@ describe('Aggregate class', () => {
             expect(aggregate.applyEvent).to.be.a('function');
             expect(aggregate.applySequence).to.be.a('function');
             expect(aggregate.update).to.be.a('function');
+
+            expect(aggregate.id).to.be.undefined;
         });
 
         it('should create a fully initialized Aggregate object with data', () => {
@@ -33,6 +42,31 @@ describe('Aggregate class', () => {
 
             expect(aggregate.version).to.be.a('number');
             expect(aggregate.version).to.equal(1);
+        });
+
+        it('should create a fully initialized Aggregate object without sequence data', () => {
+            expect(aggregate).to.exist;
+
+            expect(aggregate.id).to.be.a('string');
+            expect(aggregate.id).to.equal('id');
+
+            expect(aggregate.version).to.be.a('number');
+            expect(aggregate.version).to.equal(1);
+
+            expect(aggregate.sequence).to.be.undefined;
+        });
+
+        it('should create a fully initialized Aggregate object without sequence and name data', () => {
+            expect(aggregate).to.exist;
+
+            expect(aggregate.id).to.be.a('string');
+            expect(aggregate.id).to.equal('id');
+
+            expect(aggregate.version).to.be.a('number');
+            expect(aggregate.version).to.equal(1);
+
+            expect(aggregate.sequence).to.be.undefined;
+            expect(aggregate.name).to.be.undefined;
         });
 
         after(() => {

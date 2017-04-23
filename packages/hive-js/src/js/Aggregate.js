@@ -24,11 +24,7 @@ export default class Aggregate extends Model {
      * update override
      */
     update(data) {
-        if (data.sequence) {
-            data.version = data.sequence;
-
-            delete data.sequence;
-        }
+        if (data.sequence) data.version = data.sequence;
 
         super.update(data);
     }
