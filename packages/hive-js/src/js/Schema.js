@@ -1,7 +1,14 @@
+// private methods
+const ASSERT_DEF = Symbol('reference to method that checks if data is defined and not null');
+const ASSERT_TYPE = Symbol('reference to method that checks data type against schema definition');
+const ASSIGN = Symbol('reference to method that assigns schema definitions to the class instance');
+const ITERATOR = Symbol('reference to method that iterates over non-iterable data structures');
+
+
 export default class Schema {
 
     constructor(spec = { id: String }) {
-        this.assign(spec);
+        this[ASSIGN](spec);
     }
 
     /*
@@ -9,16 +16,14 @@ export default class Schema {
      */
     validate(value, rule) {
         // if only the data type has been provided
-        if (value !== null && typeof value !== 'undefined' && !rule.type) this.assertType(value, rule);
+        if (this[ASSERT_DEF](value) && typeof rule === 'function') this[ASSERT_TYPE](value, rule);
 
         else {
-            // if property is required and not defined
             if (rule.required && typeof value === 'undefined') {
                 throw new ReferenceError('expected a required value to exist');
             }
 
-            // if property is set and type is defined, then assert type
-            if (value !== null && typeof value !== 'undefined') this.assertType(value, rule.type);
+            if (this[ASSERT_DEF](value)) this[ASSERT_TYPE](value, rule.type);
 
             // if custom validation function is defined
             if (typeof rule.validate === 'function') rule.validate(value);
@@ -28,22 +33,13 @@ export default class Schema {
     /*
      * assertion(s)
      */
-    assertType(value, type) {
-        if (Array.isArray(type)) {
-            if (!Array.isArray(value)) throw new TypeError(`expected ${JSON.stringify(value)} to be an Array`);
-            else if (typeof type[0] === 'function') this.assertTypedArray(value, type[0]);
-        }
-        else if (typeof value !== type.name.toLowerCase()) {
-            throw new TypeError(`expected ${JSON.stringify(value)} to be a(n) ${type.name}`);
-        }
+    [ASSERT_DEF](value) {
+        return value !== null && typeof value !== 'undefined';
     }
 
-    assertTypedArray(array, type) {
-        if (!Array.isArray(array)) throw new TypeError(`expected ${JSON.stringify(array)} is not an Array`);
-        else {
-            for (const value of array) {
-                this.assertType(value, type);
-            }
+    [ASSERT_TYPE](value, type) {
+        if (typeof value !== type.name.toLowerCase()) {
+            throw new TypeError(`expected ${JSON.stringify(value)} to be a(n) ${type.name}`);
         }
     }
 
@@ -58,7 +54,7 @@ export default class Schema {
         }
     }
 
-    *iterator(obj) {
+    *[ITERATOR](obj) {
         const keys = Object.keys(obj);
 
         for (const key of keys) {
@@ -69,10 +65,10 @@ export default class Schema {
     /*
      * utility method(s)
      */
-    assign(data) {
+    [ASSIGN](data) {
         const assign = (object, source) => {
             // iterate over object/array passed as source data
-            for (let [key, value] of this.iterator(source)) {
+            for (let [key, value] of this[ITERATOR](source)) {
                 if (value && typeof value === 'object' && value.constructor.name !== 'Schema') {
                     if (Array.isArray(value)) object[key] = assign([], value);
                     else object[key] = assign({}, value);

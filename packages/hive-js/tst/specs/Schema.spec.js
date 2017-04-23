@@ -1,21 +1,21 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import Schema from '../../src/js/Schema';
+import Schema, {  } from '../../src/js/Schema';
 
 describe('Schema class', () => {
     let schema;
 
     describe('#constructor', () => {
-        const idSchema = new Schema(),
-            schemas = [
-                undefined,
-                { id: { type: Number, required: true } },
-                { id: String, itemRef: idSchema },
-                { id: String, data: [Number] },
-                { id: { type: String, required: true }, data: [idSchema] },
-                { id: { type: String, required: true }, counts: [Number] }
-            ];
+        const idSchema = new Schema();
+        const schemas = [
+            undefined,
+            { id: { type: Number, required: true } },
+            { id: String, itemRef: idSchema },
+            { id: String, data: [Number] },
+            { id: { type: String, required: true }, data: [idSchema] },
+            { id: { type: String, required: true }, counts: [Number] }
+        ];
 
         beforeEach(() => {
             schema = new Schema(schemas.shift());
@@ -25,9 +25,6 @@ describe('Schema class', () => {
             expect(schema).to.exist;
 
             expect(schema.validate).to.be.a('function');
-            expect(schema.assertType).to.be.a('function');
-            expect(schema.iterator).to.be.a('generatorfunction');
-            expect(schema.assign).to.be.a('function');
             expect(schema.evalProperty).to.be.a('function');
 
             expect(schema.id).to.equal(String);
@@ -77,8 +74,8 @@ describe('Schema class', () => {
             { id: { type: String, required: true } },
             { id: { type: String, validate: () => true } },
             { id: { type: String, validate: sinon.stub().throws('Error') } }
-        ],
-        data = [
+        ];
+        const data = [
             'id',
             'id',
             'id',
@@ -86,89 +83,33 @@ describe('Schema class', () => {
             'id',
             'id'
         ];
-        let assertTypeStub;
 
         beforeEach(() => {
-            assertTypeStub = sinon.stub().returns(true);
-
             schema = new Schema(schemas.shift());
-            schema.assertType = assertTypeStub;
         });
 
         it('should run without error for default type assertion', () => {
-            schema.validate(data.shift(), schema.id);
-
-            expect(assertTypeStub.calledOnce).to.be.true;
+            expect(() => schema.validate(data.shift(), schema.id)).to.not.throw(/Error/);
         });
 
         it('should run without error for type property definition', () => {
-            schema.validate(data.shift(), schema.id);
-
-            expect(assertTypeStub.calledOnce).to.be.true;
+            expect(() => schema.validate(data.shift(), schema.id)).to.not.throw(/Error/);
         });
 
         it('should run without error for required value', () => {
-            schema.validate(data.shift(), schema.id);
-
-            expect(assertTypeStub.calledOnce).to.be.true;
+            expect(() => schema.validate(data.shift(), schema.id)).to.not.throw(/Error/);
         });
 
         it('should throw error for required value', () => {
             expect(() => schema.validate(data.shift(), schema.id)).to.throw(ReferenceError);
-
-            expect(assertTypeStub.called).to.be.false;
         });
 
         it('should run without error for assigned custom validate function', () => {
-            schema.validate(data.shift(), schema.id);
-
-            expect(assertTypeStub.calledOnce).to.be.true;
+            expect(() => schema.validate(data.shift(), schema.id)).to.not.throw(/Error/);
         });
 
         it('should throw error for assigned custom validate function', () => {
             expect(() => schema.validate(data.shift(), schema.id)).to.throw(Error);
-
-            expect(assertTypeStub.calledOnce).to.be.true;
-        });
-
-        afterEach(() => {
-            schema = null;
-        });
-    });
-
-    describe('#assertType', () => {
-        const testSchema = new Schema(),
-            values = [ [], [1, 2, 3, 4], 0, 'test', 0 ],
-            types = [
-                [testSchema],
-                [Number],
-                [testSchema],
-                String,
-                String
-            ];
-
-        beforeEach(() => {
-            schema = new Schema();
-        });
-
-        it('should not throw error if Array assertion passed', () => {
-            expect(() => schema.assertType(values.shift(), types.shift())).to.not.throw(TypeError);
-        });
-
-        it('should not throw error if TypedArray assertion passed', () => {
-            expect(() => schema.assertType(values.shift(), types.shift())).to.not.throw(TypeError);
-        });
-
-        it('should throw error if TypedArray assertion passed', () => {
-            expect(() => schema.assertType(values.shift(), types.shift())).to.throw(TypeError);
-        });
-
-        it('should not throw error if type assertion passed', () => {
-            expect(() => schema.assertType(values.shift(), types.shift())).to.not.throw(TypeError);
-        });
-
-        it('should throw error if type assertion failed', () => {
-            expect(() => schema.assertType(values.shift(), types.shift())).to.throw(TypeError);
         });
 
         afterEach(() => {
