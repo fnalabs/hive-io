@@ -23,10 +23,10 @@ describe('Model class', () => {
             { id: 'id' },
             { id: 0 },
             { id: 'id' },
-            { test: 'test' },
+            {},
             { id: 'id' },
             { id: 'id', itemRef: { id: 'id' } },
-            { id: 'id', meta: { created: null } },
+            { id: 'id' },
             { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] },
             { id: 'id', counts: [1, 2, 3, 4] }
         ];
@@ -37,9 +37,6 @@ describe('Model class', () => {
             expect(model).to.be.an('object');
 
             expect(model.update).to.be.a('function');
-            expect(model.iterator).to.be.a('generatorfunction');
-            expect(model.assign).to.be.a('function');
-            expect(model.initialize).to.be.a('function');
 
             expect(model.id).to.be.a('string');
             expect(model.id).to.equal('id');
@@ -65,9 +62,6 @@ describe('Model class', () => {
 
             expect(model.id).to.be.a('string');
             expect(model.id).to.equal('stub');
-
-            expect(model.test).to.be.a('string');
-            expect(model.test).to.equal('test');
         });
 
         it('should return the test object with the value from the schema', () => {
@@ -169,7 +163,7 @@ describe('Model class', () => {
             { id: { id: 'update' } },
             { id: 'update', meta: { updated: Date.now() } },
             { id: 'update', availableRefs: [{ id: 'id1' }, { id: 'id2' }, { id: 'id3' }] },
-            { id: 'id', counts: [1, 2, 3, 4] }
+            { id: 'update', counts: [1, 2, 3, 4] }
         ];
 
         beforeEach(() => {
@@ -275,7 +269,7 @@ describe('Model class', () => {
 
             expect(model).to.be.an('object');
             expect(model.id).to.be.a('string');
-            expect(model.id).to.equal('id');
+            expect(model.id).to.equal('update');
             expect(model.counts[0]).to.be.a('number');
             expect(model.counts[0]).to.equal(1);
             expect(model.counts[1]).to.be.a('number');

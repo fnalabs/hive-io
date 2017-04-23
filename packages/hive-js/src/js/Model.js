@@ -1,7 +1,13 @@
 import Schema from './Schema';
 
-
+// private properties
 export const SPEC = Symbol('reference to Schema object that defines the data model');
+
+// private methods
+const INIT_SCHEMA = Symbol('reference to method that initializes data against the Schema');
+const INIT_ARRAY = Symbol('reference to method that initializes Array data');
+const INIT_PROPERTY = Symbol('reference to method that initializes property data');
+
 
 export default class Model {
 
@@ -15,9 +21,7 @@ export default class Model {
      * update
      */
     update(data) {
-        this.initialize(data, this[SPEC]);
-
-        return this.assign(data);
+        return this[INIT_SCHEMA](this, data, this[SPEC]);
     }
 
     /*
@@ -31,52 +35,51 @@ export default class Model {
         }
     }
 
-    *iterator(obj) {
-        const keys = Object.keys(obj);
-
-        for (const key of keys) {
-            yield [key, obj[key]];
-        }
-    }
-
     /*
-     * utility method(s)
+     * private methods
      */
-    assign(data) {
-        const assign = (object, source) => {
-            // iterate over object/array passed as source data
-            for (let [key, value] of this.iterator(source)) {
-                if (value && typeof value === 'object') {
-                    if (Array.isArray(value)) object[key] = assign([], value);
-                    else object[key] = assign({}, value);
-                }
-                else object[key] = value;
-            }
-            return object;
-        };
-        return assign(this, data);
+    [INIT_ARRAY](source, spec) {
+        if (typeof source === 'undefined') source = [];
+
+        if (spec[0] instanceof Schema) {
+            return source.map(value => this[INIT_SCHEMA]({}, value, spec[0]));
+        }
+
+        return source.map(value => this[INIT_PROPERTY](value, spec[0]));
     }
 
-    initialize(data, spec) {
+    [INIT_PROPERTY](value, spec) {
+        this[SPEC].validate(value, spec);
+
+        // if a default value/function is defined, use it
+        if (spec.value) {
+            return this[SPEC].evalProperty(spec.value);
+        }
+
+        else if (spec.default && !value) {
+            return this[SPEC].evalProperty(spec.default);
+        }
+
+        return value;
+    }
+
+    [INIT_SCHEMA](object, source, spec) {
+        if (typeof source === 'undefined') source = {};
+
+        // iterate over object/array passed as source data
         for (let [property, specification] of spec) {
             // if specification is a nested Schema
-            if (specification instanceof Schema) this.initialize(data[property], specification);
-            // else if specification is an array of objects
-            else if (Array.isArray(specification) && typeof specification[0] !== 'function') {
-                this.initialize(data[property], specification[0]);
+            if (specification instanceof Schema) {
+                object[property] = this[INIT_SCHEMA]({}, source[property], specification);
             }
-            else {
-                spec.validate(data[property], specification);
-
-                // if a default value/function is defined, use it
-                if (specification.value) {
-                    data[property] = spec.evalProperty(specification.value);
-                }
-
-                else if (specification.default && !data[property]) {
-                    data[property] = spec.evalProperty(specification.default);
-                }
+            // else if specification is an Array
+            else if (Array.isArray(specification)) {
+                object[property] = this[INIT_ARRAY](source[property], specification);
             }
+            // else initialize property
+            else object[property] = this[INIT_PROPERTY](source[property], specification);
         }
+
+        return object;
     }
 }
