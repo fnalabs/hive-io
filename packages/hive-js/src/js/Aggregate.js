@@ -17,9 +17,12 @@ export default class Aggregate extends Model {
     }
 
     applySequence(data) {
-        return data.reduce((ret, log) => this.update(log), undefined);
+        return data.reduce((ret, log) => this.update(log), this);
     }
 
+    /*
+     * update override
+     */
     update(data) {
         if (data.sequence) {
             data.version = data.sequence;
