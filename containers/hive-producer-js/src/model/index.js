@@ -1,0 +1,1 @@
+exports.view = require('./model');
