@@ -14,17 +14,19 @@ import EventObserver from './observer';
 import EventStore from './store';
 import Repository from './repository';
 
+// init app
 const aggregate = require(CONFIG.AGGREGATE_LIB)[CONFIG.AGGREGATE];
 
 const store = new EventStore();
 const repository = new Repository(store);
 
-const commandRouter = new CommandRouter(aggregate.default, aggregate.handlers, repository);
 const healthRouter = new Router().get('/health', ctx => ctx.status = 200);
 const app = new Koa();
 
 // bootstrap event observer
-const observer = new EventObserver(aggregate.default, repository); // eslint-disable-line no-unused-vars
+if (/^(consumer|stream_processor)$/.test(CONFIG.PROCESSOR_TYPE)) {
+    const observer = new EventObserver(aggregate.default, repository, store); // eslint-disable-line no-unused-vars
+}
 
 // bootstrap app
 app
@@ -37,19 +39,24 @@ app
 
     // healthcheck router
     .use(healthRouter.routes())
-    .use(healthRouter.allowedMethods())
+    .use(healthRouter.allowedMethods());
 
-    // main router
-    .use(commandRouter.routes())
-    .use(commandRouter.allowedMethods())
+// if Stream Processor type is either producer/stream_processor, init and attach CommandRouter to app
+if (/^(producer|stream_processor)$/.test(CONFIG.PROCESSOR_TYPE)) {
+    const commandRouter = new CommandRouter(aggregate.default, aggregate.handlers, repository);
 
-    // handle error response for all other requests
+    app.use(commandRouter.routes()).use(commandRouter.allowedMethods());
+}
+
+// handle error response for all other requests
+app
+    // TODO: 404 requests need to be integrated with log stream
     .use(async ctx => {
         return ctx.status = 404;
     })
 
     // log any errors that occurred
-    // NOTE: errors need to be integrated with log stream
+    // TODO: errors need to be integrated with log stream
     .on('error', err => {
         console.log(err);
     });
