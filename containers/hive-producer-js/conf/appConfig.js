@@ -4,7 +4,7 @@ module.exports = Object.freeze({
     PORT: process.env.PORT || 3000,
     // domain configurations
     MODEL: process.env.MODEL || 'view',
-    MODEL_LIB: process.env.AGGREGATE_LIB || './model',
+    MODEL_LIB: process.env.MODEL_LIB || './model',
     // storage configurations
     EVENT_STORE_ID: process.env.EVENT_STORE_ID,
     EVENT_STORE_URL: process.env.EVENT_STORE_URL,
