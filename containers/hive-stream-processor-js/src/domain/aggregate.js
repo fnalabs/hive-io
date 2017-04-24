@@ -29,7 +29,7 @@ const schema = new Schema({
     },
     enabled: {
         type: Boolean,
-        default: false
+        default: true
     },
     // reference(s)
     postId: new Schema({
