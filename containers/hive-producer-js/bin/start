@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+require('babel-polyfill');
+
+const CONFIG = require('../conf/appConfig');
+
+const app = require('../dist');
+
+app.listen(CONFIG.PORT);
