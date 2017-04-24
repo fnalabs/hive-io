@@ -13,12 +13,26 @@ const schema = new Schema({
         type: Number,
         required: true
     },
-    content: String,
+    content: {
+        type: String,
+        required: true,
+        validate: value => {
+            if (value.length > 140) {
+                throw new RangeError('post is longer than the allowed character limit');
+            }
+        }
+    },
+    // metadata
+    edited: {
+        type: String,
+        default: null
+    },
     enabled: {
         type: Boolean,
         default: false
     },
-    articleId: new Schema({
+    // reference(s)
+    postId: new Schema({
         id: {
             type: String,
             required: true
