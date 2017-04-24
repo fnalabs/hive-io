@@ -1,7 +1,7 @@
 import Schema from './Schema';
 
 // private properties
-export const SPEC = Symbol('reference to Schema object that defines the data model');
+const SPEC = Symbol('reference to Schema object that defines the data model');
 
 // private methods
 const INIT_SCHEMA = Symbol('reference to method that initializes data against the Schema');

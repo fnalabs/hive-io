@@ -1,6 +1,6 @@
 // private properties
-export const COMMAND = Symbol('reference to Command class');
-export const EVENT = Symbol('reference to Event class');
+const COMMAND = Symbol('reference to Command class');
+const EVENT = Symbol('reference to Event class');
 
 
 export default class Handler {
