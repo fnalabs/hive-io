@@ -24,20 +24,15 @@ const schema = new Schema({
     },
     // metadata
     edited: {
-        type: String,
-        default: null
+        type: Boolean,
+        default: false
     },
     enabled: {
         type: Boolean,
         default: true
     },
     // reference(s)
-    postId: new Schema({
-        id: {
-            type: String,
-            required: true
-        }
-    })
+    postId: new Schema()
 });
 
 class Content extends Aggregate {
@@ -46,15 +41,18 @@ class Content extends Aggregate {
         super(data, schema);
     }
 
-    applyEvent(command) {
-        if ((/^(Enable|Disable)/).test(command.name)) {
-            command.enabled = command.name === 'EnableContent';
+    applyEvent(data) {
+        if ((/^(Enable|Disable)/).test(data.name)) {
+            data.enabled = (/^Enable/).test(data.name);
         }
-        else if ((/^Create/).test(command.name)) {
-            command.articleId.id = uuidV4();
+        else if ((/^Create/).test(data.name)) {
+            data.postId = { id: uuidV4() };
+        }
+        else {
+            data.edited = true;
         }
 
-        super.applyEvent(command);
+        super.applyEvent(data);
     }
 
 }
