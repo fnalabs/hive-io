@@ -1,0 +1,1 @@
+exports.post = require('./aggregate');
