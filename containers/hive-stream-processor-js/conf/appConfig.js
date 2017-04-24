@@ -1,9 +1,14 @@
 module.exports = Object.freeze({
+    // application configurations
+    NODE_ENV: process.env.NODE_ENV || 'production',
+    PORT: process.env.PORT || 3000,
     PROCESSOR_TYPE: process.env.PROCESSOR_TYPE || 'producer',
+    // domain configurations
     AGGREGATE: process.env.AGGREGATE || 'content',
     AGGREGATE_LIB: process.env.AGGREGATE_LIB || './domain',
     COMMAND_LIB: process.env.COMMAND_LIB || './commands',
     CACHE_URL: process.env.CACHE_URL,
+    // storage configurations
     EVENT_STORE_ID: process.env.EVENT_STORE_ID,
     EVENT_STORE_URL: process.env.EVENT_STORE_URL,
     EVENT_STORE_TYPE: process.env.EVENT_STORE_TYPE || 2,
