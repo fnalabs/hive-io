@@ -1,0 +1,79 @@
+{
+  "name": "docker-nodejs-consumer-starter",
+  "version": "1.0.0",
+  "description": "Starter kit for server-side Node.js w/ Koa2 implementations in Docker",
+  "main": "./bin/start",
+  "scripts": {
+    "build": "NODE_ENV=production gulp zip",
+    "start": "NODE_ENV=production node ./bin/start",
+    "start:dev": "NODE_ENV=development gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aeilers/docker-nodejs-consumer-starter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aeilers/docker-nodejs-consumer-starter/issues"
+  },
+  "homepage": "https://github.com/aeilers/docker-nodejs-consumer-starter#readme",
+  "author": "Adam Eilers <adam.eilers@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=6",
+    "npm": ">=3"
+  },
+  "dependencies": {
+    "babel-polyfill": "~6.23.0",
+    "js-cqrs-es": "~0.0.1-alpha.6",
+    "kafka-node": "~1.6.0",
+    "kcors": "~2.2.0",
+    "koa": "~2.2.0",
+    "koa-bodyparser": "~3.2.0",
+    "koa-helmet": "~3.1.0",
+    "koa-logger": "~2.0.1",
+    "koa-router": "~7.1.1",
+    "mongoose": "~4.9.6"
+  },
+  "devDependencies": {
+    "babel-cli": "~6.24.1",
+    "babel-core": "~6.24.1",
+    "babel-eslint": "~7.2.1",
+    "babel-plugin-add-module-exports": "~0.2.1",
+    "babel-plugin-transform-async-to-generator": "~6.24.1",
+    "babel-plugin-transform-class-properties": "~6.24.1",
+    "babel-plugin-transform-es2015-destructuring": "~6.23.0",
+    "babel-plugin-transform-object-rest-spread": "~6.23.0",
+    "babel-preset-es2015": "~6.24.1",
+    "babel-preset-es2017": "~6.24.1",
+    "chai": "~3.5.0",
+    "chai-as-promised": "~6.0.0",
+    "del": "~2.2.2",
+    "eslint": "~3.19.0",
+    "gulp": "~3.9.1",
+    "gulp-babel": "~6.1.2",
+    "gulp-cached": "~1.1.0",
+    "gulp-changed": "~2.0.0",
+    "gulp-debug": "~3.1.0",
+    "gulp-eslint": "~3.0.1",
+    "gulp-gzip": "~1.4.0",
+    "gulp-if": "~2.0.2",
+    "gulp-istanbul": "~1.1.1",
+    "gulp-load-plugins": "~1.5.0",
+    "gulp-mocha": "~3.0.1",
+    "gulp-nodemon": "~2.2.1",
+    "gulp-remember": "~0.3.1",
+    "gulp-size": "~2.1.0",
+    "gulp-sourcemaps": "~2.6.0",
+    "gulp-tar": "~1.9.0",
+    "gulp-uglify": "~2.1.2",
+    "gulp-util": "~3.0.8",
+    "isparta": "~4.0.0",
+    "istanbul": "~0.4.5",
+    "jshint-stylish": "~2.2.1",
+    "mocha": "~3.2.0",
+    "node-mocks-http": "~1.6.1",
+    "proxyquire": "~1.7.10",
+    "sinon": "~2.1.0",
+    "supertest": "~3.0.0"
+  }
+}
