@@ -4,8 +4,9 @@ import Redis from 'ioredis';
 import Redlock from 'redlock';
 import uuidV4 from 'uuid/v4';
 
+// private properties
 const CACHE = Symbol('reference to cache client connection object');
-const LOCK = Symbol('reference to optimistic locking connection object');
+const LOCK = Symbol('reference to pessimistic locking connection object');
 const STORE = Symbol('reference to Event Store client connection object');
 
 
@@ -35,31 +36,33 @@ export default class Repository {
         });
     }
 
-    create(id = uuidV4(), Ctor) {
-        return new Ctor(id);
+    create(data, Aggregate) {
+        if (!data.id) data.id = uuidV4();
+        data.version = 0;
+
+        return new Aggregate(data);
     }
 
     delete = async id => {
         return await this[CACHE].del(id);
     }
 
-    get = async (id, Ctor) => {
-        return await this[CACHE].get(id).then(result => new Ctor(id, JSON.parse(result)));
+    get = async (id, Aggregate) => {
+        return await this[CACHE].get(id).then(result => new Aggregate(JSON.parse(result)));
     }
 
-    record = async event => {
+    record = async (event, aggregate) => {
         await this[LOCK].lock(event.id, CONFIG.LOCK_TTL).then(async (lock) => {
             await this[STORE].log(event);
+            await this[CACHE].set(aggregate.id, JSON.stringify(aggregate));
 
             return lock.unlock();
         });
     }
 
     update = async aggregate => {
-        const cache = aggregate.cache;
-
-        await this[LOCK].lock(cache.id, CONFIG.LOCK_TTL).then(async (lock) => {
-            await this[CACHE].set(cache.id, JSON.stringify(cache));
+        await this[LOCK].lock(aggregate.id, CONFIG.LOCK_TTL).then(async (lock) => {
+            await this[CACHE].set(aggregate.id, JSON.stringify(aggregate));
 
             return lock.unlock();
         });
