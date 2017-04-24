@@ -1,6 +1,7 @@
 module.exports = Object.freeze({
-    AGGREGATE: process.env.AGGREGATE || 'stream-processor',
-    AGGREGATE_LIB: process.env.AGGREGATE_LIB || './lib',
+    PROCESSOR_TYPE: process.env.PROCESSOR_TYPE || 'producer',
+    AGGREGATE: process.env.AGGREGATE || 'content',
+    AGGREGATE_LIB: process.env.AGGREGATE_LIB || './domain',
     CACHE_URL: process.env.CACHE_URL,
     EVENT_STORE_ID: process.env.EVENT_STORE_ID,
     EVENT_STORE_URL: process.env.EVENT_STORE_URL,
