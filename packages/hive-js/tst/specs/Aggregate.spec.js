@@ -10,8 +10,8 @@ describe('Aggregate class', () => {
         const data = [
             undefined,
             { id: 'id', version: 1 },
-            { id: 'id', sequence: 1 },
-            { id: 'id', sequence: 1, name: 'Create' }
+            { id: 'id', version: 1, sequence: 1 },
+            { id: 'id', version: 1, sequence: 1, name: 'Create' }
         ];
         const schemas = [
             new Schema(),
