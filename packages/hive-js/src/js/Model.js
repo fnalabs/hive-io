@@ -49,16 +49,16 @@ export default class Model {
     }
 
     [INIT_PROPERTY](value, spec) {
-        this[SPEC].validate(value, spec);
-
         // if a default value/function is defined, use it
-        if (spec.value) {
+        if (typeof spec.value !== 'undefined') {
             return this[SPEC].evalProperty(spec.value);
         }
 
-        else if (spec.default && !value) {
+        else if (typeof spec.default !== 'undefined' && typeof value === 'undefined') {
             return this[SPEC].evalProperty(spec.default);
         }
+
+        this[SPEC].validate(value, spec);
 
         return value;
     }

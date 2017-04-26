@@ -152,7 +152,7 @@ describe('Model class', () => {
             { id: 'id' },
             { id: 'id' },
             { id: { id: 'id' } },
-            { id: 'id', meta: { updated: null } },
+            { id: 'id' },
             { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] },
             { id: 'id', counts: [1, 2] }
         ];
