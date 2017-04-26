@@ -74,7 +74,7 @@ function buildJS() {
         .pipe($.changed(BUILD_CONFIG.OUTPUT_SCRIPTS))
         .pipe($.if(!envCheck, $.sourcemaps.init()))
         .pipe($.babel(BUILD_CONFIG.BABEL))
-        .pipe($.uglify())
+        .pipe($.uglify(BUILD_CONFIG.UGLIFY))
         .pipe($.if(!envCheck, $.sourcemaps.write('maps')))
         .pipe(gulp.dest(BUILD_CONFIG.OUTPUT_SCRIPTS));
 }

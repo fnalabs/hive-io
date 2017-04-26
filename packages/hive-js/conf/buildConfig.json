@@ -21,6 +21,9 @@
         ],
         "presets": ["es2017"]
     },
+    "UGLIFY": {
+        "mangle": false
+    },
 
     "TST_UNIT": "./tst/specs/**/*.js",
     "MOCHA": {
