@@ -1,4 +1,4 @@
-import CONFIG from '../config/appConfig';
+import CONFIG from '../conf/appConfig';
 
 import { Client, HighLevelProducer } from 'kafka-node';
 
