@@ -5,8 +5,7 @@ module.exports = Object.freeze({
     PROCESSOR_TYPE: process.env.PROCESSOR_TYPE || 'producer',
     // domain configurations
     AGGREGATE: process.env.AGGREGATE || 'content',
-    AGGREGATE_LIB: process.env.AGGREGATE_LIB || './domain',
-    COMMAND_LIB: process.env.COMMAND_LIB || './commands',
+    AGGREGATE_LIB: process.env.AGGREGATE_LIB || 'js-cqrs-es-domain-module',
     // event store configurations
     EVENT_STORE_ID: process.env.EVENT_STORE_ID,
     EVENT_STORE_URL: process.env.EVENT_STORE_URL,

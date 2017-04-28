@@ -15,7 +15,7 @@ import EventStore from './store';
 import Repository from './repository';
 
 // init app
-const aggregate = require(CONFIG.AGGREGATE_LIB)[CONFIG.AGGREGATE];
+const aggregate = require(CONFIG.AGGREGATE_LIB).domain.aggregate[CONFIG.AGGREGATE];
 
 const store = new EventStore();
 const repository = new Repository(store);
