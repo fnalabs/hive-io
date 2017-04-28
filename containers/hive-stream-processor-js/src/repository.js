@@ -1,8 +1,7 @@
-import CONFIG from '../config/appConfig';
+import CONFIG from '../conf/appConfig';
 
 import Redis from 'ioredis';
 import Redlock from 'redlock';
-import uuidV4 from 'uuid/v4';
 
 // private properties
 const CACHE = Symbol('reference to cache client connection object');
@@ -30,17 +29,17 @@ export default class Repository {
         });
         this[STORE] = store;
 
-        // TODO add errors to log
-        this[LOCK].on('clientError', (err) => {
+        // handle client errors
+        this[CACHE].on('error', err => {
             console.log('A redis error has occurred:', err);
         });
-    }
+        this[LOCK].on('clientError', (err) => {
+            console.log('A redlock error has occurred:', err);
+        });
 
-    create(data, Aggregate) {
-        if (!data.id) data.id = uuidV4();
-        data.version = 0;
-
-        return new Aggregate(data);
+        // quit connection if process is interrupted
+        process.on('SIGINT', () => this[CACHE].quit());
+        process.on('SIGUSR2', () => this[CACHE].quit());
     }
 
     delete = async id => {
@@ -52,7 +51,7 @@ export default class Repository {
     }
 
     record = async (event, aggregate) => {
-        await this[LOCK].lock(event.id, CONFIG.LOCK_TTL).then(async (lock) => {
+        await this[LOCK].lock(`lock:${event.id}`, CONFIG.LOCK_TTL).then(async (lock) => {
             await this[STORE].log(event);
             await this[CACHE].set(aggregate.id, JSON.stringify(aggregate));
 
@@ -61,7 +60,7 @@ export default class Repository {
     }
 
     update = async aggregate => {
-        await this[LOCK].lock(aggregate.id, CONFIG.LOCK_TTL).then(async (lock) => {
+        await this[LOCK].lock(`lock:${aggregate.id}`, CONFIG.LOCK_TTL).then(async (lock) => {
             await this[CACHE].set(aggregate.id, JSON.stringify(aggregate));
 
             return lock.unlock();
