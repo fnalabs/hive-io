@@ -18,14 +18,14 @@ export default class CommandRouter extends Router {
     }
 
     postCommand = async (ctx, next) => {
-        const commandData = ctx.request.body;
+        const data = ctx.request.body;
 
         try {
-            const aggregate = (/^create/i).test(commandData.name) ?
-                this[REPOSITORY].create(commandData, this[AGGREGATE]) :
-                await this[REPOSITORY].get(commandData.id, this[AGGREGATE]);
+            const aggregate = (/^create/i).test(data.name) ?
+                new this[AGGREGATE]() :
+                await this[REPOSITORY].get(data.id, this[AGGREGATE]);
+            const event = this[HANDLERS][data.name].handle(data, aggregate);
 
-            const event = this[HANDLERS][commandData.name].handle(commandData, aggregate);
             await this[REPOSITORY].record(event, aggregate);
 
             ctx.status = 200;

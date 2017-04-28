@@ -21,9 +21,19 @@ export default class EventObserver {
 
     execute = async event => {
         const value = JSON.parse(event.value);
-        const aggregate = await this[REPOSITORY].get(value.id, this[AGGREGATE]);
 
-        await this[REPOSITORY].update(aggregate.applyEvent(value));
+        try {
+            const aggregate = (/^create/i).test(value.name) ?
+                new this[AGGREGATE]() :
+                await this[REPOSITORY].get(value.id, this[AGGREGATE]);
+
+            aggregate.applyEvent(value);
+
+            await this[REPOSITORY].update(aggregate);
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
 
 }
