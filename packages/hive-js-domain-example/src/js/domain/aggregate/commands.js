@@ -10,21 +10,21 @@ export class CreateContent extends Command {
 export class ModifyContent extends Command {
     constructor(data) {
         super(data);
+        this.id = { id: data.id.id };
         this.content = data.content;
-        this.postId = { id: data.postId.id };
     }
 }
 
 export class EnableContent extends Command {
     constructor(data) {
         super(data);
-        this.postId = { id: data.postId.id };
+        this.id = { id: data.id.id };
     }
 }
 
 export class DisableContent extends Command {
     constructor(data) {
         super(data);
-        this.postId = { id: data.postId.id };
+        this.id = { id: data.id.id };
     }
 }

@@ -3,13 +3,10 @@ import { Model, Schema } from 'js-cqrs-es';
 import contentIdSchema from '../schema/contentId';
 
 const viewSchema = new Schema({
-    // metadata
-    timestamp: {
-        type: String,
-        value: () => new Date().toISOString()
-    },
-    // reference(s)
-    contentId: contentIdSchema
+    // content reference
+    id: contentIdSchema
+
+    // other analytics data here...
 });
 
 export default class View extends Model {

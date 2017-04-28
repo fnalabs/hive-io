@@ -1,10 +1,10 @@
 // imports
-import mongoose, { model, Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 
 /*
  * class PostSchema
  */
-class ContentSchema extends Schema {
+export default class ContentSchema extends Schema {
     constructor() {
         super({
             id: {
@@ -37,13 +37,24 @@ class ContentSchema extends Schema {
                 default: 0
             }
         }, {
-            toJSON: {
+            toObject: {
+                versionKey: false,
+                minimize: false,
                 transform(doc, ret) {
                     delete ret._id;
+                    return ret;
                 }
-            }
+            },
+            toJSON: {
+                versionKey: false,
+                minimize: false,
+                transform(doc, ret) {
+                    delete ret._id;
+                    return ret;
+                }
+            },
+            id: false,
+            _id: false
         });
     }
 }
-
-export default model.call(mongoose, 'Content', new ContentSchema());

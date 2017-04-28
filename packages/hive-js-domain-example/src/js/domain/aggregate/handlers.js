@@ -6,8 +6,7 @@ import * as commands from './commands';
 // extends Handler to inject the IDs generated from a new Aggregate
 class CreateHandler extends Handler {
     handle(data, aggregate) {
-        data.id = aggregate.id;
-        data.postId = { id: aggregate.postId.id };
+        data.id = { id: aggregate.id.id };
         data.sequence = 1;
 
         return super.handle(data, aggregate);

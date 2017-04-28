@@ -1,6 +1,9 @@
 import { Aggregate, Schema } from 'js-cqrs-es';
 
 import contentIdSchema from '../schema/contentId';
+import * as commands from './commands';
+import * as events from './events';
+import * as handlers from './handlers';
 
 const contentSchema = new Schema({
     id: contentIdSchema,
@@ -25,24 +28,36 @@ const contentSchema = new Schema({
     enabled: {
         type: Boolean,
         default: true
+    },
+    views: {
+        type: Number,
+        default: 0
     }
 });
 
-export default class Content extends Aggregate {
+class Content extends Aggregate {
 
     constructor(data) {
         super(data, contentSchema);
     }
 
     applyEvent(data) {
-        if ((/^(Enable|Disable)/).test(data.name)) {
+        if ((/^View/).test(data.name)) {
+            this.views++;
+
+            return this;
+        }
+        else if ((/^(Enable|Disable)/).test(data.name)) {
             data.enabled = (/^Enable/).test(data.name);
         }
-        else if ((/^Modify/).test(data.name)) {
+        else if ((/^Modif/).test(data.name)) {
             data.edited = true;
         }
 
-        super.applyEvent(data);
+        return super.applyEvent(data);
     }
 
 }
+
+// export default Content class and namespaces for commands, events, and handlers
+export { Content as default, commands, events, handlers };
