@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "babel-polyfill": "~6.23.0",
-    "js-cqrs-es": "~0.0.1-alpha.6",
+    "js-cqrs-es-domain-module": "~0.0.1-alpha.0",
     "kafka-node": "~1.6.0",
     "kcors": "~2.2.0",
     "koa": "~2.2.0",

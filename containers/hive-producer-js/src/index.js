@@ -13,7 +13,7 @@ import ModelRouter from './router';
 import EventStore from './store';
 
 // init app
-const model = require(CONFIG.MODEL_LIB)[CONFIG.MODEL];
+const model = require(CONFIG.MODEL_LIB).domain.model[CONFIG.MODEL];
 
 const store = new EventStore();
 
