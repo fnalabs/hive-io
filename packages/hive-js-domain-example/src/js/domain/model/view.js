@@ -4,8 +4,13 @@ import contentIdSchema from '../schema/contentId';
 
 const viewSchema = new Schema({
     // content reference
-    id: contentIdSchema
+    id: contentIdSchema,
 
+    // metadata
+    timestamp: {
+        type: String,
+        value: () => new Date().toISOString()
+    }
     // other analytics data here...
 });
 
