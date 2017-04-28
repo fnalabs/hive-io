@@ -1,1 +1,0 @@
-exports.post = require('./PostModel');

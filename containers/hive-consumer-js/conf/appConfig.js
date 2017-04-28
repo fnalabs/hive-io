@@ -3,11 +3,11 @@ module.exports = Object.freeze({
     NODE_ENV: process.env.NODE_ENV || 'production',
     PORT: process.env.PORT || 3000,
     // domain configurations
-    PROJECTION: process.env.PROJECTION || 'post',
-    PROJECTION_LIB: process.env.PROJECTION_LIB || './domain',
-    AGGREGATE_LIST: Array.from(process.env.AGGREGATE_LIST) || ['content', 'view'],
-    MODEL: process.env.MODEL || 'post',
-    MODEL_LIB: process.env.MODEL_LIB || './model',
+    AGGREGATE: process.env.AGGREGATE || 'content',
+    AGGREGATE_LIB: process.env.AGGREGATE_LIB || 'js-cqrs-es-domain-module',
+    AGGREGATE_LIST: process.env.AGGREGATE_LIST && Array.from(process.env.AGGREGATE_LIST) || ['content', 'view'],
+    PROJECTION: process.env.PROJECTION || 'content',
+    PROJECTION_LIB: process.env.PROJECTION_LIB || 'js-cqrs-es-domain-module',
     // event store configurations
     EVENT_STORE_ID: process.env.EVENT_STORE_ID,
     EVENT_STORE_URL: process.env.EVENT_STORE_URL,
@@ -17,6 +17,8 @@ module.exports = Object.freeze({
     // query db configurations
     MONGO_URL: process.env.MONGO_URL,
     UPDATE_OPTIONS: {
+        runValidators: true,
+        setDefaultsOnInsert: true,
         upsert: true
     }
 });
