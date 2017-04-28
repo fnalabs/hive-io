@@ -1,10 +1,12 @@
-import CONFIG from '../config/appConfig';
+import CONFIG from '../conf/appConfig';
 
 import { Client, ConsumerGroup, HighLevelProducer } from 'kafka-node';
 
 const CLIENT = Symbol('reference to Kafka client connection');
 const PRODUCER = Symbol('reference to Kafka HighLevelProducer');
 const CONSUMER = Symbol('reference to Kafka ConsumerGroup');
+
+const CLOSE = Symbol('reference to method for closing the Kafka consumer/client');
 
 
 export default class EventStore {
@@ -32,15 +34,15 @@ export default class EventStore {
 
         // NOTE: this is required for restarts as the consumer connection must be closed. for more info, see:
         //        https://www.npmjs.com/package/kafka-node#failedtorebalanceconsumererror-exception-node_exists-110
-        process.on('SIGINT', this.close);
-        process.on('SIGUSR2', this.close);
+        process.on('SIGINT', this[CLOSE]);
+        process.on('SIGUSR2', this[CLOSE]);
     }
 
     get consumer() {
         return this[CONSUMER];
     }
 
-    close = () => {
+    [CLOSE] = () => {
         this[CONSUMER].close(true, () => {
             this[CLIENT].close(() => {
                 process.kill(process.pid);
