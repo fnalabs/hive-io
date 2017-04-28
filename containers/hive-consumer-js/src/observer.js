@@ -1,15 +1,15 @@
 import CONFIG from '../conf/appConfig';
 
-const PROJECTION = Symbol('reference for projection class');
-const MODEL = Symbol('reference for query db connection object');
+const AGGREGATE = Symbol('reference for aggregate class');
+const PROJECTION = Symbol('reference for query db connection object');
 const QUEUE = Symbol('Promise queue for synchronously handling events');
 
 
 export default class EventObserver {
 
-    constructor(Projection, Model, store) {
+    constructor(Aggregate, Projection, store) {
+        this[AGGREGATE] = Aggregate;
         this[PROJECTION] = Projection;
-        this[MODEL] = Model;
 
         this[QUEUE] = Promise.resolve();
 
@@ -23,16 +23,25 @@ export default class EventObserver {
 
     execute = async event => {
         const value = JSON.parse(event.value);
-        const currentData = (/^create/i).test(value.name) ?
-            { id: '', version: 0 } :
-            await this[MODEL].findOne({ id: value.id }).exec();
 
-        const projection = new this[PROJECTION](currentData);
-        projection.applyEvent(value);
+        // check if 'id' is a Value Object
+        const queryHash = value.id.id ? { 'id.id': value.id.id } : { id: value.id };
 
-        await this[MODEL]
-            .findOneAndUpdate({ id: projection.id }, projection, CONFIG.UPDATE_OPTIONS)
-            .exec();
+        try {
+            const data = (/^create/i).test(value.name) ?
+                {} :
+                await this[PROJECTION].findOne(queryHash).exec();
+
+            const aggregate = new this[AGGREGATE](data);
+            aggregate.applyEvent(value);
+
+            await this[PROJECTION]
+                .findOneAndUpdate(queryHash, aggregate, CONFIG.UPDATE_OPTIONS)
+                .exec();
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
 
 }

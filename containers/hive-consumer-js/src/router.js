@@ -1,14 +1,14 @@
 import Router from 'koa-router';
 
-const MODEL = Symbol('reference for query db connection object');
+const PROJECTION = Symbol('reference for query db connection object');
 
 
 export default class ProjectionRouter extends Router {
 
-    constructor(Model) {
+    constructor(Projection) {
         super();
 
-        this[MODEL] = Model;
+        this[PROJECTION] = Projection;
 
         this
             .get('/:id', this.getProjection)
@@ -18,27 +18,30 @@ export default class ProjectionRouter extends Router {
     getProjection = async (ctx, next) => {
         const id = ctx.params.id;
 
+        // check if 'id' is a Value Object
+        const queryHash = this[PROJECTION].schema.paths['id.id'] ? { 'id.id': id } : { id };
+
         try {
-            const model = await this[MODEL].findOne({ id }).exec();
+            const projection = await this[PROJECTION].findOne(queryHash).exec();
 
-            if (!model) { ctx.status = 204; }
+            if (!projection) { ctx.status = 204; }
 
-            return ctx.body = model;
+            return ctx.body = projection;
         }
-        catch (error) {
+        catch (e) {
             return next();
         }
     }
 
     getAllProjection = async (ctx, next) => {
         try {
-            const models = await this[MODEL].find().exec();
+            const projections = await this[PROJECTION].find().exec();
 
-            if (!models.length) { ctx.status = 204; }
+            if (!projections.length) { ctx.status = 204; }
 
-            return ctx.body = models;
+            return ctx.body = projections;
         }
-        catch (error) {
+        catch (e) {
             return next();
         }
     }
