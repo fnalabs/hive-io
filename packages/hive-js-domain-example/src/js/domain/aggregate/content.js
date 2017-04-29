@@ -41,7 +41,7 @@ class Content extends Aggregate {
         super(data, contentSchema);
     }
 
-    applyEvent(data) {
+    applyData(data) {
         if ((/^View/).test(data.name)) {
             this.views++;
 
@@ -54,7 +54,7 @@ class Content extends Aggregate {
             data.edited = true;
         }
 
-        return super.applyEvent(data);
+        return super.applyData(data);
     }
 
 }
