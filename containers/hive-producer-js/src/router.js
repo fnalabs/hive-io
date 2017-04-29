@@ -15,19 +15,21 @@ export default class ModelRouter extends Router {
         this.post('/', this.postModel);
     }
 
-    postModel = async (ctx, next) => {
-        const modelData = ctx.request.body;
+    postModel = async ctx => {
+        const data = ctx.request.body;
 
         try {
-            const model = new this[MODEL](modelData);
+            const model = new this[MODEL](data);
 
             await this[STORE].log(model);
 
             ctx.status = 200;
-            return ctx.body = { id: model.id };
+            return ctx.body = { ...model };
         }
         catch (e) {
-            return next();
+            console.log(e);
+
+            return ctx.status = 400;
         }
     }
 
