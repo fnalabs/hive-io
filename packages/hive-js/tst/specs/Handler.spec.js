@@ -25,14 +25,14 @@ describe('Handler class', () => {
     });
 
     describe('#handle', () => {
-        let applyEventSpy, result;
+        let applyDataSpy, result;
 
         before(() => {
-            applyEventSpy = sinon.stub().returns(true);
+            applyDataSpy = sinon.stub().returns(true);
 
             handler = new Handler(Command, Event);
 
-            result = handler.handle({ id: 'id', sequence: 0 }, { applyEvent: applyEventSpy });
+            result = handler.handle({ id: 'id', sequence: 0 }, { applyData: applyDataSpy });
         });
 
         it('should handle the command data successfully', () => {
@@ -48,7 +48,7 @@ describe('Handler class', () => {
             expect(result.timestamp).to.be.a('string');
             expect(Date.parse(result.timestamp)).to.be.a('number');
 
-            expect(applyEventSpy.calledOnce).to.be.true;
+            expect(applyDataSpy.calledOnce).to.be.true;
         });
 
         after(() => {

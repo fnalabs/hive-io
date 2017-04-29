@@ -13,7 +13,7 @@ export default class Handler {
     handle(data, aggregate) {
         const command = new this[COMMAND](data); // eslint-disable-line no-unused-vars
 
-        aggregate.applyEvent(data);
+        aggregate.applyData(data);
 
         return new this[EVENT](data);
     }

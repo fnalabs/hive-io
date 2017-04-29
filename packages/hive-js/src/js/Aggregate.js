@@ -10,7 +10,7 @@ export default class Aggregate extends Model {
     /*
      * apply methods
      */
-    applyEvent(data) {
+    applyData(data) {
         if (data.sequence !== this.version + 1) throw new RangeError(`${data.name} out of sequence`);
 
         data.version = data.sequence;

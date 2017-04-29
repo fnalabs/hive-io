@@ -27,7 +27,7 @@ describe('Aggregate class', () => {
         it('should create the initial Aggregate object with no data', () => {
             expect(aggregate).to.exist;
 
-            expect(aggregate.applyEvent).to.be.a('function');
+            expect(aggregate.applyData).to.be.a('function');
             expect(aggregate.applySequence).to.be.a('function');
             expect(aggregate.update).to.be.a('function');
 
@@ -74,7 +74,7 @@ describe('Aggregate class', () => {
         });
     });
 
-    describe('#applyEvent', () => {
+    describe('#applyData', () => {
         const events = [
                 { id: 'id', sequence: 1 },
                 { id: 'id', sequence: 0 }
@@ -89,7 +89,7 @@ describe('Aggregate class', () => {
         });
 
         it('should apply a single event successfully', () => {
-            aggregate.applyEvent(events.shift());
+            aggregate.applyData(events.shift());
 
             expect(aggregate.id).to.be.a('string');
             expect(aggregate.id).to.equal('id');
@@ -99,7 +99,7 @@ describe('Aggregate class', () => {
         });
 
         it('should throw a RangeError if there is a version/sequence mismatch', () => {
-            expect(() => aggregate.applyEvent(events.shift())).to.throw(RangeError);
+            expect(() => aggregate.applyData(events.shift())).to.throw(RangeError);
         });
 
         afterEach(() => {
