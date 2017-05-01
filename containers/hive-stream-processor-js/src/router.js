@@ -17,13 +17,16 @@ export default class CommandRouter extends Router {
         this.post('/', this.postCommand);
     }
 
-    postCommand = async (ctx, next) => {
+    postCommand = async ctx => {
         const data = ctx.request.body;
+
+        // check if 'id' is a Value Object
+        const query = data.id && data.id.id ? data.id.id : data.id;
 
         try {
             const aggregate = (/^create/i).test(data.name) ?
                 new this[AGGREGATE]() :
-                await this[REPOSITORY].get(data.id, this[AGGREGATE]);
+                await this[REPOSITORY].get(query, this[AGGREGATE]);
             const event = this[HANDLERS][data.name].handle(data, aggregate);
 
             await this[REPOSITORY].record(event, aggregate);
@@ -32,7 +35,9 @@ export default class CommandRouter extends Router {
             return ctx.body = { ...event };
         }
         catch (e) {
-            return next();
+            console.log(e);
+
+            return ctx.status = 400;
         }
     }
 
