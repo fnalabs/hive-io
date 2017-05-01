@@ -45,13 +45,11 @@ app
     .use(projectionRouter.allowedMethods())
 
     // handle error response for all other requests
-    // TODO: 404 requests need to be integrated with log stream
     .use(async ctx => {
         return ctx.status = 404;
     })
 
     // log any errors that occurred
-    // TODO: errors need to be integrated with log stream
     .on('error', err => {
         console.log(err);
     });
