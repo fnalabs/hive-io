@@ -20,7 +20,7 @@ describe('observer', () => {
             observer = new Observer({}, {}, { consumer: { on: consumerSpy } });
         });
 
-        it('should create the Router object', () => {
+        it('should create the Observer object', () => {
             expect(observer).to.exist;
 
             expect(observer.handle).to.be.a('function');

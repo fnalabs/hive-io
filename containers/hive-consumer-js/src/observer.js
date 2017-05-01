@@ -25,18 +25,18 @@ export default class EventObserver {
         const value = JSON.parse(event.value);
 
         // check if 'id' is a Value Object
-        const queryHash = value.id.id ? { 'id.id': value.id.id } : { id: value.id };
+        const key = value.id.id ? { 'id.id': value.id.id } : { id: value.id };
 
         try {
             const data = (/^create/i).test(value.name) ?
                 {} :
-                await this[PROJECTION].findOne(queryHash).exec();
+                await this[PROJECTION].findOne(key).exec();
 
             const aggregate = new this[AGGREGATE](data);
             aggregate.applyData(value);
 
             await this[PROJECTION]
-                .findOneAndUpdate(queryHash, aggregate, CONFIG.UPDATE_OPTIONS)
+                .findOneAndUpdate(key, aggregate, CONFIG.UPDATE_OPTIONS)
                 .exec();
         }
         catch (e) {
