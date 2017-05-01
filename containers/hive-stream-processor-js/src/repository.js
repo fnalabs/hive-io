@@ -8,6 +8,8 @@ const CACHE = Symbol('reference to cache client connection object');
 const LOCK = Symbol('reference to pessimistic locking connection object');
 const STORE = Symbol('reference to Event Store client connection object');
 
+const GET_ID = Symbol('reference to method for determining id of aggregate');
+
 
 export default class Repository {
 
@@ -51,20 +53,28 @@ export default class Repository {
     }
 
     record = async (event, aggregate) => {
-        await this[LOCK].lock(`lock:${event.id}`, CONFIG.LOCK_TTL).then(async (lock) => {
+        const key = this[GET_ID](aggregate);
+
+        await this[LOCK].lock(`lock:${key}`, CONFIG.LOCK_TTL).then(async (lock) => {
             await this[STORE].log(event);
-            await this[CACHE].set(aggregate.id, JSON.stringify(aggregate));
+            await this[CACHE].set(key, JSON.stringify(aggregate));
 
             return lock.unlock();
         });
     }
 
     update = async aggregate => {
-        await this[LOCK].lock(`lock:${aggregate.id}`, CONFIG.LOCK_TTL).then(async (lock) => {
-            await this[CACHE].set(aggregate.id, JSON.stringify(aggregate));
+        const key = this[GET_ID](aggregate);
+
+        await this[LOCK].lock(`lock:${key}`, CONFIG.LOCK_TTL).then(async (lock) => {
+            await this[CACHE].set(key, JSON.stringify(aggregate));
 
             return lock.unlock();
         });
+    }
+
+    [GET_ID](aggregate) {
+        return aggregate.id.id ? aggregate.id.id : aggregate.id;
     }
 
 }
