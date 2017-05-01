@@ -15,7 +15,7 @@ export default class ProjectionRouter extends Router {
             .get('/', this.getAllProjection);
     }
 
-    getProjection = async (ctx, next) => {
+    getProjection = async ctx => {
         const id = ctx.params.id;
 
         // check if 'id' is a Value Object
@@ -29,11 +29,13 @@ export default class ProjectionRouter extends Router {
             return ctx.body = projection;
         }
         catch (e) {
-            return next();
+            console.log(e);
+
+            return ctx.status = 400;
         }
     }
 
-    getAllProjection = async (ctx, next) => {
+    getAllProjection = async ctx => {
         try {
             const projections = await this[PROJECTION].find().exec();
 
@@ -42,7 +44,9 @@ export default class ProjectionRouter extends Router {
             return ctx.body = projections;
         }
         catch (e) {
-            return next();
+            console.log(e);
+
+            return ctx.status = 400;
         }
     }
 
