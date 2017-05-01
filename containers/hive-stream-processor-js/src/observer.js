@@ -1,6 +1,6 @@
 const AGGREGATE = Symbol('reference for aggregate class');
 const REPOSITORY = Symbol('reference for repository connection object');
-const QUEUE = Symbol('Promise queue for synchronously handling events');
+const QUEUE = Symbol('Promise queue for handling events');
 
 
 export default class EventObserver {
@@ -22,12 +22,15 @@ export default class EventObserver {
     execute = async event => {
         const value = JSON.parse(event.value);
 
+        // check if 'id' is a Value Object
+        const key = value.id.id ? { 'id.id': value.id.id } : { id: value.id };
+
         try {
             const aggregate = (/^create/i).test(value.name) ?
                 new this[AGGREGATE]() :
-                await this[REPOSITORY].get(value.id, this[AGGREGATE]);
+                await this[REPOSITORY].get(key, this[AGGREGATE]);
 
-            aggregate.applyEvent(value);
+            aggregate.applyData(value);
 
             await this[REPOSITORY].update(aggregate);
         }
