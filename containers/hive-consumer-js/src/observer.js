@@ -2,7 +2,7 @@ import CONFIG from '../conf/appConfig';
 
 const AGGREGATE = Symbol('reference for aggregate class');
 const PROJECTION = Symbol('reference for query db connection object');
-const QUEUE = Symbol('Promise queue for synchronously handling events');
+const QUEUE = Symbol('Promise queue for handling events');
 
 
 export default class EventObserver {
@@ -33,7 +33,7 @@ export default class EventObserver {
                 await this[PROJECTION].findOne(queryHash).exec();
 
             const aggregate = new this[AGGREGATE](data);
-            aggregate.applyEvent(value);
+            aggregate.applyData(value);
 
             await this[PROJECTION]
                 .findOneAndUpdate(queryHash, aggregate, CONFIG.UPDATE_OPTIONS)
