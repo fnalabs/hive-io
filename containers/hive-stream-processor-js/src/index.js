@@ -49,14 +49,11 @@ if (/^(producer|stream_processor)$/.test(CONFIG.PROCESSOR_TYPE)) {
 }
 
 // handle error response for all other requests
-app
-    // TODO: 404 requests need to be integrated with log stream
-    .use(async ctx => {
+app.use(async ctx => {
         return ctx.status = 404;
     })
 
     // log any errors that occurred
-    // TODO: errors need to be integrated with log stream
     .on('error', err => {
         console.log(err);
     });
