@@ -36,7 +36,7 @@ describe('store', () => {
             store = new Store();
         });
 
-        it('should create the Router object', () => {
+        it('should create the Store object', () => {
             expect(store).to.exist;
 
             expect(store.log).to.be.a('function');
@@ -101,7 +101,6 @@ describe('store', () => {
 
             sendStub = null;
         });
-
     });
 
 });

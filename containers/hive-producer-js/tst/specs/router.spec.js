@@ -46,7 +46,7 @@ describe('router', () => {
 
     describe('#postModel', () => {
         let logStub, modelSpy;
-        const logStubs = [ sinon.stub(), sinon.stub().throws(Error) ];
+        const logStubs = [ sinon.spy(), sinon.stub().throws(Error) ];
 
         beforeEach(() => {
             logStub = logStubs.shift();
@@ -58,7 +58,7 @@ describe('router', () => {
             router = new Router(ModelStub, { log: logStub });
         });
 
-        it('should handle normal get requests', async () => {
+        it('should handle normal post requests', async () => {
             await router.postModel(context);
 
             expect(context.body).to.be.an('object');
@@ -69,7 +69,7 @@ describe('router', () => {
             expect(modelSpy.calledOnce).to.be.true;
         });
 
-        it('should throw an error on log that is caught to call next()', async () => {
+        it('should throw an error on log that is caught', async () => {
             await router.postModel(context);
 
             expect(context.status).to.equal(400);
@@ -86,7 +86,6 @@ describe('router', () => {
             logStub = null;
             modelSpy = null;
         });
-
     });
 
 });

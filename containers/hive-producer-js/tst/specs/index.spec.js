@@ -51,7 +51,6 @@ describe('app', () => {
             app = null;
             logStub = null;
         });
-
     });
 
 });
