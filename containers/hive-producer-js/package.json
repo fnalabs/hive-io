@@ -1,7 +1,7 @@
 {
   "name": "docker-nodejs-producer-starter",
   "version": "1.0.0",
-  "description": "Starter kit for server-side Node.js w/ Koa2 implementations in Docker",
+  "description": "Starter kit for server-side Kafka Producers in Node.js w/ Koa2 implementations in Docker",
   "main": "./bin/start",
   "scripts": {
     "build": "NODE_ENV=production gulp zip",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "babel-polyfill": "~6.23.0",
-    "js-cqrs-es-domain-module": "~0.0.1-alpha.0",
+    "js-cqrs-es-domain-module": "~0.0.1-alpha.2",
     "kafka-node": "~1.6.0",
     "kcors": "~2.2.0",
     "koa": "~2.2.0",
