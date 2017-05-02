@@ -28,7 +28,7 @@ export default class EventObserver {
         const key = value.id.id ? { 'id.id': value.id.id } : { id: value.id };
 
         try {
-            const data = (/^create/i).test(value.name) ?
+            const data = (/^Created/).test(value.name) ?
                 {} :
                 await this[PROJECTION].findOne(key).exec();
 

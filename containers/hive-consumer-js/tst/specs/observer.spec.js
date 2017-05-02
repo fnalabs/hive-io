@@ -39,8 +39,8 @@ describe('observer', () => {
     describe('#handle', () => {
         let constructorSpy, applyDataSpy, stubHash;
         const eventData = [
-            { value: '{ "id": "id", "name": "Create" }' },
-            { value: '{ "id": "id", "name": "Modify" }' }
+            { value: '{ "id": "id", "name": "Created" }' },
+            { value: '{ "id": "id", "name": "Modified" }' }
         ];
         const execStubs = [
             sinon.spy(),
@@ -105,11 +105,11 @@ describe('observer', () => {
     describe('#execute', () => {
         let constructorSpy, applyDataSpy, stubHash;
         const eventData = [
-            { value: '{ "id": "id", "name": "Create" }' },
-            { value: '{ "id": { "id": "id" }, "name": "Create" }' },
-            { value: '{ "id": "id", "name": "Modify" }' },
-            { value: '{ "id": "id", "name": "Modify" }' },
-            { value: '{ "id": "id", "name": "Modify" }' }
+            { value: '{ "id": "id", "name": "Created" }' },
+            { value: '{ "id": { "id": "id" }, "name": "Created" }' },
+            { value: '{ "id": "id", "name": "Modified" }' },
+            { value: '{ "id": "id", "name": "Modified" }' },
+            { value: '{ "id": "id", "name": "Modified" }' }
         ];
         const execStubs = [
             sinon.spy(),
