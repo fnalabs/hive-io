@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "babel-runtime": "~6.23.0",
-    "js-cqrs-es": "~0.0.1-alpha.10",
+    "js-cqrs-es": "~0.0.1-beta.0",
     "mongoose": "~4.9.6",
     "uuid": "~3.0.1"
   },
