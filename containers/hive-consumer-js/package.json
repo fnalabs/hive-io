@@ -1,7 +1,7 @@
 {
   "name": "docker-nodejs-consumer-starter",
   "version": "0.0.1-beta.0",
-  "description": "Starter kit for server-side Kafka Consumers in Node.js w/ Koa2 implementations in Docker",
+  "description": "Starter kit for Hive Stack Consumers in Node.js w/ Koa2 implementations in Docker",
   "main": "./bin/start",
   "scripts": {
     "build": "NODE_ENV=production gulp zip",
