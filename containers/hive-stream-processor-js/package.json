@@ -1,6 +1,6 @@
 {
   "name": "docker-nodejs-stream-processor-starter",
-  "version": "1.0.0",
+  "version": "0.0.1-beta.0",
   "description": "Starter kit for server-side Kafka Stream Processors in Node.js w/ Koa2 implementations in Docker",
   "main": "./bin/start",
   "scripts": {
@@ -25,7 +25,7 @@
   "dependencies": {
     "babel-polyfill": "~6.23.0",
     "ioredis": "~2.5.0",
-    "js-cqrs-es-domain-module": "~0.0.1-alpha.2",
+    "js-cqrs-es-domain-module": "~0.0.1-beta.1",
     "kafka-node": "~1.6.0",
     "kcors": "~2.2.0",
     "koa": "~2.2.0",
