@@ -12,10 +12,11 @@ export default class Handler {
 
     handle(data, aggregate) {
         const command = new this[COMMAND](data); // eslint-disable-line no-unused-vars
+        const event = new this[EVENT](data);
 
-        aggregate.applyData(data);
+        aggregate.applyData(JSON.parse(JSON.stringify(event)));
 
-        return new this[EVENT](data);
+        return event;
     }
 
 }

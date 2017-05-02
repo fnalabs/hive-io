@@ -1,5 +1,7 @@
 import Model from './Model';
 
+const SET_VERSION = Symbol('reference to method for validating and setting aggregate version');
+
 
 export default class Aggregate extends Model {
 
@@ -11,9 +13,7 @@ export default class Aggregate extends Model {
      * apply methods
      */
     applyData(data) {
-        if (data.sequence !== this.version + 1) throw new RangeError(`${data.name} out of sequence`);
-
-        data.version = data.sequence;
+        if (typeof data.version !== 'number') data.version = this[SET_VERSION](data);
 
         return this.update(data);
     }
@@ -22,8 +22,14 @@ export default class Aggregate extends Model {
         return data.reduce((ret, log) => {
             log.version = log.sequence;
 
-            return this.update(log);
+            return this.applyData(log);
         }, this);
+    }
+
+    [SET_VERSION](data) {
+        if (data.sequence !== this.version + 1) throw new RangeError(`${data.name} out of sequence`);
+
+        return data.sequence;
     }
 
 }
