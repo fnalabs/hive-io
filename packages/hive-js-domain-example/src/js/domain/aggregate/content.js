@@ -42,15 +42,17 @@ class Content extends Aggregate {
     }
 
     applyData(data) {
+        // used for consumer de-normalization
         if ((/^View/).test(data.name)) {
             this.views++;
 
             return this;
         }
-        else if ((/^(Enable|Disable)/).test(data.name)) {
-            data.enabled = (/^Enable/).test(data.name);
+        // determine event type to apply data changes
+        else if ((/^(Enabled|Disabled)/).test(data.name)) {
+            data.enabled = (/^Enabled/).test(data.name);
         }
-        else if ((/^Modif/).test(data.name)) {
+        else if ((/^Modified/).test(data.name)) {
             data.edited = true;
         }
 
