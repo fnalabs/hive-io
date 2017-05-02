@@ -1,6 +1,6 @@
 {
   "name": "js-cqrs-es-domain-module",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1-beta.1",
   "description": "An example domain module to help describe implementation guidelines when leveraging js-cqrs-es.",
   "main": "index.js",
   "scripts": {
