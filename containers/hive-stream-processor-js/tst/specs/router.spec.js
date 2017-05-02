@@ -45,7 +45,7 @@ describe('router', () => {
     });
 
     describe('#postCommand', () => {
-        let getStub, recordStub, createHandleStub, modifyHandleStub, aggregateSpy;
+        let getStub, getKeySpy, recordStub, createHandleStub, modifyHandleStub, aggregateSpy;
         const getStubs = [
             sinon.spy(),
             sinon.stub().returns({ id: 'id' }),
@@ -61,15 +61,16 @@ describe('router', () => {
             sinon.stub().throws(Error)
         ];
         const testData = [
-            { id: 'id', name: 'Create' },
-            { id: 'id', name: 'Modify' },
-            { id: { id: 'id' }, name: 'Modify' },
-            { id: 'id', name: 'Modify' },
-            { id: 'id', name: 'Modify' }
+            { id: 'id', name: 'Created' },
+            { id: 'id', name: 'Modified' },
+            { id: { id: 'id' }, name: 'Modified' },
+            { id: 'id', name: 'Modified' },
+            { id: 'id', name: 'Modified' }
         ];
 
         beforeEach(() => {
             getStub = getStubs.shift();
+            getKeySpy = sinon.spy();
             recordStub = recordStubs.shift();
             createHandleStub = sinon.stub().returns({ id: 'id' });
             modifyHandleStub = sinon.stub().returns({ id: 'id' });
@@ -80,8 +81,8 @@ describe('router', () => {
             init(testData.shift());
             router = new Router(
                 AggregateStub,
-                { Create: { handle: createHandleStub }, Modify: { handle: modifyHandleStub } },
-                { get: getStub, record: recordStub }
+                { Created: { handle: createHandleStub }, Modified: { handle: modifyHandleStub } },
+                { get: getStub, getKey: getKeySpy, record: recordStub }
             );
         });
 
@@ -94,6 +95,7 @@ describe('router', () => {
             expect(context.status).to.equal(200);
 
             expect(getStub.called).to.be.false;
+            expect(getKeySpy.called).to.be.false;
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.calledOnce).to.be.true;
             expect(modifyHandleStub.called).to.be.false;
@@ -109,6 +111,7 @@ describe('router', () => {
             expect(context.status).to.equal(200);
 
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.calledOnce).to.be.true;
@@ -124,6 +127,7 @@ describe('router', () => {
             expect(context.status).to.equal(200);
 
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.calledOnce).to.be.true;
@@ -136,6 +140,7 @@ describe('router', () => {
             expect(context.status).to.equal(400);
 
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(recordStub.called).to.be.false;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.called).to.be.false;
@@ -148,6 +153,7 @@ describe('router', () => {
             expect(context.status).to.equal(400);
 
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.calledOnce).to.be.true;
@@ -160,6 +166,7 @@ describe('router', () => {
             context = null;
 
             getStub = null;
+            getKeySpy = null;
             recordStub = null;
             createHandleStub = null;
             modifyHandleStub = null;

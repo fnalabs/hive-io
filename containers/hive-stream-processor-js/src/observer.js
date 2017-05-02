@@ -22,13 +22,10 @@ export default class EventObserver {
     execute = async event => {
         const value = JSON.parse(event.value);
 
-        // check if 'id' is a Value Object
-        const key = value.id.id ? { 'id.id': value.id.id } : { id: value.id };
-
         try {
-            const aggregate = (/^create/i).test(value.name) ?
+            const aggregate = (/^Created/).test(value.name) ?
                 new this[AGGREGATE]() :
-                await this[REPOSITORY].get(key, this[AGGREGATE]);
+                await this[REPOSITORY].get(this[REPOSITORY].getKey(value, this[AGGREGATE].name), this[AGGREGATE]);
 
             aggregate.applyData(value);
 

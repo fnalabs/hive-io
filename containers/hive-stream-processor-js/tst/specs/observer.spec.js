@@ -35,10 +35,10 @@ describe('observer', () => {
     });
 
     describe('#handle', () => {
-        let constructorSpy, applyDataSpy, getStub, updateSpy;
+        let constructorSpy, applyDataSpy, getStub, getKeySpy, updateSpy;
         const eventData = [
-            { value: '{ "id": "id", "name": "Create" }' },
-            { value: '{ "id": "id", "name": "Modify" }' }
+            { value: '{ "id": "id", "name": "Created" }' },
+            { value: '{ "id": "id", "name": "Modified" }' }
         ];
         const getStubs = [
             sinon.spy(),
@@ -49,6 +49,7 @@ describe('observer', () => {
             constructorSpy = sinon.spy();
             applyDataSpy = sinon.spy();
             getStub = getStubs.shift();
+            getKeySpy = sinon.spy();
             updateSpy = sinon.spy();
 
             class Aggregate {
@@ -59,7 +60,7 @@ describe('observer', () => {
             Observer = proxyquire('../../src/observer', {});
             observer = new Observer(
                 Aggregate,
-                { get: getStub, update: updateSpy },
+                { get: getStub, getKey: getKeySpy, update: updateSpy },
                 { consumer: { on: () => {} } }
             );
         });
@@ -70,6 +71,7 @@ describe('observer', () => {
             expect(constructorSpy.calledOnce).to.be.true;
             expect(applyDataSpy.calledOnce).to.be.true;
             expect(getStub.called).to.be.false;
+            expect(getKeySpy.called).to.be.false;
             expect(updateSpy.calledOnce).to.be.true;
         });
 
@@ -79,6 +81,7 @@ describe('observer', () => {
             expect(constructorSpy.called).to.be.false;
             expect(applyDataSpy.called).to.be.false;
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(updateSpy.called).to.be.false;
         });
 
@@ -89,18 +92,19 @@ describe('observer', () => {
             constructorSpy = null;
             applyDataSpy = null;
             getStub = null;
+            getKeySpy = null;
             updateSpy = null;
         });
     });
 
     describe('#execute', () => {
-        let constructorSpy, applyDataSpy, getStub, updateSpy;
+        let constructorSpy, applyDataSpy, getStub, getKeySpy, updateSpy;
         const eventData = [
-            { value: '{ "id": "id", "name": "Create" }' },
-            { value: '{ "id": { "id": "id" }, "name": "Create" }' },
-            { value: '{ "id": "id", "name": "Modify" }' },
-            { value: '{ "id": "id", "name": "Modify" }' },
-            { value: '{ "id": "id", "name": "Modify" }' }
+            { value: '{ "id": "id", "name": "Created" }' },
+            { value: '{ "id": { "id": "id" }, "name": "Created" }' },
+            { value: '{ "id": "id", "name": "Modified" }' },
+            { value: '{ "id": "id", "name": "Modified" }' },
+            { value: '{ "id": "id", "name": "Modified" }' }
         ];
         const getStubs = [
             sinon.spy(),
@@ -114,6 +118,7 @@ describe('observer', () => {
             constructorSpy = sinon.spy();
             applyDataSpy = sinon.spy();
             getStub = getStubs.shift();
+            getKeySpy = sinon.spy();
             updateSpy = sinon.spy();
 
             class Aggregate {
@@ -124,7 +129,7 @@ describe('observer', () => {
             Observer = proxyquire('../../src/observer', {});
             observer = new Observer(
                 Aggregate,
-                { get: getStub, update: updateSpy },
+                { get: getStub, getKey: getKeySpy, update: updateSpy },
                 { consumer: { on: () => {} } }
             );
         });
@@ -135,6 +140,7 @@ describe('observer', () => {
             expect(constructorSpy.calledOnce).to.be.true;
             expect(applyDataSpy.calledOnce).to.be.true;
             expect(getStub.called).to.be.false;
+            expect(getKeySpy.called).to.be.false;
             expect(updateSpy.calledOnce).to.be.true;
         });
 
@@ -144,6 +150,7 @@ describe('observer', () => {
             expect(constructorSpy.calledOnce).to.be.true;
             expect(applyDataSpy.calledOnce).to.be.true;
             expect(getStub.called).to.be.false;
+            expect(getKeySpy.called).to.be.false;
             expect(updateSpy.calledOnce).to.be.true;
         });
 
@@ -153,6 +160,7 @@ describe('observer', () => {
             expect(constructorSpy.called).to.be.false;
             expect(applyDataSpy.called).to.be.false;
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(updateSpy.calledOnce).to.be.true;
         });
 
@@ -162,6 +170,7 @@ describe('observer', () => {
             expect(constructorSpy.called).to.be.false;
             expect(applyDataSpy.called).to.be.false;
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(updateSpy.called).to.be.false;
         });
 
@@ -171,6 +180,7 @@ describe('observer', () => {
             expect(constructorSpy.called).to.be.false;
             expect(applyDataSpy.called).to.be.false;
             expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(updateSpy.calledOnce).to.be.true;
         });
 
@@ -181,6 +191,7 @@ describe('observer', () => {
             constructorSpy = null;
             applyDataSpy = null;
             getStub = null;
+            getKeySpy = null;
             updateSpy = null;
         });
     });
