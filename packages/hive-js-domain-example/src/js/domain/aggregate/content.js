@@ -42,7 +42,7 @@ class Content extends Aggregate {
     }
 
     applyData(data) {
-        // used for consumer de-normalization
+        // used for consumer denormalization
         if ((/^View/).test(data.name)) {
             this.views++;
 
