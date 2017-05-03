@@ -32,7 +32,7 @@ Next is [Model](./src/js/Model.js). The Model class, in conjunction with a Schem
 ### Aggregate
 The [Aggregate](./src/js/Aggregate.js) class extends Model to add aggregate specific methods. Therefore, it has the same base functionality and public methods as the Model class but with a few additions. Namely, it has two `apply` methods to support different use cases.
 - `applyData(data)` - applies the event data from an object literal to the object. It first validates that the version of the data being applied is not out of sequence. If version validation passes, then it uses Model's `update` method to apply the new data on top of the existing state.
-- `applySequence(data)` - applies a list of data to the object to support a traditional CQRS Aggregate implementation. This method is for instantiating the state of the object from the list of events returned from your event store.
+- `applySequence(data)` - applies a list of data to the object to support a traditional CQRS Aggregate implementation. This method is for instantiating the state of the object from the list of events returned from your event store. This is not the default use case for the Aggregate class but can be achieved by chaining the constructor call like so `new Aggregate(data.shift(), schema).applySequence(data)`.
 
 ### Message
 The [Message](./src/js/Message.js) class is a base class for Command and Event messages that are passed through a CQRS/ES application. It provides the most basic definition of these messages, an id and sequence. It has a single public method defined below:

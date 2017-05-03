@@ -9,6 +9,7 @@ describe('Aggregate class', () => {
     describe('#constructor', () => {
         const data = [
             undefined,
+            [{ id: 'id', sequence: 1 }, { id: 'id', sequence: 2 }, { id: 'id', sequence: 3 }],
             { id: 'id', version: 1 },
             { id: 'id', version: 1, sequence: 1 },
             { id: 'id', version: 1, sequence: 1, name: 'Create' }
@@ -17,14 +18,13 @@ describe('Aggregate class', () => {
             new Schema(),
             new Schema({ id: String, version: Number }),
             new Schema({ id: String, version: Number }),
+            new Schema({ id: String, version: Number }),
             new Schema({ id: String, version: Number })
         ];
 
-        beforeEach(() => {
-            aggregate = new Aggregate(data.shift(), schemas.shift());
-        });
-
         it('should create the initial Aggregate object with no data', () => {
+            aggregate = new Aggregate(data.shift(), schemas.shift());
+
             expect(aggregate).to.exist;
 
             expect(aggregate.applyData).to.be.a('function');
@@ -34,7 +34,27 @@ describe('Aggregate class', () => {
             expect(aggregate.id).to.be.undefined;
         });
 
+        it('should create the initial Aggregate object with the suggested sequence approach', () => {
+            const sequence = data.shift();
+
+            aggregate = new Aggregate(sequence.shift(), schemas.shift()).applySequence(sequence);
+
+            expect(aggregate).to.exist;
+
+            expect(aggregate.applyData).to.be.a('function');
+            expect(aggregate.applySequence).to.be.a('function');
+            expect(aggregate.update).to.be.a('function');
+
+            expect(aggregate.id).to.be.a('string');
+            expect(aggregate.id).to.equal('id');
+
+            expect(aggregate.version).to.be.a('number');
+            expect(aggregate.version).to.equal(3);
+        });
+
         it('should create a fully initialized Aggregate object with data', () => {
+            aggregate = new Aggregate(data.shift(), schemas.shift());
+
             expect(aggregate).to.exist;
 
             expect(aggregate.id).to.be.a('string');
@@ -45,6 +65,8 @@ describe('Aggregate class', () => {
         });
 
         it('should create a fully initialized Aggregate object without sequence data', () => {
+            aggregate = new Aggregate(data.shift(), schemas.shift());
+
             expect(aggregate).to.exist;
 
             expect(aggregate.id).to.be.a('string');
@@ -57,6 +79,8 @@ describe('Aggregate class', () => {
         });
 
         it('should create a fully initialized Aggregate object without sequence and name data', () => {
+            aggregate = new Aggregate(data.shift(), schemas.shift());
+
             expect(aggregate).to.exist;
 
             expect(aggregate.id).to.be.a('string');
