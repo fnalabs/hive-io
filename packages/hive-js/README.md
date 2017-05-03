@@ -52,7 +52,7 @@ Last but not least, the [Handler](./src/js/Handler.js) class is responsible for 
 ## Example
 [This](https://www.npmjs.com/package/js-cqrs-es-domain-module) is an example implementation of a contrived domain model using this library. It is an over-simplified example of Twitter content and view analytics to showcase all of the classes above.
 
-The example is also paired with the Hive Stack, an enterprise CQRS/ES stack implementing micro-service applications around a [Kafka](https://kafka.apache.org) streaming event store with [Redis](https://redis.io/)/[Redlock](https://redis.io/topics/distlock) as a cache layer and [MongoDB](https://www.mongodb.com/) for projections.
+The example is also paired with the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903), an enterprise CQRS/ES stack implementing micro-service applications around a [Kafka](https://kafka.apache.org) streaming event store with [Redis](https://redis.io/)/[Redlock](https://redis.io/topics/distlock) as a cache layer and [MongoDB](https://www.mongodb.com/) for projections.
 
 ## Future
 - adding a little more rigitity/defensive coding to the data model to enforce JSON modeling
