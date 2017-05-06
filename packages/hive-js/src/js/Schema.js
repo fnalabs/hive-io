@@ -19,10 +19,12 @@ export default class Schema {
         if (this[ASSERT_DEF](value) && typeof rule === 'function') this[ASSERT_TYPE](value, rule);
 
         else {
+            // if value is required and undefined
             if (rule.required && typeof value === 'undefined') {
                 throw new ReferenceError('expected a required value to exist');
             }
 
+            // if value is defined, assert data type
             if (this[ASSERT_DEF](value)) this[ASSERT_TYPE](value, rule.type);
 
             // if custom validation function is defined
@@ -38,8 +40,14 @@ export default class Schema {
     }
 
     [ASSERT_TYPE](value, type) {
+        // first test if Schema is using a valid primitive data type
+        if (type && !(/^(Boolean|Number|String)$/).test(type.name)) {
+            throw new TypeError(`${type.name} is not a Valid JSON data type`);
+        }
+
+        // then we can actually test type equality
         if (typeof value !== type.name.toLowerCase()) {
-            throw new TypeError(`expected ${JSON.stringify(value)} to be a(n) ${type.name}`);
+            throw new TypeError(`expected ${JSON.stringify(value)} to be a ${type.name}`);
         }
     }
 

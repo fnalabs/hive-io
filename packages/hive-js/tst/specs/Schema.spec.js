@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import Schema, {  } from '../../src/js/Schema';
+import Schema from '../../src/js/Schema';
 
 describe('Schema class', () => {
     let schema;
@@ -73,13 +73,15 @@ describe('Schema class', () => {
             { id: { type: String, required: true } },
             { id: { type: String, required: true } },
             { id: { type: String, validate: () => true } },
-            { id: { type: String, validate: sinon.stub().throws('Error') } }
+            { id: { type: String, validate: sinon.stub().throws('Error') } },
+            { id: Date }
         ];
         const data = [
             'id',
             'id',
             'id',
             undefined,
+            'id',
             'id',
             'id'
         ];
@@ -110,6 +112,10 @@ describe('Schema class', () => {
 
         it('should throw error for assigned custom validate function', () => {
             expect(() => schema.validate(data.shift(), schema.id)).to.throw(Error);
+        });
+
+        it('should throw error for an unsupported data type', () => {
+            expect(() => schema.validate(data.shift(), schema.id)).to.throw(TypeError);
         });
 
         afterEach(() => {
