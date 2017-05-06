@@ -37,7 +37,7 @@ describe('Aggregate class', () => {
         it('should create the initial Aggregate object with the suggested sequence approach', () => {
             const sequence = data.shift();
 
-            aggregate = new Aggregate(sequence.shift(), schemas.shift()).applySequence(sequence);
+            aggregate = new Aggregate({}, schemas.shift()).applySequence(sequence);
 
             expect(aggregate).to.exist;
 
