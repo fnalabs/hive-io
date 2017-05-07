@@ -2,7 +2,7 @@
 This is a starter kit for [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Producers in Node.js w/ Koa2 in Docker. There is also a [base image](https://hub.docker.com/r/aeilers/docker-nodejs-producer/) on Docker Hub to support basic use cases.
 
 ## Purpose
-Producers represent a simpler implementation where domain Entities and Value Objects can be passed through to the log directly with minimal validation. This type of validation is superficial and can easily be handled by the model's schema definition. Examples of this type of implementation would include streams of analytics data for user tracking or geolocation data for real-time position tracking.
+Producers represent a simpler implementation where domain Value Objects can be passed through to the log directly with minimal validation. Since Value Objects have no unique identity, they are essentially immutable and can be treated as such. Therefore, this type of validation is superficial and can easily be handled by the Value Object's schema definition. Examples of this type of implementation would include streams of analytics data for user tracking or geolocation data for real-time position tracking.
 
 ## Example
 Below is a snippet of a `docker-compose.yml` definition for development. Change values as you see fit.
@@ -43,7 +43,7 @@ Name              | Type    | Default                     | Description
 ----------------- | ------- | --------------------------- | -------------------------------------------------------
 NODE_ENV          | String  | 'production'                | app runtime environment
 PORT              | Number  | 3000                        | app port to listen on
-MODEL             | String  | 'view'                      | entity/value object the microservice is responsible for
+MODEL             | String  | 'view'                      | value object the microservice is responsible for
 MODEL_LIB         | String  | 'js-cqrs-es-domain-module'  | library where the MODEL resides
 EVENT_STORE_ID    | String  |                             | unique identifier for Kafka client connection
 EVENT_STORE_URL   | String  |                             | URL where Kafka is hosted
