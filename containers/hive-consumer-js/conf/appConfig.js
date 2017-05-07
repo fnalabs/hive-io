@@ -3,7 +3,7 @@ module.exports = Object.freeze({
     NODE_ENV: process.env.NODE_ENV || 'production',
     PORT: process.env.PORT || 3000,
     // domain configurations
-    AGGREGATE_LIST: process.env.AGGREGATE_LIST && Array.from(process.env.AGGREGATE_LIST) || ['content', 'view'],
+    AGGREGATE_LIST: process.env.AGGREGATE_LIST && process.env.AGGREGATE_LIST.split(',') || ['content', 'view'],
     DENORMALIZER: process.env.DENORMALIZER || 'post',
     DENORMALIZER_LIB: process.env.DENORMALIZER_LIB || 'js-cqrs-es-domain-module',
     PROJECTION: process.env.PROJECTION || 'post',
