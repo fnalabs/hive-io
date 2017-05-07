@@ -1,6 +1,6 @@
 # start with Alpine Linux Base image
 # NOTE: change FROM statement to preferred Node.js image
-FROM node:6.10.2-alpine
+FROM node:6.10.3-alpine
 MAINTAINER Adam Eilers <adam.eilers@gmail.com>
 
 # NOTE: if user created, change APP_PATH to user's workspace
