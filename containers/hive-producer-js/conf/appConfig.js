@@ -8,5 +8,5 @@ module.exports = Object.freeze({
     // storage configurations
     EVENT_STORE_ID: process.env.EVENT_STORE_ID,
     EVENT_STORE_URL: process.env.EVENT_STORE_URL,
-    EVENT_STORE_TYPE: process.env.EVENT_STORE_TYPE || 2
+    EVENT_STORE_TYPE: process.env.EVENT_STORE_TYPE || 3
 });
