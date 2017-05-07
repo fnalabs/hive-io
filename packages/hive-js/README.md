@@ -1,5 +1,5 @@
 # js-cqrs-es
-A JavaScript Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) library. This is developed in parallel while testing the [Hive Pattern](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) theory to be the library that the [Hive Stack Components](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903#hive-stack-components) are built upon.
+A JavaScript Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) library. This is developed in parallel to prove the [Hive Pattern](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) theory. It is the library that the [Hive Stack Components](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903#hive-stack-components) are built upon.
 
 ## Library
 The library contains a base set of classes that can be used to implement your domain layer of your CQRS/ES application. It contains all the basic building blocks for defining Aggregates, Entities, and Value Objects backed by a rich Schema specification that is meant to translate to/from [JSON](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON#JavaScript_Object_Notation) for easy network transport. It also provides extensible Command and Event Messages to support your Aggregate implementation.
@@ -52,7 +52,7 @@ Last but not least, the [Handler](./src/js/Handler.js) class is responsible for 
 ## Example
 [This](https://www.npmjs.com/package/js-cqrs-es-domain-module) is an example implementation of a contrived domain model using this library. It is an over-simplified example of Twitter content and view analytics to showcase all of the classes above.
 
-The example is also paired with the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903), an enterprise CQRS/ES stack implementing micro-service applications around a [Kafka](https://kafka.apache.org) streaming event store with [Redis](https://redis.io/)/[Redlock](https://redis.io/topics/distlock) as a cache layer and [MongoDB](https://www.mongodb.com/) for projections.
+The example is also paired with the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903), an enterprise CQRS/ES stack implementing microservice applications around a [Kafka](https://kafka.apache.org) streaming event store with [Redis](https://redis.io/)/[Redlock](https://redis.io/topics/distlock) as a cache layer and [MongoDB](https://www.mongodb.com/) for projections.
 
 ## Future
 - feature requests via [issues](https://github.com/aeilers/js-cqrs-es/issues)
