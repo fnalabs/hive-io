@@ -1,6 +1,6 @@
 {
   "name": "docker-nodejs-consumer-starter",
-  "version": "0.0.1-beta.0",
+  "version": "1.0.0",
   "description": "Starter kit for Hive Stack Consumers in Node.js w/ Koa2 implementations in Docker",
   "main": "./bin/start",
   "scripts": {
@@ -24,20 +24,22 @@
   },
   "dependencies": {
     "babel-polyfill": "~6.23.0",
-    "js-cqrs-es-domain-module": "~0.0.1-beta.1",
-    "kafka-node": "~1.6.0",
+    "js-cqrs-es-domain-module": "~1.0.0",
+    "kafka-node": "~1.6.1",
     "kcors": "~2.2.0",
     "koa": "~2.2.0",
     "koa-bodyparser": "~3.2.0",
     "koa-helmet": "~3.1.0",
     "koa-logger": "~2.0.1",
     "koa-router": "~7.1.1",
-    "mongoose": "~4.9.6"
+    "mongoose": "~4.9.7",
+    "rxjs": "~5.3.1",
+    "uuid": "~3.0.1"
   },
   "devDependencies": {
     "babel-cli": "~6.24.1",
     "babel-core": "~6.24.1",
-    "babel-eslint": "~7.2.1",
+    "babel-eslint": "~7.2.3",
     "babel-plugin-add-module-exports": "~0.2.1",
     "babel-plugin-transform-async-to-generator": "~6.24.1",
     "babel-plugin-transform-class-properties": "~6.24.1",
@@ -52,7 +54,7 @@
     "gulp": "~3.9.1",
     "gulp-babel": "~6.1.2",
     "gulp-cached": "~1.1.0",
-    "gulp-changed": "~2.0.0",
+    "gulp-changed": "~3.1.0",
     "gulp-debug": "~3.1.0",
     "gulp-eslint": "~3.0.1",
     "gulp-gzip": "~1.4.0",
@@ -70,10 +72,10 @@
     "isparta": "~4.0.0",
     "istanbul": "~0.4.5",
     "jshint-stylish": "~2.2.1",
-    "mocha": "~3.2.0",
+    "mocha": "~3.3.0",
     "node-mocks-http": "~1.6.1",
     "proxyquire": "~1.7.10",
-    "sinon": "~2.1.0",
+    "sinon": "~2.2.0",
     "supertest": "~3.0.0"
   }
 }
