@@ -9,13 +9,21 @@ describe('observer', () => {
     let Observer, observer;
 
     describe('#constructor', () => {
-        let consumerSpy;
+        let consumerSpy, observableStubs;
 
         before(() => {
             consumerSpy = sinon.spy();
+            observableStubs = {
+                fromEventPattern: sinon.stub().returnsThis(),
+                concatMap: sinon.stub().returnsThis(),
+                subscribe: sinon.stub().returnsThis()
+            };
 
             Observer = proxyquire('../../src/observer', {
-                '../conf/appConfig': { UPDATE_OPTIONS: '' }
+                '../conf/appConfig': { UPDATE_OPTIONS: '' },
+                'rxjs/Rx': {
+                    Observable: observableStubs
+                }
             });
             observer = new Observer({}, {}, { consumer: { on: consumerSpy } });
         });
@@ -24,8 +32,12 @@ describe('observer', () => {
             expect(observer).to.exist;
 
             expect(observer.handle).to.be.a('function');
+            expect(observer.execute).to.be.a('function');
 
-            expect(consumerSpy.calledOnce).to.be.true;
+            expect(consumerSpy.called).to.be.false;
+            expect(observableStubs.fromEventPattern.calledOnce).to.be.true;
+            expect(observableStubs.concatMap.calledOnce).to.be.true;
+            expect(observableStubs.subscribe.calledOnce).to.be.true;
         });
 
         after(() => {
@@ -33,83 +45,60 @@ describe('observer', () => {
             observer = null;
 
             consumerSpy = null;
+            observableStubs = null;
         });
     });
 
     describe('#handle', () => {
-        let constructorSpy, applyDataSpy, stubHash;
-        const eventData = [
-            { value: '{ "id": "id", "name": "Created" }' },
-            { value: '{ "id": "id", "name": "Modified" }' }
-        ];
-        const execStubs = [
-            sinon.spy(),
-            sinon.stub().throws(Error)
-        ];
+        let consumerSpy, executeSpy, observableStubs;
 
-        beforeEach(() => {
-            constructorSpy = sinon.spy();
-            applyDataSpy = sinon.spy();
-            stubHash = {
-                findOne: sinon.stub().returnsThis(),
-                findOneAndUpdate: sinon.stub().returnsThis(),
-                exec: execStubs.shift()
+        before(() => {
+            consumerSpy = sinon.spy();
+            executeSpy = sinon.spy();
+            observableStubs = {
+                fromEventPattern: sinon.stub().returnsThis(),
+                fromPromise: sinon.stub().returnsThis(),
+                concatMap: sinon.stub().returnsThis(),
+                subscribe: sinon.stub().returnsThis()
             };
 
-            class Aggregate {
-                constructor() { constructorSpy(); }
-                applyData() { applyDataSpy(); }
-            }
-            class Projection {
-                static findOne() { return stubHash.findOne(); }
-                static findOneAndUpdate() { return stubHash.findOneAndUpdate(); }
-                static async exec() { return stubHash.exec(); }
-            }
-
             Observer = proxyquire('../../src/observer', {
-                '../conf/appConfig': { UPDATE_OPTIONS: '' }
+                'rxjs/Rx': {
+                    Observable: observableStubs
+                }
             });
-            observer = new Observer(Aggregate, Projection, { consumer: { on: () => {} } });
+            observer = new Observer({}, {}, { consumer: { on: consumerSpy } });
+            observer.execute = executeSpy;
+            observer.handle({ value: '{ "id": "id", "name": "Created" }' });
         });
 
-        it('should handle a normal Create event', async () => {
-            await observer.handle(eventData.shift());
-
-            expect(constructorSpy.calledOnce).to.be.true;
-            expect(applyDataSpy.calledOnce).to.be.true;
-            expect(stubHash.findOne.called).to.be.false;
-            expect(stubHash.findOneAndUpdate.calledOnce).to.be.true;
-            expect(stubHash.exec.calledOnce).to.be.true;
+        it('should handle a normal Create event', () => {
+            expect(consumerSpy.called).to.be.false;
+            expect(observableStubs.fromEventPattern.calledOnce).to.be.true;
+            expect(observableStubs.fromPromise.calledOnce).to.be.true;
+            expect(observableStubs.concatMap.calledOnce).to.be.true;
+            expect(observableStubs.subscribe.calledOnce).to.be.true;
+            expect(executeSpy.calledOnce).to.be.true;
         });
 
-        it('should handle a caught error if thrown from db query', async () => {
-            await observer.handle(eventData.shift());
-
-            expect(constructorSpy.called).to.be.false;
-            expect(applyDataSpy.called).to.be.false;
-            expect(stubHash.findOne.calledOnce).to.be.true;
-            expect(stubHash.findOneAndUpdate.called).to.be.false;
-            expect(stubHash.exec.calledOnce).to.be.true;
-        });
-
-        afterEach(() => {
+        after(() => {
             Observer = null;
             observer = null;
 
-            constructorSpy = null;
-            applyDataSpy = null;
-            stubHash = null;
+            consumerSpy = null;
+            observableStubs = null;
+            executeSpy = null;
         });
     });
 
     describe('#execute', () => {
-        let constructorSpy, applyDataSpy, stubHash;
-        const eventData = [
-            { value: '{ "id": "id", "name": "Created" }' },
-            { value: '{ "id": { "id": "id" }, "name": "Created" }' },
-            { value: '{ "id": "id", "name": "Modified" }' },
-            { value: '{ "id": "id", "name": "Modified" }' },
-            { value: '{ "id": "id", "name": "Modified" }' }
+        let constructorSpy, applyDataSpy, projectionStubs, observableStubs;
+        const valueData = [
+            { id: 'id', name: 'Created' },
+            { id: { id: 'id' }, name: 'Created' },
+            { id: 'id', name: 'Modified' },
+            { id: 'id', name: 'Modified' },
+            { id: 'id', name: 'Modified' }
         ];
         const execStubs = [
             sinon.spy(),
@@ -122,10 +111,15 @@ describe('observer', () => {
         beforeEach(() => {
             constructorSpy = sinon.spy();
             applyDataSpy = sinon.spy();
-            stubHash = {
+            projectionStubs = {
                 findOne: sinon.stub().returnsThis(),
                 findOneAndUpdate: sinon.stub().returnsThis(),
                 exec: execStubs.shift()
+            };
+            observableStubs = {
+                fromEventPattern: sinon.stub().returnsThis(),
+                concatMap: sinon.stub().returnsThis(),
+                subscribe: sinon.stub().returnsThis()
             };
 
             class Aggregate {
@@ -133,65 +127,88 @@ describe('observer', () => {
                 applyData() { applyDataSpy(); }
             }
             class Projection {
-                static findOne() { return stubHash.findOne(); }
-                static findOneAndUpdate() { return stubHash.findOneAndUpdate(); }
-                static async exec() { return stubHash.exec(); }
+                static findOne() { return projectionStubs.findOne(); }
+                static findOneAndUpdate() { return projectionStubs.findOneAndUpdate(); }
+                static async exec() { return projectionStubs.exec(); }
             }
 
             Observer = proxyquire('../../src/observer', {
-                '../conf/appConfig': { UPDATE_OPTIONS: '' }
+                '../conf/appConfig': { UPDATE_OPTIONS: '' },
+                'rxjs/Rx': {
+                    Observable: observableStubs
+                }
             });
             observer = new Observer(Aggregate, Projection, { consumer: { on: () => {} } });
         });
 
         it('should execute a simple Create event', async () => {
-            await observer.execute(eventData.shift());
+            await observer.execute(valueData.shift());
+
+            expect(observableStubs.fromEventPattern.calledOnce).to.be.true;
+            expect(observableStubs.concatMap.calledOnce).to.be.true;
+            expect(observableStubs.subscribe.calledOnce).to.be.true;
 
             expect(constructorSpy.calledOnce).to.be.true;
             expect(applyDataSpy.calledOnce).to.be.true;
-            expect(stubHash.findOne.called).to.be.false;
-            expect(stubHash.findOneAndUpdate.calledOnce).to.be.true;
-            expect(stubHash.exec.calledOnce).to.be.true;
+            expect(projectionStubs.findOne.calledOnce).to.be.true;
+            expect(projectionStubs.findOneAndUpdate.calledOnce).to.be.true;
+            expect(projectionStubs.exec.calledTwice).to.be.true;
         });
 
         it('should execute a Create event with a Value Object id', async () => {
-            await observer.execute(eventData.shift());
+            await observer.execute(valueData.shift());
+
+            expect(observableStubs.fromEventPattern.calledOnce).to.be.true;
+            expect(observableStubs.concatMap.calledOnce).to.be.true;
+            expect(observableStubs.subscribe.calledOnce).to.be.true;
 
             expect(constructorSpy.calledOnce).to.be.true;
             expect(applyDataSpy.calledOnce).to.be.true;
-            expect(stubHash.findOne.called).to.be.false;
-            expect(stubHash.findOneAndUpdate.calledOnce).to.be.true;
-            expect(stubHash.exec.calledOnce).to.be.true;
+            expect(projectionStubs.findOne.calledOnce).to.be.true;
+            expect(projectionStubs.findOneAndUpdate.calledOnce).to.be.true;
+            expect(projectionStubs.exec.calledTwice).to.be.true;
         });
 
         it('should execute a simple non-create event', async () => {
-            await observer.execute(eventData.shift());
+            await observer.execute(valueData.shift());
+
+            expect(observableStubs.fromEventPattern.calledOnce).to.be.true;
+            expect(observableStubs.concatMap.calledOnce).to.be.true;
+            expect(observableStubs.subscribe.calledOnce).to.be.true;
 
             expect(constructorSpy.calledOnce).to.be.true;
             expect(applyDataSpy.calledOnce).to.be.true;
-            expect(stubHash.findOne.calledOnce).to.be.true;
-            expect(stubHash.findOneAndUpdate.calledOnce).to.be.true;
-            expect(stubHash.exec.calledTwice).to.be.true;
+            expect(projectionStubs.findOne.calledOnce).to.be.true;
+            expect(projectionStubs.findOneAndUpdate.calledOnce).to.be.true;
+            expect(projectionStubs.exec.calledTwice).to.be.true;
         });
 
         it('should catch an error if thrown from db query', async () => {
-            await observer.execute(eventData.shift());
+            await observer.execute(valueData.shift());
+
+            expect(observableStubs.fromEventPattern.calledOnce).to.be.true;
+            expect(observableStubs.concatMap.calledOnce).to.be.true;
+            expect(observableStubs.subscribe.calledOnce).to.be.true;
 
             expect(constructorSpy.called).to.be.false;
             expect(applyDataSpy.called).to.be.false;
-            expect(stubHash.findOne.calledOnce).to.be.true;
-            expect(stubHash.findOneAndUpdate.called).to.be.false;
-            expect(stubHash.exec.calledOnce).to.be.true;
+            expect(projectionStubs.findOne.calledOnce).to.be.true;
+            expect(projectionStubs.findOneAndUpdate.called).to.be.false;
+            expect(projectionStubs.exec.calledOnce).to.be.true;
         });
 
         it('should catch an error if thrown from db update', async () => {
-            await observer.execute(eventData.shift());
+            await observer.execute(valueData.shift());
+
+            expect(observableStubs.fromEventPattern.calledOnce).to.be.true;
+            expect(observableStubs.concatMap.calledOnce).to.be.true;
+            expect(observableStubs.subscribe.calledOnce).to.be.true;
 
             expect(constructorSpy.calledOnce).to.be.true;
             expect(applyDataSpy.calledOnce).to.be.true;
-            expect(stubHash.findOne.calledOnce).to.be.true;
-            expect(stubHash.findOneAndUpdate.calledOnce).to.be.true;
-            expect(stubHash.exec.calledTwice).to.be.true;
+            expect(projectionStubs.findOne.calledOnce).to.be.true;
+            expect(projectionStubs.findOneAndUpdate.calledOnce).to.be.true;
+            expect(projectionStubs.exec.calledTwice).to.be.true;
         });
 
         afterEach(() => {
@@ -200,7 +217,8 @@ describe('observer', () => {
 
             constructorSpy = null;
             applyDataSpy = null;
-            stubHash = null;
+            projectionStubs = null;
+            observableStubs = null;
         });
     });
 
