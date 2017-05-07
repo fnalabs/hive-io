@@ -87,9 +87,13 @@ describe('repository', () => {
 
     describe('#get', () => {
         let getStub, aggregateSpy;
+        const getStubs = [
+            sinon.stub().returns(Promise.resolve('')),
+            sinon.stub().returns(Promise.resolve('{}'))
+        ];
 
-        before(() => {
-            getStub = sinon.stub().returns(Promise.resolve('{}'));
+        beforeEach(() => {
+            getStub = getStubs.shift();
             aggregateSpy = sinon.spy();
 
             Repository = proxyquire('../../src/repository', {
@@ -111,7 +115,14 @@ describe('repository', () => {
             expect(aggregateSpy.calledOnce).to.be.true;
         });
 
-        after(() => {
+        it('should call get from redis instance and return an existing aggregate', async () => {
+            await repository.get('id', class Aggregate { constructor() { aggregateSpy(); } });
+
+            expect(getStub.calledOnce).to.be.true;
+            expect(aggregateSpy.calledOnce).to.be.true;
+        });
+
+        afterEach(() => {
             Repository = null;
             repository = null;
 

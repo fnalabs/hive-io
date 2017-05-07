@@ -45,7 +45,7 @@ describe('router', () => {
     });
 
     describe('#postCommand', () => {
-        let getStub, getKeySpy, recordStub, createHandleStub, modifyHandleStub, aggregateSpy;
+        let getStub, getKeySpy, recordStub, createHandleStub, modifyHandleStub;
         const getStubs = [
             sinon.spy(),
             sinon.stub().returns({ id: 'id' }),
@@ -74,13 +74,10 @@ describe('router', () => {
             recordStub = recordStubs.shift();
             createHandleStub = sinon.stub().returns({ id: 'id' });
             modifyHandleStub = sinon.stub().returns({ id: 'id' });
-            aggregateSpy = sinon.spy();
-
-            class AggregateStub { constructor() { this.stub = true; aggregateSpy(); } }
 
             init(testData.shift());
             router = new Router(
-                AggregateStub,
+                {},
                 { Created: { handle: createHandleStub }, Modified: { handle: modifyHandleStub } },
                 { get: getStub, getKey: getKeySpy, record: recordStub }
             );
@@ -94,12 +91,11 @@ describe('router', () => {
             expect(context.body.id).to.equal('id');
             expect(context.status).to.equal(200);
 
-            expect(getStub.called).to.be.false;
-            expect(getKeySpy.called).to.be.false;
+            expect(getStub.calledOnce).to.be.true;
+            expect(getKeySpy.calledOnce).to.be.true;
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.calledOnce).to.be.true;
             expect(modifyHandleStub.called).to.be.false;
-            expect(aggregateSpy.calledOnce).to.be.true;
         });
 
         it('should handle normal post requests for non-creates', async () => {
@@ -115,7 +111,6 @@ describe('router', () => {
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.calledOnce).to.be.true;
-            expect(aggregateSpy.called).to.be.false;
         });
 
         it('should handle normal post requests for id Value Objects', async () => {
@@ -131,7 +126,6 @@ describe('router', () => {
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.calledOnce).to.be.true;
-            expect(aggregateSpy.called).to.be.false;
         });
 
         it('should throw an error on get that is caught', async () => {
@@ -144,7 +138,6 @@ describe('router', () => {
             expect(recordStub.called).to.be.false;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.called).to.be.false;
-            expect(aggregateSpy.called).to.be.false;
         });
 
         it('should throw an error on record that is caught', async () => {
@@ -157,7 +150,6 @@ describe('router', () => {
             expect(recordStub.calledOnce).to.be.true;
             expect(createHandleStub.called).to.be.false;
             expect(modifyHandleStub.calledOnce).to.be.true;
-            expect(aggregateSpy.called).to.be.false;
         });
 
         afterEach(() => {
@@ -170,7 +162,6 @@ describe('router', () => {
             recordStub = null;
             createHandleStub = null;
             modifyHandleStub = null;
-            aggregateSpy = null;
         });
     });
 

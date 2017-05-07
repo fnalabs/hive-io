@@ -21,9 +21,8 @@ export default class CommandRouter extends Router {
         const data = ctx.request.body;
 
         try {
-            const aggregate = (/^Create/).test(data.name) ?
-                new this[AGGREGATE]() :
-                await this[REPOSITORY].get(this[REPOSITORY].getKey(data, this[AGGREGATE].name), this[AGGREGATE]);
+            const aggregate = await this[REPOSITORY]
+                .get(this[REPOSITORY].getKey(data, this[AGGREGATE].name), this[AGGREGATE]);
             const event = this[HANDLERS][data.name].handle(data, aggregate);
 
             await this[REPOSITORY].record(event, aggregate);

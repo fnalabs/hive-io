@@ -47,7 +47,9 @@ export default class Repository {
     }
 
     get = async (id, Aggregate) => {
-        return await this[CACHE].get(id).then(result => new Aggregate(JSON.parse(result)));
+        const data = await this[CACHE].get(id);
+
+        return new Aggregate(JSON.parse(data || '{}'));
     }
 
     record = async (event, aggregate) => {
@@ -72,6 +74,7 @@ export default class Repository {
     }
 
     getKey(data, name) {
+        if (!data.id) return null;
         return data.id.id ? `${name}:${data.id.id}` : data.id;
     }
 
