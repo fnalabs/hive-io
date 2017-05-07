@@ -1,6 +1,7 @@
 import { Aggregate, Schema } from 'js-cqrs-es';
 
 import contentIdSchema from '../schema/contentId';
+
 import * as commands from './commands';
 import * as events from './events';
 import * as handlers from './handlers';
@@ -28,10 +29,6 @@ const contentSchema = new Schema({
     enabled: {
         type: Boolean,
         default: true
-    },
-    views: {
-        type: Number,
-        default: 0
     }
 });
 
@@ -42,14 +39,8 @@ class Content extends Aggregate {
     }
 
     applyData(data) {
-        // used for consumer denormalization
-        if ((/^View/).test(data.name)) {
-            this.views++;
-
-            return this;
-        }
         // determine event type to apply data changes
-        else if ((/^(Enabled|Disabled)/).test(data.name)) {
+        if ((/^(Enabled|Disabled)/).test(data.name)) {
             data.enabled = (/^Enabled/).test(data.name);
         }
         else if ((/^Modified/).test(data.name)) {

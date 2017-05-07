@@ -4,7 +4,7 @@ import { Schema } from 'mongoose';
 /*
  * class PostSchema
  */
-export default class ContentSchema extends Schema {
+export default class PostSchema extends Schema {
     constructor() {
         super({
             id: {
