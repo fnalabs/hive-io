@@ -1,6 +1,6 @@
 {
   "name": "js-cqrs-es",
-  "version": "0.0.1-beta.2",
+  "version": "1.0.0",
   "dependencies": {
     "babel-runtime": {
       "version": "6.23.0",

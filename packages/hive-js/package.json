@@ -1,6 +1,6 @@
 {
   "name": "js-cqrs-es",
-  "version": "0.0.1-beta.2",
+  "version": "1.0.0",
   "description": "A JavaScript CQRS and ES library.",
   "main": "index.js",
   "scripts": {
