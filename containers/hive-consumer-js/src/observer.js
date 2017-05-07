@@ -1,43 +1,41 @@
 import CONFIG from '../conf/appConfig';
 
-const AGGREGATE = Symbol('reference for aggregate class');
-const PROJECTION = Symbol('reference for query db connection object');
-const QUEUE = Symbol('Promise queue for handling events');
+import Rx from 'rxjs/Rx';
 
+const DENORMALIZER = Symbol('reference for denormalizer class');
+const PROJECTION = Symbol('reference for query db connection object');
+const OBSERVABLE = Symbol('reference to Observable instance for event stream');
 
 export default class EventObserver {
 
-    constructor(Aggregate, Projection, store) {
-        this[AGGREGATE] = Aggregate;
+    constructor(Denormalizer, Projection, store) {
+        this[DENORMALIZER] = Denormalizer;
         this[PROJECTION] = Projection;
 
-        this[QUEUE] = Promise.resolve();
-
-        // set handler to listen for messages from the event store consumer
-        store.consumer.on('message', this.handle);
+        // set observable to listen for messages from the event store consumer
+        this[OBSERVABLE] = Rx.Observable
+            .fromEventPattern(handler => store.consumer.on('message', handler))
+            .concatMap(this.handle)
+            .subscribe(() => {});
     }
 
     handle = event => {
-        this[QUEUE].then(() => this.execute(event));
-    }
-
-    execute = async event => {
         const value = JSON.parse(event.value);
 
+        return Rx.Observable.fromPromise(this.execute(value));
+    }
+
+    execute = async value => {
         // check if 'id' is a Value Object
         const key = value.id.id ? { 'id.id': value.id.id } : { id: value.id };
 
         try {
-            const data = (/^Created/).test(value.name) ?
-                {} :
-                await this[PROJECTION].findOne(key).exec();
+            const data = await this[PROJECTION].findOne(key).exec();
 
-            const aggregate = new this[AGGREGATE](data);
+            const aggregate = new this[DENORMALIZER](data || {});
             aggregate.applyData(value);
 
-            await this[PROJECTION]
-                .findOneAndUpdate(key, aggregate, CONFIG.UPDATE_OPTIONS)
-                .exec();
+            await this[PROJECTION].findOneAndUpdate(key, aggregate, CONFIG.UPDATE_OPTIONS).exec();
         }
         catch (e) {
             console.log(e);

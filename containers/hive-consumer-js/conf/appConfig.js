@@ -3,10 +3,10 @@ module.exports = Object.freeze({
     NODE_ENV: process.env.NODE_ENV || 'production',
     PORT: process.env.PORT || 3000,
     // domain configurations
-    AGGREGATE: process.env.AGGREGATE || 'content',
-    AGGREGATE_LIB: process.env.AGGREGATE_LIB || 'js-cqrs-es-domain-module',
     AGGREGATE_LIST: process.env.AGGREGATE_LIST && Array.from(process.env.AGGREGATE_LIST) || ['content', 'view'],
-    PROJECTION: process.env.PROJECTION || 'content',
+    DENORMALIZER: process.env.DENORMALIZER || 'post',
+    DENORMALIZER_LIB: process.env.DENORMALIZER_LIB || 'js-cqrs-es-domain-module',
+    PROJECTION: process.env.PROJECTION || 'post',
     PROJECTION_LIB: process.env.PROJECTION_LIB || 'js-cqrs-es-domain-module',
     // event store configurations
     EVENT_STORE_ID: process.env.EVENT_STORE_ID,
