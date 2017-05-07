@@ -28,14 +28,14 @@
   },
   "dependencies": {
     "babel-runtime": "~6.23.0",
-    "js-cqrs-es": "~0.0.1-beta.2",
-    "mongoose": "~4.9.6",
+    "js-cqrs-es": "~1.0.0",
+    "mongoose": "~4.9.7",
     "uuid": "~3.0.1"
   },
   "devDependencies": {
     "babel-cli": "~6.24.1",
     "babel-core": "~6.24.1",
-    "babel-eslint": "~7.2.1",
+    "babel-eslint": "~7.2.3",
     "babel-plugin-add-module-exports": "~0.2.1",
     "babel-plugin-transform-async-to-generator": "~6.24.1",
     "babel-plugin-transform-class-properties": "~6.24.1",
@@ -52,7 +52,7 @@
     "gulp": "~3.9.1",
     "gulp-babel": "~6.1.2",
     "gulp-cached": "~1.1.1",
-    "gulp-changed": "~2.0.0",
+    "gulp-changed": "~3.1.0",
     "gulp-debug": "~3.1.0",
     "gulp-eslint": "~3.0.1",
     "gulp-if": "~2.0.2",
@@ -67,8 +67,8 @@
     "isparta": "~4.0.0",
     "istanbul": "~0.4.5",
     "jshint-stylish": "~2.2.1",
-    "mocha": "~3.2.0",
+    "mocha": "~3.3.0",
     "proxyquire": "~1.7.11",
-    "sinon": "~2.1.0"
+    "sinon": "~2.2.0"
   }
 }
