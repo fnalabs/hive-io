@@ -3,7 +3,7 @@ import { Model, Schema } from 'js-cqrs-es';
 import contentIdSchema from '../schema/contentId';
 
 const viewSchema = new Schema({
-    // content reference
+    // NOTE: content reference only, not a unique identifier for these objects as this is a Value Object
     id: contentIdSchema,
 
     // metadata
@@ -11,7 +11,7 @@ const viewSchema = new Schema({
         type: String,
         value: () => new Date().toISOString()
     }
-    // other analytics data here...
+    // NOTE: other analytics data would go here...
 });
 
 export default class View extends Model {
