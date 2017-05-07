@@ -1,5 +1,5 @@
 # js-cqrs-es
-A JavaScript Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) library.
+A JavaScript Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) library. This is developed in parallel while testing the [Hive Pattern](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) theory to be the library that the [Hive Stack Components](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903#hive-stack-components) are built upon.
 
 ## Library
 The library contains a base set of classes that can be used to implement your domain layer of your CQRS/ES application. It contains all the basic building blocks for defining Aggregates, Entities, and Value Objects backed by a rich Schema specification that is meant to translate to/from [JSON](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON#JavaScript_Object_Notation) for easy network transport. It also provides extensible Command and Event Messages to support your Aggregate implementation.
@@ -11,7 +11,6 @@ Let's start with [Schema](./src/js/Schema.js) first. Inspired by [Mongoose](http
 - `String`
 - `Object` (as a nested Schema)
 - `Array` (as an Array literal)
-- `null`
 
 Property definitions can be as simple as providing the one of the data types above or as complex as a object literal containing the following properties:
 - `type` = use one of the types listed above
@@ -32,7 +31,8 @@ Next is [Model](./src/js/Model.js). The Model class, in conjunction with a Schem
 ### Aggregate
 The [Aggregate](./src/js/Aggregate.js) class extends Model to add aggregate specific methods. Therefore, it has the same base functionality and public methods as the Model class but with a few additions. Namely, it has two `apply` methods to support different use cases.
 - `applyData(data)` - applies the event data from an object literal to the object. It first validates that the version of the data being applied is not out of sequence. If version validation passes, then it uses Model's `update` method to apply the new data on top of the existing state.
-- `applySequence(data)` - applies a list of data to the object to support a traditional CQRS Aggregate implementation. This method is for instantiating the state of the object from the list of events returned from your event store. This is not the default use case for the Aggregate class but can be achieved by chaining the constructor call like so `new Aggregate(data.shift(), schema).applySequence(data)`.
+- `applySequence(data)` - applies a list of events to the object to support a traditional CQRS Aggregate implementation. This method is for instantiating the state of the object from the list of events returned from your event store.
+  - ***NOTE:*** This is not the default use case for the Aggregate class but can be achieved by chaining the constructor call like so `new Aggregate({}, schema).applySequence(data)`.
 
 ### Message
 The [Message](./src/js/Message.js) class is a base class for Command and Event messages that are passed through a CQRS/ES application. It provides the most basic definition of these messages, an id and sequence. It has a single public method defined below:
@@ -55,5 +55,4 @@ Last but not least, the [Handler](./src/js/Handler.js) class is responsible for 
 The example is also paired with the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903), an enterprise CQRS/ES stack implementing micro-service applications around a [Kafka](https://kafka.apache.org) streaming event store with [Redis](https://redis.io/)/[Redlock](https://redis.io/topics/distlock) as a cache layer and [MongoDB](https://www.mongodb.com/) for projections.
 
 ## Future
-- adding a little more rigitity/defensive coding to the data model to enforce JSON modeling
 - feature requests via [issues](https://github.com/aeilers/js-cqrs-es/issues)
