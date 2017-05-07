@@ -1,29 +1,29 @@
 # js-cqrs-es-domain-module
-This is an example domain module to help describe implementation guidelines when leveraging the [js-cqrs-es](https://www.npmjs.com/package/js-cqrs-es) framework.
+This is an example domain module to help describe implementation guidelines when leveraging the [js-cqrs-es](https://www.npmjs.com/package/js-cqrs-es) library. This is developed in parallel to prove the [Hive Pattern](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) theory. It is the structure that the [Hive Stack Components](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903#hive-stack-components) are built upon.
 
 ## Structure
-The structure of the domain module is defined below. This is the general structure that the Producer, Consumer, and Stream Processor services follow by default. Again, this is a suggested structure to keep domain logic separate from application/infrastructure logic because it makes the code more far more portable than it would have otherwise been. This is fine for smaller domain models. To manage complex domain models, see the [advanced use cases](#advanced-use-cases) below.
+The structure of the domain module is defined below. This is the general structure that the Producer, Consumer, and Stream Processor services follow by default. Again, this is a suggested structure to keep domain logic separate from application/infrastructure logic because it makes the code far more portable than it would have otherwise been. This is fine for smaller domain models. To manage complex domain models, see the [advanced use cases](#advanced-use-cases) below.
 ```
 module
     |- projection
-    |   |- Projections
-    |   `- (etc.)
+    |   |- denormalizer
+    |   |   `- Denormalizers
+    |   `- store
+    |       `- Mongoose Schemas
     `- domain
         |- schema
         |   `- Schemas
         |- model
         |   |- Entities
-        |   |- Value Objects
-        |   `- (etc.)
+        |   `- Value Objects
         `- aggregate
-            |- Aggregate namespaces { class, commands, events, handlers }
-            `- (etc.)
+            `- Aggregate namespaces { class, commands, events, handlers }
 ```
 
 ## Advanced Use Cases
 For larger domain models, an even greater degree of separation with multiple domain modules is strongly recommended. Teams will maintain their own domain modules in their area of responsibility for the overall domain model.
 
-Another strong recommendation is to separate the domain module into multiple modules to manage dependencies and portability better. Commands should be put in their own module so that they can be reused in the UI layer. Projections should also be split out into their own module as well because of the extra DB dependencies. Here is an example of how these multiple modules would be defined:
+Another strong recommendation is to separate the domain module into multiple modules to manage dependencies and portability better. Commands should be put in their own module so that they can be reused in the UI layer. Projections should also be split out into their own module as well because of the extra DB dependencies. Here is an example of how these multiple modules could be defined:
 ```
 commands-module
     |- Commands
@@ -49,11 +49,9 @@ projections-module
         `- odm-framework
 ```
 
-- ***NOTE:*** This approach will require you to use the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) starter kits rather than the Docker base images.
+- ***NOTE:*** This approach will require you to use the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903#hive-stack-components) starter kits rather than the Docker base images.
 
 ## Example
-The example provided here is an attempt to showcase as much of the features of the [js-cqrs-es](https://www.npmjs.com/package/js-cqrs-es) framework as possible. It is a contrived representation of a Twitter Tweet [Content](./src/js/domain/aggregate/content.js) aggregate and an analytics [View](./src/js/domain/model/view.js) value object to track views over time. This is also the default domain module applied to the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) for testing implementation details. I've provided a diagram for the domain model below.
+The example provided here is an attempt to showcase as much of the features of the [js-cqrs-es](https://www.npmjs.com/package/js-cqrs-es) framework as possible. It is a contrived representation of a Twitter Tweet [Content](./src/js/domain/aggregate/content.js) aggregate and an analytics [View](./src/js/domain/model/view.js) value object to track views over time. The data is denormalized on the Consumer side to represent the complete [Post](./src/js/projection/denormalizer/post.js) and tracks the number of Views each Post has received. This is also the default domain module applied to the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) for testing implementation details. I've provided a diagram for the domain model below.
 
-![contrived example domain model](cqrs_es_contrived_example_domain.png "js-cqrs-es contrived example domain model")
-
-- ***NOTE:*** To be clear, the Content aggregate handles a small amount of denormalization to track views on the Consumer. This is ***NOT*** the recommended approach! It is there to make development and testing easier. Separate Denormalizers should be written that should extend the Aggregate class and reuse existing Schemas to define the denormalized structure for [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Consumers. [Read](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903#aggregates-and-denormalization) more about why.
+![js-cqrs-es contrived example domain model](cqrs_es_contrived_example_domain.png "js-cqrs-es contrived example domain model")
