@@ -1,5 +1,6 @@
 import CONFIG from '../conf/appConfig';
 
+import uuidV4 from 'uuid/v4';
 import { Client, ConsumerGroup, HighLevelProducer } from 'kafka-node';
 
 const CLIENT = Symbol('reference to Kafka client connection');
@@ -12,11 +13,14 @@ const CLOSE = Symbol('reference to method for closing the Kafka consumer/client'
 export default class EventStore {
 
     constructor() {
-        this[CLIENT] = new Client(CONFIG.EVENT_STORE_URL, `${CONFIG.EVENT_STORE_ID}-${process.pid}`);
+        this[CLIENT] = new Client(CONFIG.EVENT_STORE_URL, `${CONFIG.EVENT_STORE_ID}-${uuidV4()}`);
 
         this[PRODUCER] = new HighLevelProducer(this[CLIENT], {
             partitionerType: CONFIG.EVENT_STORE_TYPE
         });
+
+        // NOTE to make consumer rebuild from the earliest log for development, you must make groupId unique
+        //      e.g. `${CONFIG.EVENT_STORE_ID}-${uuidV4()}` instead of just CONFIG.EVENT_STORE_ID
         this[CONSUMER] = new ConsumerGroup({
             host: CONFIG.EVENT_STORE_URL,
             groupId: CONFIG.EVENT_STORE_ID,
