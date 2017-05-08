@@ -4,7 +4,10 @@ This is a starter kit for [Hive Stack](https://gist.github.com/aeilers/30aa00471
 ## Purpose
 Producers represent a simpler implementation where domain Value Objects can be passed through to the log directly with minimal validation. Since Value Objects have no unique identity, they are essentially immutable and can be treated as such. Therefore, this type of validation is superficial and can easily be handled by the Value Object's schema definition. Examples of this type of implementation would include streams of analytics data for user tracking or geolocation data for real-time position tracking.
 
-## Example
+## Usage
+This starter kit extends all of the features of [docker-nodejs-starter](https://github.com/aeilers/docker-nodejs-starter).
+
+### Examples
 Below is a snippet of a `docker-compose.yml` definition for development. Change values as you see fit.
 ```
 docker-nodejs-producer-starter:
@@ -36,7 +39,7 @@ npm run build
 docker build -t aeilers/docker-nodejs-producer .
 ```
 
-## Environment variables
+### Environment variables
 Below is a table describing the possible environment variables to run the Hive Stack Producer. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name              | Type    | Default                     | Description
