@@ -22,6 +22,7 @@ const TEST = 'test:';
 
 const GULPFILE = 'gulpfile';
 const SCRIPTS = 'scripts';
+const TESTS = 'tests';
 
 // Gulp + Plugins, etc.
 const $ = loadPlugins();
@@ -105,6 +106,12 @@ gulp.task(`${RUN}${SCRIPTS}`, [
     `${INSTRUMENT}${SCRIPTS}`,
     `${TEST}${SCRIPTS}`,
     `${BUILD}${SCRIPTS}`
+]);
+gulp.task(`${RUN}${TESTS}`, [
+    `${CLEAN}${SCRIPTS}`,
+    `${LINT}${SCRIPTS}`,
+    `${INSTRUMENT}${SCRIPTS}`,
+    `${TEST}${SCRIPTS}`
 ]);
 
 // clean-specific tasks
