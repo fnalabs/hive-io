@@ -6,7 +6,10 @@ Consumers handle the query responsibilities in the CQRS pattern. They are respon
 
 The Hive Stack leverages MongoDB as a storage solution for these microservices because of its rich data modeling and querying capabilities. Apache Cassandra also seems like a viable solution for this requirement because of its ability to handle high-volume reads/writes and a rich query language.
 
-## Example
+## Usage
+This starter kit extends all of the features of [docker-nodejs-starter](https://github.com/aeilers/docker-nodejs-starter).
+
+### Examples
 Below is a snippet of a `docker-compose.yml` definition for development. Change values as you see fit.
 ```
 docker-nodejs-consumer-starter:
@@ -47,7 +50,7 @@ npm run build
 docker build -t aeilers/docker-nodejs-consumer .
 ```
 
-## Environment variables
+### Environment variables
 Below is a table describing the possible environment variables to run the Hive Stack Consumer. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name                  | Type    | Default                     | Description
