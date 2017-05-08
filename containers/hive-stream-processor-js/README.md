@@ -10,7 +10,10 @@ The third role of the Stream Processor is the most complex and likely least used
 
 The Hive Stack leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency. Riak also seems like a viable solution for this requirement as it is a similar product that also provides strong consistency concepts.
 
-## Example
+## Usage
+This starter kit extends all of the features of [docker-nodejs-starter](https://github.com/aeilers/docker-nodejs-starter).
+
+### Examples
 Below is a snippet of a `docker-compose.yml` definition for development. Change values as you see fit.
 ```
 docker-nodejs-stream-processor-starter:
@@ -51,7 +54,7 @@ npm run build
 docker build -t aeilers/docker-nodejs-stream-processor .
 ```
 
-## Environment variables
+### Environment variables
 Below is a table describing the possible environment variables to run the Hive Stack Stream Processor. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name                  | Type    | Default                     | Description
