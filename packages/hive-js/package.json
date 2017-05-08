@@ -6,8 +6,7 @@
   "scripts": {
     "build": "NODE_ENV=production gulp run:scripts",
     "build:dev": "NODE_ENV=development gulp",
-    "test": "NODE_ENV=production gulp lint:scripts",
-    "preversion": "NODE_ENV=production npm test",
+    "test": "NODE_ENV=production gulp run:tests",
     "version": "NODE_ENV=production npm run build && git add --all",
     "postversion": "NODE_ENV=production git push && git push --tags && npm publish",
     "version:pre": "NODE_ENV=production npm version $([ -n ${npm_config_preid+x} ] && semver $npm_package_version --increment $npm_config_increment --preid $npm_config_preid || semver $npm_package_version --increment $npm_config_increment)"
