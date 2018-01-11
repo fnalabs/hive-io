@@ -1,8 +1,8 @@
 // expose library
-exports.Aggregate = require('./dist/js/Aggregate');
-exports.Command = require('./dist/js/Command');
-exports.Event = require('./dist/js/Event');
-exports.Handler = require('./dist/js/Handler');
-exports.Message = require('./dist/js/Message');
-exports.Model = require('./dist/js/Model');
-exports.Schema = require('./dist/js/Schema');
+exports.Aggregate = require('./dist/Aggregate')
+exports.Command = require('./dist/Command')
+exports.Event = require('./dist/Event')
+exports.Handler = require('./dist/Handler')
+exports.Message = require('./dist/Message')
+exports.Model = require('./dist/Model')
+exports.Schema = require('./dist/Schema')
