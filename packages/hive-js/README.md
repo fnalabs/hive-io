@@ -1,11 +1,18 @@
-# js-cqrs-es
+# hive-io
+
+[![NPM Version][npm-image]][npm-url]
+[![Build Status][circle-image]][circle-url]
+[![Code Coverage][codecov-image]][codecov-url]
+[![Dependency Status][depstat-image]][depstat-url]
+[![JavaScript Style Guide][style-image]][style-url]
+
 A JavaScript Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) library. This is developed in parallel to prove the [Hive Pattern](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) theory. It is the library that the [Hive Stack Components](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903#hive-stack-components) are built upon.
 
 ## Library
 The library contains a base set of classes that can be used to implement your domain layer of your CQRS/ES application. It contains all the basic building blocks for defining Aggregates, Entities, and Value Objects backed by a rich Schema specification that is meant to translate to/from [JSON](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON#JavaScript_Object_Notation) for easy network transport. It also provides extensible Command and Event Messages to support your Aggregate implementation.
 
 ### Schema
-Let's start with [Schema](./src/js/Schema.js) first. Inspired by [Mongoose](http://mongoosejs.com/) Schemas, it has very similar features but some very distinct differences. A Schema is a specification for your data models to provide a reference for validation when instantiating and/or applying data to your models. Each property ***must*** have one of the valid JSON primitive/complex data types defined:
+Let's start with [Schema](./src/Schema.js) first. Inspired by [Mongoose](http://mongoosejs.com/) Schemas, it has very similar features but some very distinct differences. A Schema is a specification for your data models to provide a reference for validation when instantiating and/or applying data to your models. Each property ***must*** have one of the valid JSON primitive/complex data types defined:
 - `Boolean`
 - `Number`
 - `String`
@@ -24,35 +31,58 @@ While Schema only provides two public methods, it does quite a bit more under th
 - `evalProperty()` - not as evil as it sounds, this method is used to return the value or execute the function assigned to either `default` or `value` definitions above.
 
 ### Model
-Next is [Model](./src/js/Model.js). The Model class, in conjunction with a Schema reference, is used to define Entities and Value Objects in your CQRS implementation. Just like Schema, it is implemented as an iterable object with the same signature as a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map). It exposes two public methods but it also does quite a bit under the hood.
+Next is [Model](./src/Model.js). The Model class, in conjunction with a Schema reference, is used to define Entities and Value Objects in your CQRS implementation. Just like Schema, it is implemented as an iterable object with the same signature as a [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map). It exposes two public methods but it also does quite a bit under the hood.
 - `update(data)` - used to create the object's data properties initially and also when updating data against the Schema definition. it uses three internal setter methods to iterate over the Schema to validate and set data properties accordingly.
 - `toJSON()` - can be called directly but is typically called by `JSON.stringify(object)` to add the class name of the object for network transport and reconstruction.
 
 ### Aggregate
-The [Aggregate](./src/js/Aggregate.js) class extends Model to add aggregate specific methods. Therefore, it has the same base functionality and public methods as the Model class but with a few additions. Namely, it has two `apply` methods to support different use cases.
+The [Aggregate](./src/Aggregate.js) class extends Model to add aggregate specific methods. Therefore, it has the same base functionality and public methods as the Model class but with a few additions. Namely, it has two `apply` methods to support different use cases.
 - `applyData(data)` - applies the event data from an object literal to the object. It first validates that the version of the data being applied is not out of sequence. If version validation passes, then it uses Model's `update` method to apply the new data on top of the existing state.
 - `applySequence(data)` - applies a list of events to the object to support a traditional CQRS Aggregate implementation. This method is for instantiating the state of the object from the list of events returned from your event store.
   - ***NOTE:*** This is not the default use case for the Aggregate class but can be achieved by chaining the constructor call like so `new Aggregate({}, schema).applySequence(data)`.
 
 ### Message
-The [Message](./src/js/Message.js) class is a base class for Command and Event messages that are passed through a CQRS/ES application. It provides the most basic definition of these messages, an id and sequence. It has a single public method defined below:
+The [Message](./src/Message.js) class is a base class for Command and Event messages that are passed through a CQRS/ES application. It provides the most basic definition of these messages, an id and sequence. It has a single public method defined below:
 - `toJSON()` - can be called directly but is typically called by `JSON.stringify(object)` to add the class name of the object for network transport and reconstruction.
 
 ### Command
-The [Command](./src/js/Command.js) class extends Message by adding an abstract method for Command validation. It is meant to be extended directly to define your Commands in your CQRS implementation. Validations are meant to be superficial and are only concerned with specific data points attached to the command if there are any. Validate is called on Command construction automatically but is publicly exposed if it needs to be called directly.
+The [Command](./src/Command.js) class extends Message by adding an abstract method for Command validation. It is meant to be extended directly to define your Commands in your CQRS implementation. Validations are meant to be superficial and are only concerned with specific data points attached to the command if there are any. Validate is called on Command construction automatically but is publicly exposed if it needs to be called directly.
 - `validate()` - abstract method that returns undefined by default. Override for specific validation requirements (if any). Be sure to throw an appropriate [Error](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error#Error_types) if your validation fails.
 
 ### Event
-The [Event](./src/js/Event.js) class is very much like the Command class above but is used for logging and event messaging. The only difference from the Message class it extends is that it adds an ISO timestamp before it's logged. It has no public methods but can be extended to suite your needs.
+The [Event](./src/Event.js) class is very much like the Command class above but is used for logging and event messaging. The only difference from the Message class it extends is that it adds an ISO timestamp before it's logged. It has no public methods but can be extended to suite your needs.
 
 ### Handler
-Last but not least, the [Handler](./src/js/Handler.js) class is responsible for translating Commands, Events, and Aggregates at all of your service endpoints. It is essentially the glue that binds all of the above objects together in a CQRS/ES implementation. It only has one public method and should be able to cover most use cases. The class can be extended for specific handling requirements.
+Last but not least, the [Handler](./src/Handler.js) class is responsible for translating Commands, Events, and Aggregates at all of your service endpoints. It is essentially the glue that binds all of the above objects together in a CQRS/ES implementation. It only has one public method and should be able to cover most use cases. The class can be extended for specific handling requirements.
 - `handle(data, aggregate)` - takes the raw `data` passed through the network and instantiates the Command it's associated with. The `aggregate` is an instance of the Aggregate class and is created in the Application layer either from existing event store data or with new/default data in a `create` command/event.
 
 ## Example
-[This](https://www.npmjs.com/package/js-cqrs-es-domain-module) is an example implementation of a contrived domain model using this library. It is an over-simplified example of Twitter content and view analytics to showcase all of the classes above.
+[This](https://www.npmjs.com/package/hive-io-domain-module) is an example implementation of a contrived domain model using this library. It is an over-simplified example of Twitter content and view analytics to showcase all of the classes above.
 
 The example is also paired with the [Hive Stack](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903), an enterprise CQRS/ES stack implementing microservice applications around a [Kafka](https://kafka.apache.org) streaming event store with [Redis](https://redis.io/)/[Redlock](https://redis.io/topics/distlock) as a cache layer and [MongoDB](https://www.mongodb.com/) for projections.
 
 ## Future
-- feature requests via [issues](https://github.com/aeilers/js-cqrs-es/issues)
+- feature requests via [issues](https://github.com/fnalabs/hive-io/issues)
+
+## Changelog
+#### v2.0.0
+- TODO
+- updated name and organization
+
+#### v1.0.0
+- initial release
+
+[npm-image]: https://img.shields.io/npm/v/hive-js.svg
+[npm-url]: https://www.npmjs.com/package/hive-js
+
+[circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js.svg
+[circle-url]: https://circleci.com/gh/fnalabs/hive-js
+
+[codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js/master.svg
+[codecov-url]: https://codecov.io/gh/fnalabs/hive-js
+
+[depstat-image]: https://img.shields.io/david/fnalabs/hive-js.svg
+[depstat-url]: https://david-dm.org/fnalabs/hive-js
+
+[style-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
+[style-url]: https://standardjs.com
