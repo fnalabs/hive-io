@@ -1,9 +1,10 @@
 # Project specific
+bin
 src
+tmp*
 tst
 .*
-conf/buildConfig.json
-gulpfile.babel.js
+package.tar.gz
 
 # Logs
 logs
@@ -14,6 +15,10 @@ npm-debug.log*
 pids
 *.pid
 *.seed
+
+# Coverage directory used by tools like istanbul
+coverage
+coverage.lcov
 
 # node-waf configuration
 .lock-wscript
