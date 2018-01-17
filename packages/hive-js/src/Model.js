@@ -1,88 +1,95 @@
-import Schema from './Schema'
+import Schema from 'schema-json-js'
 
-// private properties
-const SPEC = Symbol('reference to Schema object that defines the data model')
+// meta porperties
+export const SEQUENCE = Symbol('optional property to cache aggregate sequence')
+const SCHEMA = Symbol('Schema object that defines the data model')
 
 // private methods
-const SET_SCHEMA = Symbol('reference to method that initializes data against the Schema')
-const SET_ARRAY = Symbol('reference to method that initializes Array data')
-const SET_PROPERTY = Symbol('reference to method that initializes property data')
+const CREATE_MODEL = Symbol('method used to create a Model')
 
-export default class Model {
-  constructor (data = { id: 'id' }, spec = new Schema()) {
-    this[SPEC] = spec
+// default JSON Schema for JSON API specification Resource Objects
+const DefaultSchema = {
+  title: 'DefaultModel',
+  $id: 'https://hiveframework.io/api/v1/models/DefaultModel',
+  properties: {
+    id: { type: 'string' }
+  },
+  required: ['id']
+}
 
-    this.update(data)
+class Model {
+  constructor (data, schema) {
+    if (!(data && typeof data === 'object' && !Array.isArray(data))) {
+      throw new Error('Model data must be an object')
+    }
+
+    if (Number.isInteger(data[SEQUENCE])) this[SEQUENCE] = data[SEQUENCE]
+    this[SCHEMA] = schema
+
+    return this[CREATE_MODEL](this, data)
   }
 
   /*
-   * update
+   * create model
    */
-  update (data) {
-    return this[SET_SCHEMA](this, data, this[SPEC])
-  }
-
-  /*
-   * iterator(s)
-   */
-  * [Symbol.iterator] () {
-    const keys = Object.keys(this)
-
-    for (const key of keys) {
-      yield [key, this[key]]
-    }
-  }
-
-  /*
-   * private methods
-   */
-  [SET_ARRAY] (source, spec) {
-    if (typeof source === 'undefined') source = []
-
-    if (spec[0] instanceof Schema) {
-      return source.map(value => this[SET_SCHEMA]({}, value, spec[0]))
-    }
-
-    return source.map(value => this[SET_PROPERTY](value, spec[0]))
-  }
-
-  [SET_PROPERTY] (value, spec) {
-    // if a default value/function is defined, use it
-    if (typeof spec.value !== 'undefined') {
-      return this[SPEC].evalProperty(spec.value)
-    } else if (typeof spec.default !== 'undefined' && typeof value === 'undefined') {
-      return this[SPEC].evalProperty(spec.default)
-    }
-
-    this[SPEC].validate(value, spec)
-
-    return value
-  }
-
-  [SET_SCHEMA] (object, source, spec) {
-    if (typeof source === 'undefined') source = {}
-
+  [CREATE_MODEL] (object, source) {
     // iterate over object/array passed as source data
-    for (let [property, specification] of spec) {
-      // if specification is a nested Schema
-      if (specification instanceof Schema) {
-        object[property] = this[SET_SCHEMA]({}, source[property], specification)
-      // else if specification is an Array
-      } else if (Array.isArray(specification)) {
-        object[property] = this[SET_ARRAY](source[property], specification)
-      // else if source is provided or object isn't initialized
-      } else if (typeof object[property] === 'undefined' || typeof source[property] !== 'undefined') {
-        object[property] = this[SET_PROPERTY](source[property], specification)
-      }
+    const keys = Object.keys(source)
+    for (let key of keys) {
+      const value = source[key]
+      if (value && typeof value === 'object') {
+        object[key] = Array.isArray(value)
+          ? this[CREATE_MODEL]([], value)
+          : this[CREATE_MODEL]({}, value)
+      } else object[key] = value
     }
 
-    return object
+    // return Array instance if in a recursive call
+    if (Array.isArray(object)) return object
+
+    // return a proxy to the object to enforce all added properties to be configurable, enumerable, and writable
+    return new Proxy(object, {
+      defineProperty: (object, property, descriptor) => (object[property] = descriptor.value)
+    })
   }
 
+  /*
+   * conforms to JSON API specification Top Level
+   */
   toJSON () {
-    return {
-      ...this,
-      name: this.constructor.name
+    const ret = {
+      data: { ...this },
+      meta: { timestamp: new Date().toISOString() }
     }
+
+    // add metadata
+    if (this[SEQUENCE]) ret.meta.sequence = this[SEQUENCE]
+    ret.meta.model = this[SCHEMA].title
+    ret.meta.schema = this[SCHEMA].$id || this[SCHEMA].id
+
+    return ret
+  }
+
+  /*
+   * static methods to allow manual invocation of model validation
+   */
+  static errors (model) {
+    return model[SCHEMA].errors
+  }
+
+  static async validate (model) {
+    return model[SCHEMA].validate(model)
+  }
+}
+
+export default class ModelProxy {
+  constructor (schema) {
+    return new Proxy(Model, {
+      construct: async function (Model, argsList) {
+        if (schema === undefined) schema = await new Schema(DefaultSchema)
+        if (!await schema.validate(argsList[0])) throw new Error(...schema.errors)
+        return new Model(argsList[0], schema)
+      }
+    })
   }
 }

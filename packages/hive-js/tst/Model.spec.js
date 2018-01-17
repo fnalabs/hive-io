@@ -1,298 +1,204 @@
 /* eslint-env mocha */
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
+import Schema from 'schema-json-js'
 
-import Model from '../src/Model'
-import Schema from '../src/Schema'
+import Model, { SEQUENCE } from '../src/Model'
+
+const TestSchema = {
+  title: 'TestModel',
+  $id: 'https://hiveframework.io/api/v1/models/TestModel',
+  properties: {
+    test: {
+      type: 'string'
+    },
+    another: {
+      type: 'string'
+    }
+  },
+  required: ['test']
+}
 
 chai.use(dirtyChai)
 
 describe('Model class', () => {
-  let model
+  let TestModel
 
   describe('#constructor', () => {
-    const schemas = [
-      new Schema(),
-      new Schema(),
-      new Schema({ id: { type: String, default: 'stub' } }),
-      new Schema({ id: { type: String, default: 'stub' } }),
-      new Schema({ id: { type: String, value: 'stub' } }),
-      new Schema({ id: String, itemRef: new Schema() }),
-      new Schema({ id: String, meta: new Schema({ created: { type: Number, default: Date.now } }) }),
-      new Schema({ id: String, availableRefs: [new Schema()] }),
-      new Schema({ id: String, counts: [Number] })
-    ]
-    const data = [
-            { id: 'id' },
-            { id: 0 },
-            { id: 'id' },
-            {},
-            { id: 'id' },
-            { id: 'id', itemRef: { id: 'id' } },
-            { id: 'id' },
-            { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] },
-            { id: 'id', counts: [1, 2, 3, 4] }
-    ]
+    context('w/ a Schema', () => {
+      after(() => {
+        TestModel = null
+      })
 
-    it('should return the test object unmodified', () => {
-      model = new Model(data.shift(), schemas.shift())
+      before(async () => {
+        TestModel = await new Model(await new Schema(TestSchema))
+      })
 
-      expect(model).to.be.an('object')
+      it('should asyncronously create a new model', async () => {
+        expect(await new TestModel({ test: 'object' })).to.deep.equal({ test: 'object' })
+      })
 
-      expect(model.update).to.be.a('function')
+      it('should throw an error if data is invalid', async () => {
+        try {
+          await new TestModel({ test: 1 })
+        } catch (e) {
+          expect(e.message).to.equal('#type: value is not a string')
+        }
 
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
+        try {
+          await new TestModel(null)
+        } catch (e) {
+          expect(e.message).to.equal('Model data must be an object')
+        }
+      })
     })
 
-    it('should throw a TypeError', () => {
-      expect(() => new Model(data.shift(), schemas.shift())).to.throw(TypeError)
-    })
+    context('w/ DefaultSchema', () => {
+      after(() => {
+        TestModel = null
+      })
 
-    it('should return the test object with the provided value', () => {
-      model = new Model(data.shift(), schemas.shift())
+      before(async () => {
+        TestModel = await new Model()
+      })
 
-      expect(model).to.be.an('object')
+      it('should asyncronously create a new model', async () => {
+        expect(await new TestModel({ id: 'object' })).to.deep.equal({ id: 'object' })
+        expect(await new TestModel({ id: 'object', test: 1 })).to.deep.equal({ id: 'object', test: 1 })
+        expect(await new TestModel({ id: 'object', test: ['list'] })).to.deep.equal({ id: 'object', test: ['list'] })
+        expect(await new TestModel({ id: 'object', test: { nested: 'object' } })).to.deep.equal({ id: 'object', test: { nested: 'object' } })
+      })
 
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-    })
+      it('should always validate as true if no Schema is defined', async () => {
+        let testModel = await new TestModel({ id: 'object' })
 
-    it('should return the test object with the default from the schema', () => {
-      model = new Model(data.shift(), schemas.shift())
+        expect(await TestModel.validate(testModel)).to.be.true()
+        expect(TestModel.errors(testModel)).to.deep.equal([])
 
-      expect(model).to.be.an('object')
+        testModel = await new TestModel({ id: 'object', another: { more: { complex: 'object' } } })
 
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('stub')
-    })
-
-    it('should return the test object with the value from the schema', () => {
-      model = new Model(data.shift(), schemas.shift())
-
-      expect(model).to.be.an('object')
-
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('stub')
-    })
-
-    it('should return the test object with the provided nested model data', () => {
-      model = new Model(data.shift(), schemas.shift())
-
-      expect(model).to.be.an('object')
-
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-
-      expect(model.itemRef.id).to.be.a('string')
-      expect(model.itemRef.id).to.equal('id')
-    })
-
-    it('should return the test object with the complex nested object literal', () => {
-      model = new Model(data.shift(), schemas.shift())
-
-      expect(model).to.be.an('object')
-
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-
-      expect(model.meta.created).to.be.a('number')
-    })
-
-    it('should return the test object with a nested array of schemas', () => {
-      model = new Model(data.shift(), schemas.shift())
-
-      expect(model).to.be.an('object')
-
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-
-      expect(model.availableRefs[0].id).to.be.a('string')
-      expect(model.availableRefs[0].id).to.equal('id1')
-
-      expect(model.availableRefs[1].id).to.be.a('string')
-      expect(model.availableRefs[1].id).to.equal('id2')
-    })
-
-    it('should return the test object with a nested array of values', () => {
-      model = new Model(data.shift(), schemas.shift())
-
-      expect(model).to.be.an('object')
-
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-
-      expect(model.counts[0]).to.be.a('number')
-      expect(model.counts[0]).to.equal(1)
-
-      expect(model.counts[1]).to.be.a('number')
-      expect(model.counts[1]).to.equal(2)
-
-      expect(model.counts[2]).to.be.a('number')
-      expect(model.counts[2]).to.equal(3)
-
-      expect(model.counts[3]).to.be.a('number')
-      expect(model.counts[3]).to.equal(4)
-    })
-
-    afterEach(() => {
-      model = null
+        expect(await TestModel.validate(testModel)).to.be.true()
+        expect(TestModel.errors(testModel)).to.deep.equal([])
+      })
     })
   })
 
-  describe('#update', () => {
-    const schemas = [
-      new Schema(),
-      new Schema({ id: { type: String, default: 'stub' } }),
-      new Schema({ id: { type: String, value: 'stub' } }),
-      new Schema({ id: new Schema() }),
-      new Schema({ id: String, meta: new Schema({ updated: { type: Number, default: Date.now } }) }),
-      new Schema({ id: String, availableRefs: [new Schema()] }),
-      new Schema({ id: String, counts: [Number] })
-    ]
-    const data = [
-            { id: 'id' },
-            { id: 'id' },
-            { id: 'id' },
-            { id: { id: 'id' } },
-            { id: 'id' },
-            { id: 'id', availableRefs: [{ id: 'id1' }, { id: 'id2' }] },
-            { id: 'id', counts: [1, 2] }
-    ]
-    const update = [
-            { id: 'update' },
-            { id: 'update' },
-            { id: 'update' },
-            { id: { id: 'update' } },
-            { id: 'update', meta: { updated: Date.now() } },
-            { id: 'update', availableRefs: [{ id: 'id1' }, { id: 'id2' }, { id: 'id3' }] },
-            { id: 'update', counts: [1, 2, 3, 4] }
-    ]
-
-    beforeEach(() => {
-      model = new Model(data.shift(), schemas.shift())
+  describe('defining operations', () => {
+    after(() => {
+      TestModel = null
     })
 
-    it('should return the updated test object', () => {
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-
-      model.update(update.shift())
-
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('update')
+    before(async () => {
+      TestModel = await new Model(await new Schema(TestSchema))
     })
 
-    it('should return the test object unmodified even with a default value defined', () => {
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
+    it('should validate data before defining on the model instance', async () => {
+      const testModel = await new TestModel({ test: 'object' })
+      Object.defineProperty(testModel, 'another', { value: 'string' })
 
-      model.update(update.shift())
-
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('update')
+      expect(await TestModel.validate(testModel)).to.be.true()
+      expect(testModel).to.deep.equal({ test: 'object', another: 'string' })
     })
 
-    it('should return the test object with the provided value', () => {
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('stub')
+    it('should fail validation if new property value is invalid', async () => {
+      const testModel = await new TestModel({ test: 'object' })
+      Object.defineProperty(testModel, 'another', { value: 1 })
 
-      model.update(update.shift())
+      expect(await TestModel.validate(testModel)).to.be.false()
+      expect(TestModel.errors(testModel)).to.deep.equal(['#type: value is not a string'])
+    })
+  })
 
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('stub')
+  describe('deleting operations', () => {
+    after(() => {
+      TestModel = null
     })
 
-    it('should return the test object with the provided nested model data', () => {
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.an('object')
-      expect(model.id.id).to.be.a('string')
-      expect(model.id.id).to.equal('id')
-
-      model.update(update.shift())
-
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.an('object')
-      expect(model.id.id).to.be.a('string')
-      expect(model.id.id).to.equal('update')
+    before(async () => {
+      TestModel = await new Model(await new Schema(TestSchema))
     })
 
-    it('should return the test object with the provided nested model meta data', () => {
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-      expect(model.meta.updated).to.be.a('number')
+    it('should validate a property when deleted successfully', async () => {
+      const testModel = await new TestModel({ test: 'object', another: 'string' })
+      delete testModel.another
 
-      model.update(update.shift())
-
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('update')
-      expect(model.meta.updated).to.be.a('number')
+      expect(await TestModel.validate(testModel)).to.be.true()
+      expect(testModel).to.deep.equal({ test: 'object' })
     })
 
-    it('should return the test object with the provided nested model array data', () => {
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-      expect(model.availableRefs[0].id).to.be.a('string')
-      expect(model.availableRefs[0].id).to.equal('id1')
-      expect(model.availableRefs[1].id).to.be.a('string')
-      expect(model.availableRefs[1].id).to.equal('id2')
+    it('should fail validation when deleting a required property', async () => {
+      const testModel = await new TestModel({ test: 'object', another: 'string' })
+      delete testModel.test
 
-      model.update(update.shift())
+      expect(await TestModel.validate(testModel)).to.be.false()
+      expect(TestModel.errors(testModel)).to.deep.equal(['#required: value does not have all required properties'])
+    })
+  })
 
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('update')
-      expect(model.availableRefs[0].id).to.be.a('string')
-      expect(model.availableRefs[0].id).to.equal('id1')
-      expect(model.availableRefs[1].id).to.be.a('string')
-      expect(model.availableRefs[1].id).to.equal('id2')
-      expect(model.availableRefs[2].id).to.be.a('string')
-      expect(model.availableRefs[2].id).to.equal('id3')
+  describe('updating operations', () => {
+    after(() => {
+      TestModel = null
     })
 
-    it('should return the test object with a nested array of values', () => {
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('id')
-      expect(model.counts[0]).to.be.a('number')
-      expect(model.counts[0]).to.equal(1)
-      expect(model.counts[1]).to.be.a('number')
-      expect(model.counts[1]).to.equal(2)
-
-      model.update(update.shift())
-
-      expect(model).to.be.an('object')
-      expect(model.id).to.be.a('string')
-      expect(model.id).to.equal('update')
-      expect(model.counts[0]).to.be.a('number')
-      expect(model.counts[0]).to.equal(1)
-      expect(model.counts[1]).to.be.a('number')
-      expect(model.counts[1]).to.equal(2)
-      expect(model.counts[2]).to.be.a('number')
-      expect(model.counts[2]).to.equal(3)
-      expect(model.counts[3]).to.be.a('number')
-      expect(model.counts[3]).to.equal(4)
+    before(async () => {
+      TestModel = await new Model(await new Schema(TestSchema))
     })
 
-    afterEach(() => {
-      model = null
+    it('should validate a property when its value changes successfully', async () => {
+      const testModel = await new TestModel({ test: 'object' })
+      testModel.test = 'string'
+
+      expect(await TestModel.validate(testModel)).to.be.true()
+      expect(testModel).to.deep.equal({ test: 'string' })
+    })
+
+    it('should fail validation when updating a property to an invalid value', async () => {
+      const testModel = await new TestModel({ test: 'object' })
+      testModel.test = 1
+
+      expect(await TestModel.validate(testModel)).to.be.false()
+      expect(TestModel.errors(testModel)).to.deep.equal(['#type: value is not a string'])
     })
   })
 
   describe('#toJSON', () => {
-    it('should return the JSON representation of the Model', () => {
-      const model = new Model()
+    context('w/ a Schema', () => {
+      after(() => {
+        TestModel = null
+      })
 
-      expect(model.toJSON()).to.deep.equal({id: 'id', name: 'Model'})
+      before(async () => {
+        TestModel = await new Model(await new Schema(TestSchema))
+      })
+
+      it('should return the JSON representation of the Model', async () => {
+        const model = await new TestModel({ test: 'object', [SEQUENCE]: 1 })
+        const json = model.toJSON()
+
+        expect(json.data).to.deep.equal({ test: 'object' })
+        expect(json.meta.model).to.equal('TestModel')
+        expect(json.meta.schema).to.equal('https://hiveframework.io/api/v1/models/TestModel')
+        expect(json.meta.sequence).to.equal(1)
+      })
+    })
+
+    context('w/ DefaultSchema', () => {
+      after(() => {
+        TestModel = null
+      })
+
+      before(async () => {
+        TestModel = await new Model()
+      })
+
+      it('should return the JSON representation of the Model', async () => {
+        const model = await new TestModel({ id: 'object' })
+        const json = model.toJSON()
+
+        expect(json.data).to.deep.equal({ id: 'object' })
+        expect(json.meta.model).to.equal('DefaultModel')
+        expect(json.meta.schema).to.equal('https://hiveframework.io/api/v1/models/DefaultModel')
+      })
     })
   })
 })
