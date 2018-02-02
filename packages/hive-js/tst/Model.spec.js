@@ -1,13 +1,15 @@
 /* eslint-env mocha */
+// imports
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
 import Schema from 'schema-json-js'
 
-import Model, { SEQUENCE } from '../src/Model'
+import Model from '../src/Model'
 
+// constants
 const TestSchema = {
-  title: 'TestModel',
-  $id: 'https://hiveframework.io/api/v1/models/TestModel',
+  title: 'Test',
+  $id: 'https://hiveframework.io/api/v1/models/Test',
   properties: {
     test: {
       type: 'string'
@@ -18,186 +20,208 @@ const TestSchema = {
   },
   required: ['test']
 }
+const meta = {
+  model: 'Test',
+  schema: 'https://hiveframework.io/api/v1/models/Test'
+}
+const defaultMeta = {
+  model: 'Default',
+  schema: 'https://hiveframework.io/api/v1/models/Default'
+}
 
 chai.use(dirtyChai)
 
+// tests
 describe('Model class', () => {
-  let TestModel
+  let testSchema
 
   describe('#constructor', () => {
     context('w/ a Schema', () => {
       after(() => {
-        TestModel = null
+        testSchema = null
       })
 
       before(async () => {
-        TestModel = await new Model(await new Schema(TestSchema))
+        testSchema = await new Schema(TestSchema)
       })
 
       it('should asyncronously create a new model', async () => {
-        expect(await new TestModel({ test: 'object' })).to.deep.equal({ test: 'object' })
+        const testPayload = { data: { test: 'object' }, meta }
+        const test = await new Model(testPayload, testSchema)
+        expect(test).to.deep.equal({ test: 'object' })
+        expect(test).to.be.an.instanceof(Model)
       })
 
       it('should throw an error if data is invalid', async () => {
         try {
-          await new TestModel({ test: 1 })
+          const testPayload = { data: { test: 1 }, meta }
+          await new Model(testPayload, testSchema)
         } catch (e) {
           expect(e.message).to.equal('#type: value is not a string')
         }
 
         try {
-          await new TestModel(null)
+          const testPayload = { data: null, meta }
+          await new Model(testPayload, testSchema)
         } catch (e) {
           expect(e.message).to.equal('Model data must be an object')
+        }
+
+        try {
+          const testPayload = { data: { test: 'object' }, meta: {} }
+          await new Model(testPayload, testSchema)
+        } catch (e) {
+          expect(e.message).to.equal('Model metadata does not match Schema name')
         }
       })
     })
 
-    context('w/ DefaultSchema', () => {
-      after(() => {
-        TestModel = null
-      })
-
-      before(async () => {
-        TestModel = await new Model()
-      })
-
+    context('w/ Schema as JSON', () => {
       it('should asyncronously create a new model', async () => {
-        expect(await new TestModel({ id: 'object' })).to.deep.equal({ id: 'object' })
-        expect(await new TestModel({ id: 'object', test: 1 })).to.deep.equal({ id: 'object', test: 1 })
-        expect(await new TestModel({ id: 'object', test: ['list'] })).to.deep.equal({ id: 'object', test: ['list'] })
-        expect(await new TestModel({ id: 'object', test: { nested: 'object' } })).to.deep.equal({ id: 'object', test: { nested: 'object' } })
+        const testPayload = { data: { test: 'object' }, meta }
+        const test = await new Model(testPayload, TestSchema)
+        expect(test).to.deep.equal({ test: 'object' })
+        expect(test).to.be.an.instanceof(Model)
+      })
+    })
+
+    context('w/ DefaultSchema', () => {
+      it('should asyncronously create a new model', async () => {
+        expect(await new Model({ data: { id: 'object' }, meta: defaultMeta })).to.deep.equal({ id: 'object' })
+        expect(await new Model({ data: { id: 'object', test: 1 }, meta: defaultMeta })).to.deep.equal({ id: 'object', test: 1 })
+        expect(await new Model({ data: { id: 'object', test: ['list'] }, meta: defaultMeta })).to.deep.equal({ id: 'object', test: ['list'] })
+        expect(await new Model({ data: { id: 'object', test: { nested: 'object' } }, meta: defaultMeta })).to.deep.equal({ id: 'object', test: { nested: 'object' } })
       })
 
       it('should always validate as true if no Schema is defined', async () => {
-        let testModel = await new TestModel({ id: 'object' })
+        let testModel = await new Model({ data: { id: 'object' }, meta: defaultMeta })
 
-        expect(await TestModel.validate(testModel)).to.be.true()
-        expect(TestModel.errors(testModel)).to.deep.equal([])
+        expect(await Model.validate(testModel)).to.be.true()
+        expect(Model.errors(testModel)).to.deep.equal([])
 
-        testModel = await new TestModel({ id: 'object', another: { more: { complex: 'object' } } })
+        testModel = await new Model({ data: { id: 'object', another: { more: { complex: 'object' } } }, meta: defaultMeta })
 
-        expect(await TestModel.validate(testModel)).to.be.true()
-        expect(TestModel.errors(testModel)).to.deep.equal([])
+        expect(await Model.validate(testModel)).to.be.true()
+        expect(Model.errors(testModel)).to.deep.equal([])
+      })
+    })
+
+    context('w/ errors', () => {
+      it('should throw an error when passing a primitive as a payload', async () => {
+        try {
+          await new Model(null)
+        } catch (e) {
+          expect(e.message).to.equal('Model payload must be an object')
+        }
       })
     })
   })
 
   describe('defining operations', () => {
     after(() => {
-      TestModel = null
+      testSchema = null
     })
 
     before(async () => {
-      TestModel = await new Model(await new Schema(TestSchema))
+      testSchema = await new Schema(TestSchema)
     })
 
     it('should validate data before defining on the model instance', async () => {
-      const testModel = await new TestModel({ test: 'object' })
+      const testModel = await new Model({ data: { test: 'object' }, meta }, testSchema)
       Object.defineProperty(testModel, 'another', { value: 'string' })
 
-      expect(await TestModel.validate(testModel)).to.be.true()
+      expect(await Model.validate(testModel)).to.be.true()
       expect(testModel).to.deep.equal({ test: 'object', another: 'string' })
     })
 
     it('should fail validation if new property value is invalid', async () => {
-      const testModel = await new TestModel({ test: 'object' })
+      const testModel = await new Model({ data: { test: 'object' }, meta }, testSchema)
       Object.defineProperty(testModel, 'another', { value: 1 })
 
-      expect(await TestModel.validate(testModel)).to.be.false()
-      expect(TestModel.errors(testModel)).to.deep.equal(['#type: value is not a string'])
+      expect(await Model.validate(testModel)).to.be.false()
+      expect(Model.errors(testModel)).to.deep.equal(['#type: value is not a string'])
     })
   })
 
   describe('deleting operations', () => {
     after(() => {
-      TestModel = null
+      testSchema = null
     })
 
     before(async () => {
-      TestModel = await new Model(await new Schema(TestSchema))
+      testSchema = await new Schema(TestSchema)
     })
 
     it('should validate a property when deleted successfully', async () => {
-      const testModel = await new TestModel({ test: 'object', another: 'string' })
+      const testModel = await new Model({ data: { test: 'object', another: 'string' }, meta }, testSchema)
       delete testModel.another
 
-      expect(await TestModel.validate(testModel)).to.be.true()
+      expect(await Model.validate(testModel)).to.be.true()
       expect(testModel).to.deep.equal({ test: 'object' })
     })
 
     it('should fail validation when deleting a required property', async () => {
-      const testModel = await new TestModel({ test: 'object', another: 'string' })
+      const testModel = await new Model({ data: { test: 'object', another: 'string' }, meta }, testSchema)
       delete testModel.test
 
-      expect(await TestModel.validate(testModel)).to.be.false()
-      expect(TestModel.errors(testModel)).to.deep.equal(['#required: value does not have all required properties'])
+      expect(await Model.validate(testModel)).to.be.false()
+      expect(Model.errors(testModel)).to.deep.equal(['#required: value does not have all required properties'])
     })
   })
 
   describe('updating operations', () => {
     after(() => {
-      TestModel = null
+      testSchema = null
     })
 
     before(async () => {
-      TestModel = await new Model(await new Schema(TestSchema))
+      testSchema = await new Schema(TestSchema)
     })
 
     it('should validate a property when its value changes successfully', async () => {
-      const testModel = await new TestModel({ test: 'object' })
+      const testModel = await new Model({ data: { test: 'object' }, meta }, testSchema)
       testModel.test = 'string'
 
-      expect(await TestModel.validate(testModel)).to.be.true()
+      expect(await Model.validate(testModel)).to.be.true()
       expect(testModel).to.deep.equal({ test: 'string' })
     })
 
     it('should fail validation when updating a property to an invalid value', async () => {
-      const testModel = await new TestModel({ test: 'object' })
+      const testModel = await new Model({ data: { test: 'object' }, meta }, testSchema)
       testModel.test = 1
 
-      expect(await TestModel.validate(testModel)).to.be.false()
-      expect(TestModel.errors(testModel)).to.deep.equal(['#type: value is not a string'])
+      expect(await Model.validate(testModel)).to.be.false()
+      expect(Model.errors(testModel)).to.deep.equal(['#type: value is not a string'])
     })
   })
 
   describe('#toJSON', () => {
     context('w/ a Schema', () => {
       after(() => {
-        TestModel = null
+        testSchema = null
       })
 
       before(async () => {
-        TestModel = await new Model(await new Schema(TestSchema))
+        testSchema = await new Schema(TestSchema)
       })
 
       it('should return the JSON representation of the Model', async () => {
-        const model = await new TestModel({ test: 'object', [SEQUENCE]: 1 })
+        const model = await new Model({ data: { test: 'object' }, meta: { ...meta, sequence: 1 } }, testSchema)
         const json = model.toJSON()
 
         expect(json.data).to.deep.equal({ test: 'object' })
-        expect(json.meta.model).to.equal('TestModel')
-        expect(json.meta.schema).to.equal('https://hiveframework.io/api/v1/models/TestModel')
+        expect(json.meta.model).to.equal('Test')
         expect(json.meta.sequence).to.equal(1)
       })
     })
 
     context('w/ DefaultSchema', () => {
-      after(() => {
-        TestModel = null
-      })
-
-      before(async () => {
-        TestModel = await new Model()
-      })
-
       it('should return the JSON representation of the Model', async () => {
-        const model = await new TestModel({ id: 'object' })
+        const model = await new Model({ data: { id: 'object' }, meta: { model: 'Default', schema: 'https://hiveframework.io/api/v1/models/Default' } })
         const json = model.toJSON()
 
         expect(json.data).to.deep.equal({ id: 'object' })
-        expect(json.meta.model).to.equal('DefaultModel')
-        expect(json.meta.schema).to.equal('https://hiveframework.io/api/v1/models/DefaultModel')
+        expect(json.meta.model).to.equal('Default')
       })
     })
   })

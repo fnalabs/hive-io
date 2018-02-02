@@ -1,5 +1,3 @@
-import Schema from 'schema-json-js'
-
 // meta porperties
 export const SEQUENCE = Symbol('optional property to cache aggregate sequence')
 const SCHEMA = Symbol('Schema object that defines the data model')
@@ -7,25 +5,23 @@ const SCHEMA = Symbol('Schema object that defines the data model')
 // private methods
 const CREATE_MODEL = Symbol('method used to create a Model')
 
-// default JSON Schema for JSON API specification Resource Objects
-const DefaultSchema = {
-  title: 'DefaultModel',
-  $id: 'https://hiveframework.io/api/v1/models/DefaultModel',
-  properties: {
-    id: { type: 'string' }
-  },
-  required: ['id']
-}
-
-class Model {
-  constructor (data, schema) {
+/*
+ * Model class
+ */
+export default class Model {
+  constructor (payload, schema) {
+    const { data, meta } = payload
     if (!(data && typeof data === 'object' && !Array.isArray(data))) {
-      throw new Error('Model data must be an object')
+      throw new TypeError('Model data must be an object')
     }
 
-    if (Number.isInteger(data[SEQUENCE])) this[SEQUENCE] = data[SEQUENCE]
-    this[SCHEMA] = schema
+    if (meta.model !== schema.title) {
+      throw new TypeError('Model metadata does not match Schema name')
+    }
 
+    if (Number.isInteger(meta && meta.sequence)) this[SEQUENCE] = meta.sequence
+
+    this[SCHEMA] = schema
     return this[CREATE_MODEL](this, data)
   }
 
@@ -59,13 +55,15 @@ class Model {
   toJSON () {
     const ret = {
       data: { ...this },
-      meta: { timestamp: new Date().toISOString() }
+      meta: {}
     }
 
     // add metadata
     if (this[SEQUENCE]) ret.meta.sequence = this[SEQUENCE]
     ret.meta.model = this[SCHEMA].title
-    ret.meta.schema = this[SCHEMA].$id || this[SCHEMA].id
+
+    // TODO add this to the meta section in the CommandActor only
+    // ret.meta.schema = this[SCHEMA].$id || this[SCHEMA].id
 
     return ret
   }
@@ -79,17 +77,5 @@ class Model {
 
   static async validate (model) {
     return model[SCHEMA].validate(model)
-  }
-}
-
-export default class ModelProxy {
-  constructor (schema) {
-    return new Proxy(Model, {
-      construct: async function (Model, argsList) {
-        if (schema === undefined) schema = await new Schema(DefaultSchema)
-        if (!await schema.validate(argsList[0])) throw new Error(...schema.errors)
-        return new Model(argsList[0], schema)
-      }
-    })
   }
 }
