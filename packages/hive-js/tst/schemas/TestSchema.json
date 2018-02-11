@@ -1,0 +1,11 @@
+{
+  "title": "Test",
+  "$id": "https://hiveframework.io/api/v1/models/Test",
+  "properties": {
+    "view": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": ["view"]
+}

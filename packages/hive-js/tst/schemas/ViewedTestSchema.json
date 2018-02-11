@@ -1,0 +1,5 @@
+{
+  "title": "ViewedTest",
+  "$id": "https://hiveframework.io/api/v1/events/ViewedTest",
+  "additionalProperties": false
+}

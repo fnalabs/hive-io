@@ -1,0 +1,5 @@
+{
+  "title": "CreateTest",
+  "$id": "https://hiveframework.io/api/v1/commands/CreateTest",
+  "additionalProperties": false
+}
