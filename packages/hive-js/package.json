@@ -1,7 +1,7 @@
 {
   "name": "hive-io",
   "version": "1.0.0",
-  "description": "A scalable, serverless JavaScript framework.",
+  "description": "A reactive, serverless JavaScript framework.",
   "main": "index.js",
   "scripts": {
     "prebuild": "del dist",
@@ -54,9 +54,9 @@
     "nodemon": "~1.14.12",
     "nyc": "~11.4.1",
     "proxyquire": "~1.8.0",
-    "sinon": "~4.2.2",
+    "sinon": "~4.3.0",
     "standard": "~10.0.3",
-    "uglify-es": "~3.3.9"
+    "uglify-es": "~3.3.10"
   },
   "nyc": {
     "check-coverage": true,
