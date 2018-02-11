@@ -19,10 +19,18 @@ const DefaultSchema = {
  */
 export default new Proxy(Model, {
   construct: async function (Model, argsList) {
+    // init optional refs and descriptors
+    let refs = argsList[2]
+    let descriptors = argsList[3]
+    if (refs && typeof refs === 'object' && !Array.isArray(refs) && !Object.keys(refs)[0].indexOf('http') !== 0) {
+      descriptors = refs
+      refs = undefined
+    }
+
     // init schema
     let schema = argsList[1]
     if (!(schema && typeof schema === 'object')) schema = await new Schema(DefaultSchema)
-    else if (!(schema instanceof Schema)) schema = await new Schema(schema)
+    else if (!(schema instanceof Schema)) schema = await new Schema(schema, refs)
 
     // validate data and return new Model
     const payload = argsList[0]
@@ -31,6 +39,6 @@ export default new Proxy(Model, {
     }
     if (!await schema.validate(payload.data)) throw new Error(...schema.errors)
 
-    return new Model(payload, schema)
+    return new Model(payload, schema, descriptors)
   }
 })

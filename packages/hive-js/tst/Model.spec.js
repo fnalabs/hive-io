@@ -32,7 +32,7 @@ const defaultMeta = {
 chai.use(dirtyChai)
 
 // tests
-describe('Model class', () => {
+describe('class Model', () => {
   let testSchema
 
   describe('#constructor', () => {
@@ -50,6 +50,16 @@ describe('Model class', () => {
         const test = await new Model(testPayload, testSchema)
         expect(test).to.deep.equal({ test: 'object' })
         expect(test).to.be.an.instanceof(Model)
+        expect(Model.schema(test)).to.be.an.instanceof(Schema)
+      })
+
+      it('should asyncronously create a new immutable model', async () => {
+        const testPayload = { data: { test: 'object' }, meta }
+        const test = await new Model(testPayload, testSchema, { immutable: true })
+        expect(test).to.deep.equal({ test: 'object' })
+        expect(test).to.be.an.instanceof(Model)
+        expect(test).to.be.frozen()
+        expect(Model.schema(test)).to.be.an.instanceof(Schema)
       })
 
       it('should throw an error if data is invalid', async () => {
@@ -64,14 +74,7 @@ describe('Model class', () => {
           const testPayload = { data: null, meta }
           await new Model(testPayload, testSchema)
         } catch (e) {
-          expect(e.message).to.equal('Model data must be an object')
-        }
-
-        try {
-          const testPayload = { data: { test: 'object' }, meta: {} }
-          await new Model(testPayload, testSchema)
-        } catch (e) {
-          expect(e.message).to.equal('Model metadata does not match Schema name')
+          expect(e.message).to.equal('#Model: data must be an object if defined')
         }
       })
     })
@@ -81,6 +84,20 @@ describe('Model class', () => {
         const testPayload = { data: { test: 'object' }, meta }
         const test = await new Model(testPayload, TestSchema)
         expect(test).to.deep.equal({ test: 'object' })
+        expect(test).to.be.an.instanceof(Model)
+      })
+
+      it('should asyncronously create a new model with some overridden descriptors', async () => {
+        const testPayload = { data: { test: 'object' }, meta }
+        const test = await new Model(testPayload, TestSchema, { enumerable: true })
+        expect(test).to.deep.equal({ test: 'object' })
+        expect(test).to.be.an.instanceof(Model)
+      })
+
+      it('should asyncronously create a new model with no data', async () => {
+        const test = await new Model({ meta }, { title: meta.model, $id: meta.schema })
+        expect(test).to.deep.equal({})
+        expect(test.toJSON()).to.deep.equal({ meta: { model: meta.model } })
         expect(test).to.be.an.instanceof(Model)
       })
     })
@@ -206,12 +223,12 @@ describe('Model class', () => {
       })
 
       it('should return the JSON representation of the Model', async () => {
-        const model = await new Model({ data: { test: 'object' }, meta: { ...meta, sequence: 1 } }, testSchema)
+        const model = await new Model({ data: { test: 'object' }, meta: { ...meta, version: 1 } }, testSchema)
         const json = model.toJSON()
 
         expect(json.data).to.deep.equal({ test: 'object' })
         expect(json.meta.model).to.equal('Test')
-        expect(json.meta.sequence).to.equal(1)
+        expect(json.meta.version).to.equal(1)
       })
     })
 
