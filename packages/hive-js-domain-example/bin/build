@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+runBuild () {
+    local DIVIDER="===================="
+    local TEMPLATE="\n${DIVIDER}${DIVIDER}${DIVIDER}\n%s\n\n"
+    local TEMP_DIR=$(mktemp -d -p .)
+
+    printf "${TEMPLATE}" "Running Babel transpile to temp directory"
+    babel src --out-dir ${TEMP_DIR}
+
+    printf "${TEMPLATE}" "Running Uglify-ES compression and mangle to dist directory"
+    find ${TEMP_DIR} \
+        -name \*.js \
+        -exec bash -c 'mkdir -p $(dirname dist${1#$2}) \
+                        && uglifyjs ${1} \
+                            --compress ecma=8,keep_fnames,sequences=false \
+                            --mangle keep_classnames,keep_fnames \
+                            --ecma 8 \
+                        > dist${1#$2}' - {} $TEMP_DIR \;
+
+    printf "${TEMPLATE}" "Clean-up"
+    rm -rf ${TEMP_DIR}
+}
+
+runBuild
