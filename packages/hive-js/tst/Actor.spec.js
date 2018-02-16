@@ -85,21 +85,18 @@ describe('class Actor', () => {
       expect(await Model.validate(model)).to.be.true()
     })
 
-    it('should return the model unchanged', async () => {
-      const testModel = await new Model({ meta: { model: 'Test' } }, testSchema)
-      const { model } = await testActor.perform({ meta: { model: 'Test' } }, testModel)
-
-      expect(model).to.be.an.instanceof(Model)
-      expect(model).to.deep.equal({})
-      expect(await Model.validate(model)).to.be.false()
-      expect(Model.errors(model)[0]).to.equal('#required: value does not have all required properties')
-    })
-
     it('should throw an error if bad data is passed', async () => {
-      const testModel = await new Model(payload, testSchema)
+      const testModel1 = await new Model({ meta: { model: 'Test' } }, testSchema)
 
       try {
-        await testActor.perform({ data: { view: 'something' }, meta: { model: 'Test' } }, testModel)
+        await testActor.perform({ meta: { model: 'Test' } }, testModel1)
+      } catch (e) {
+        expect(e.message).to.equal('#required: value does not have all required properties')
+      }
+
+      const testModel2 = await new Model(payload, testSchema)
+      try {
+        await testActor.perform({ data: { view: 'something' }, meta: { model: 'Test' } }, testModel2)
       } catch (e) {
         expect(e.message).to.deep.equal('#type: value is not a(n) number')
       }

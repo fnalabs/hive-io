@@ -28,8 +28,8 @@ export default class Actor {
    * perform method
    */
   async perform (payload, model, repository) {
-    if (!model) model = await new Model(payload, this[MODEL])
-    else if (payload.data && Object.keys(payload.data).length) {
+    if (typeof model === 'undefined') model = await new Model(payload, this[MODEL])
+    else {
       model = this.assign(model, payload.data, payload.meta)
       if (!(await Model.validate(model))) throw new Error(Model.errors(model)[0])
     }
@@ -55,7 +55,7 @@ export default class Actor {
   /*
    * assign method
    */
-  assign (model, data) {
+  assign (model, data = {}) {
     const keys = Object.keys(data)
     for (const key of keys) {
       const value = data[key] && typeof data[key] === 'object' && !Array.isArray(data[key])
