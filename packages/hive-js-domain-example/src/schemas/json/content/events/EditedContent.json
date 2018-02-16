@@ -1,0 +1,15 @@
+{
+  "title": "EditedContent",
+  "description": "event used to log overwritten post content",
+  "$id": "https://hiveframework.io/api/v1/events/EditedContent",
+  "properties": {
+    "text": {
+      "description": "main post content",
+      "type": "string",
+      "maxLength": 140,
+      "minLength": 2
+    }
+  },
+  "additionalProperties": false,
+  "required": ["text"]
+}

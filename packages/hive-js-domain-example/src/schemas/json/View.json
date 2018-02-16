@@ -1,0 +1,12 @@
+{
+  "title": "View",
+  "description": "analytics value object to capture data for content views",
+  "$id": "https://hiveframework.io/api/v1/models/View",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Content Id Value Object",
+      "$ref": "https://hiveframework.io/api/v1/models/ContentId"
+    }
+  }
+}
