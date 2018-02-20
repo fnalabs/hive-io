@@ -1,8 +1,8 @@
 // imports
 import { parse, Actor, Schema } from 'hive-io'
 
-import PostSchema from '../schemas/json/content/Post.json'
-import ContentIdSchema from '../schemas/json/content/ContentId.json'
+import PostSchema from '../../schemas/json/Post.json'
+import ContentIdSchema from '../../schemas/json/content/ContentId.json'
 
 // constants
 const REFS = {
