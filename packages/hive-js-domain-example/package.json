@@ -1,6 +1,6 @@
 {
   "name": "hive-io-domain-example",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "description": "An example CQRS/ES module to help describe implementation details when leveraging hive-io.",
   "main": "index.js",
   "scripts": {
