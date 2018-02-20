@@ -20,6 +20,9 @@ runBuild () {
 
     printf "${TEMPLATE}" "Clean-up"
     rm -rf ${TEMP_DIR}
+
+    printf "${TEMPLATE}" "Copy Schemas"
+    cp -r src/schemas/json/ dist/schemas/json/
 }
 
 runBuild
