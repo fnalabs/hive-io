@@ -40,7 +40,7 @@
     "archiver": "~2.1.1",
     "babel-cli": "~6.26.0",
     "babel-core": "~6.26.0",
-    "babel-eslint": "~8.2.1",
+    "babel-eslint": "~8.2.2",
     "babel-plugin-add-module-exports": "~0.2.1",
     "babel-plugin-istanbul": "~4.1.5",
     "babel-plugin-syntax-object-rest-spread": "~6.13.0",
@@ -53,13 +53,13 @@
     "dirty-chai": "~2.0.1",
     "mocha": "~5.0.0",
     "nock": "~9.1.5",
-    "nodemon": "~1.15.0",
+    "nodemon": "~1.15.1",
     "nyc": "~11.4.1",
     "proxyquire": "~1.8.0",
     "sinon": "~4.3.0",
-    "standard": "~10.0.3",
+    "standard": "~11.0.0",
     "uglify-es": "~3.3.10",
-    "validator": "~9.4.0"
+    "validator": "~9.4.1"
   },
   "nyc": {
     "check-coverage": true,
