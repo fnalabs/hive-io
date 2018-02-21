@@ -1,2 +1,2 @@
 // export module actors
-exports = require('./dist/actors')
+module.exports = require('./dist/actors')
