@@ -58,9 +58,10 @@ class ContentActor extends Actor {
   }
 
   async replay (payload, repository) {
-    if (typeof payload.meta.urlParams.contentId === 'undefined') return
-    const aggregate = await repository.get(payload.meta.urlParams.contentId)
-    return super.replay(aggregate, repository)
+    if (payload.meta.id || (payload.meta.urlParams && payload.meta.urlParams.contentId)) {
+      const aggregate = await repository.get(payload.meta.urlParams.contentId)
+      return super.replay(aggregate, repository)
+    }
   }
 }
 
