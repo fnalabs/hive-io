@@ -2,7 +2,6 @@
 // imports
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
-import { isUUID } from 'validator'
 import { Actor, Model } from 'hive-io'
 
 import PostEventActor from '../../../src/actors/post/PostEventActor'
@@ -11,18 +10,18 @@ chai.use(dirtyChai)
 
 // constants
 const createdPayload = {
-  data: { text: 'something' },
-  meta: { model: 'CreatedContent', version: 0 }
+  data: { text: 'something', id: { id: '1' } },
+  meta: { model: 'CreatedContent', version: 1, id: { id: '1' } }
 }
 const disabledPayload = {
-  meta: { model: 'DisabledContent', version: 1 }
+  meta: { model: 'DisabledContent', version: 2, id: { id: '1' } }
 }
 const editedPayload = {
   data: { text: 'something else' },
-  meta: { model: 'EditedContent', version: 2 }
+  meta: { model: 'EditedContent', version: 3, id: { id: '1' } }
 }
 const enabledPayload = {
-  meta: { model: 'EnabledContent', version: 3 }
+  meta: { model: 'EnabledContent', version: 4, id: { id: '1' } }
 }
 const viewPayload = {
   data: { id: { id: 'something' } },
@@ -57,7 +56,7 @@ describe('PostEventActor', () => {
         const { model } = await postEventActor.perform(createdPayload)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
+        expect(model.id.id).to.equal('1')
         expect(model.text).to.equal('something')
         expect(model.edited).to.be.false()
         expect(model.enabled).to.be.true()
@@ -67,7 +66,7 @@ describe('PostEventActor', () => {
       it('should throw an error for invalid data', async () => {
         const payload1 = {
           data: { text: null },
-          meta: { model: 'CreatedContent' }
+          meta: { model: 'CreatedContent', id: { id: '1' } }
         }
         try {
           await postEventActor.perform(payload1)
@@ -80,7 +79,7 @@ describe('PostEventActor', () => {
             id: { id: 1 },
             text: 'something'
           },
-          meta: { model: 'CreatedContent' }
+          meta: { model: 'CreatedContent', id: { id: '1' } }
         }
         try {
           await postEventActor.perform(payload2)
@@ -96,7 +95,7 @@ describe('PostEventActor', () => {
         const { model } = await postEventActor.perform(disabledPayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
+        expect(model.id.id).to.equal('1')
         expect(model.text).to.equal('something')
         expect(model.edited).to.be.false()
         expect(model.enabled).to.be.false()
@@ -120,7 +119,7 @@ describe('PostEventActor', () => {
         const { model } = await postEventActor.perform(editedPayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
+        expect(model.id.id).to.equal('1')
         expect(model.text).to.equal('something else')
         expect(model.edited).to.be.true()
         expect(model.enabled).to.be.false()
@@ -130,7 +129,7 @@ describe('PostEventActor', () => {
       it('should throw an error for invalid data', async () => {
         const payload = {
           data: { text: null },
-          meta: { model: 'EditedContent' }
+          meta: { model: 'EditedContent', id: { id: '1' } }
         }
         const modelInstance = await postEventActor.replay([createdPayload, disabledPayload])
 
@@ -148,7 +147,7 @@ describe('PostEventActor', () => {
         const { model } = await postEventActor.perform(enabledPayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
+        expect(model.id.id).to.equal('1')
         expect(model.text).to.equal('something else')
         expect(model.edited).to.be.true()
         expect(model.enabled).to.be.true()
@@ -172,7 +171,7 @@ describe('PostEventActor', () => {
         const { model } = await postEventActor.perform(viewPayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
+        expect(model.id.id).to.equal('1')
         expect(model.text).to.equal('something')
         expect(model.edited).to.be.false()
         expect(model.enabled).to.be.true()

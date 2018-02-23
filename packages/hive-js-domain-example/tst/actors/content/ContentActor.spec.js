@@ -12,17 +12,31 @@ chai.use(dirtyChai)
 // constants
 const createPayload = {
   data: { text: 'something' },
-  meta: { model: 'CreateContent', version: 0 }
+  meta: { model: 'CreateContent', version: 1, urlParams: {} }
+}
+const createdPayload = {
+  data: { text: 'something', id: { id: '1' } },
+  meta: { model: 'CreatedContent', version: 1, id: { id: '1' } }
 }
 const disablePayload = {
-  meta: { model: 'DisableContent', version: 1 }
+  meta: { model: 'DisableContent', version: 2, urlParams: { contentId: '1' } }
+}
+const disabledPayload = {
+  meta: { model: 'DisabledContent', version: 2, id: { id: '1' } }
 }
 const editPayload = {
   data: { text: 'something else' },
-  meta: { model: 'EditContent', version: 2 }
+  meta: { model: 'EditContent', version: 3, urlParams: { contentId: '1' } }
+}
+const editedPayload = {
+  data: { text: 'something else' },
+  meta: { model: 'EditedContent', version: 3, id: { id: '1' } }
 }
 const enablePayload = {
-  meta: { model: 'EnableContent', version: 3 }
+  meta: { model: 'EnableContent', version: 4, urlParams: { contentId: '1' } }
+}
+const enabledPayload = {
+  meta: { model: 'EnabledContent', version: 4, id: { id: '1' } }
 }
 
 // tests
@@ -50,7 +64,8 @@ describe('ContentActor', () => {
   describe('#perform', () => {
     context('CreateContent event', () => {
       it('should perform successfully', async () => {
-        const { model } = await contentActor.perform(createPayload)
+        const modelInstance = await contentActor.replay(createPayload)
+        const { model } = await contentActor.perform(createPayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
         expect(isUUID(model.id.id)).to.be.true()
@@ -95,18 +110,17 @@ describe('ContentActor', () => {
 
     context('DisableContent event', () => {
       it('should perform successfully', async () => {
-        const modelInstance = await contentActor.replay([createPayload])
+        const modelInstance = await contentActor.replay(disablePayload, { get () { return [createdPayload] } })
         const { model } = await contentActor.perform(disablePayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
         expect(model.text).to.equal('something')
         expect(model.edited).to.be.false()
         expect(model.enabled).to.be.false()
       })
 
       it('should throw an error for content already disabled', async () => {
-        const modelInstance = await contentActor.replay([createPayload, disablePayload])
+        const modelInstance = await contentActor.replay(disablePayload, { get () { return [createdPayload, disabledPayload] } })
 
         try {
           await contentActor.perform(disablePayload, modelInstance)
@@ -118,11 +132,10 @@ describe('ContentActor', () => {
 
     context('EditContent event', () => {
       it('should perform successfully', async () => {
-        const modelInstance = await contentActor.replay([createPayload, disablePayload])
+        const modelInstance = await contentActor.replay(editPayload, { get () { return [createdPayload, disabledPayload] } })
         const { model } = await contentActor.perform(editPayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
         expect(model.text).to.equal('something else')
         expect(model.edited).to.be.true()
         expect(model.enabled).to.be.false()
@@ -131,9 +144,9 @@ describe('ContentActor', () => {
       it('should throw an error for invalid data', async () => {
         const payload = {
           data: { text: null },
-          meta: { model: 'EditContent' }
+          meta: { model: 'EditContent', urlParams: { contentId: 1 } }
         }
-        const modelInstance = await contentActor.replay([createPayload, disablePayload])
+        const modelInstance = await contentActor.replay(payload, { get () { return [createdPayload, disabledPayload] } })
 
         try {
           await contentActor.perform(payload, modelInstance)
@@ -145,18 +158,17 @@ describe('ContentActor', () => {
 
     context('EnableContent event', () => {
       it('should perform successfully', async () => {
-        const modelInstance = await contentActor.replay([createPayload, disablePayload, editPayload])
+        const modelInstance = await contentActor.replay(enablePayload, { get () { return [createdPayload, disabledPayload, editedPayload] } })
         const { model } = await contentActor.perform(enablePayload, modelInstance)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.id.id)).to.be.true()
         expect(model.text).to.equal('something else')
         expect(model.edited).to.be.true()
         expect(model.enabled).to.be.true()
       })
 
       it('should throw an error for content already enabled', async () => {
-        const modelInstance = await contentActor.replay([createPayload, disablePayload, editPayload, enablePayload])
+        const modelInstance = await contentActor.replay(enablePayload, { get () { return [createdPayload, disabledPayload, editedPayload, enabledPayload] } })
 
         try {
           await contentActor.perform(enablePayload, modelInstance)
@@ -181,9 +193,9 @@ describe('ContentActor', () => {
   describe('#replay', () => {
     it('should throw an error if passed an event out of sequence', async () => {
       try {
-        await contentActor.replay([createPayload, editPayload])
+        await contentActor.replay(editPayload, { get () { return [createdPayload, editedPayload] } })
       } catch (e) {
-        expect(e.message).to.equal('EditContent out of sequence')
+        expect(e.message).to.equal('EditedContent out of sequence')
       }
     })
   })

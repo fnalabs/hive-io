@@ -53,7 +53,7 @@ class PostEventActor extends Actor {
       case 'View': {
         const { model } = await this[ACTORS].viewActor.perform(payload)
         ++modelInstance.viewed
-        return { command: null, event: model, model: modelInstance }
+        return { id: model.id, command: null, event: model, model: modelInstance }
       }
 
       default:

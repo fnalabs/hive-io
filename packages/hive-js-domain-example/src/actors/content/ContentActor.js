@@ -1,4 +1,5 @@
 // imports
+import uuidV4 from 'uuid/v4'
 import { parse, Actor, Schema } from 'hive-io'
 
 import {
@@ -32,24 +33,34 @@ class ContentActor extends Actor {
   async perform (payload, modelInstance, repository) {
     switch (payload.meta.model) {
       case 'CreateContent':
-      case 'CreatedContent':
+        payload.meta.id = { id: uuidV4() }
+      case 'CreatedContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].createContentActor.perform(payload, modelInstance, repository)
 
       case 'DisableContent':
-      case 'DisabledContent':
+        payload.meta.id = { id: payload.meta.urlParams.contentId }
+      case 'DisabledContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].disableContentActor.perform(payload, modelInstance, repository)
 
       case 'EditContent':
-      case 'EditedContent':
+        payload.meta.id = { id: payload.meta.urlParams.contentId }
+      case 'EditedContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].editContentActor.perform(payload, modelInstance, repository)
 
       case 'EnableContent':
-      case 'EnabledContent':
+        payload.meta.id = { id: payload.meta.urlParams.contentId }
+      case 'EnabledContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].enableContentActor.perform(payload, modelInstance, repository)
 
       default:
         throw new Error('Command|Event not recognized')
     }
+  }
+
+  async replay (payload, repository) {
+    if (typeof payload.meta.urlParams.contentId === 'undefined') return
+    const aggregate = await repository.get(payload.meta.urlParams.contentId)
+    return super.replay(aggregate, repository)
   }
 }
 

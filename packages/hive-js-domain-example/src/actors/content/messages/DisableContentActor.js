@@ -25,7 +25,7 @@ class DisableContentActor extends MessageActor {
 
     const { command, event, model } = await super.perform(payload, modelInstance, repository)
     model.enabled = false
-    return { command, event, model }
+    return { id: payload.meta.id, command, event, model }
   }
 }
 

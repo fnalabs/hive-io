@@ -1,5 +1,4 @@
 // imports
-import uuidV4 from 'uuid/v4'
 import { parse, MessageActor, Schema } from 'hive-io'
 
 import ContentSchema from '../../../schemas/json/content/Content.json'
@@ -24,14 +23,14 @@ class CreateContentActor extends MessageActor {
   async perform (payload, modelInstance, repository) {
     if (typeof modelInstance !== 'undefined') throw new Error(`#${payload.meta.model}: ${modelInstance.id.id} already exists`)
 
-    if (typeof payload.data.id === 'undefined') payload.data.id = { id: uuidV4() }
+    payload.data.id = payload.meta.id
 
     const { command, event, model } = await super.perform(payload, modelInstance, repository)
 
     model.enabled = true
     model.edited = false
 
-    return { command, event, model }
+    return { id: payload.data.id, command, event, model }
   }
 }
 

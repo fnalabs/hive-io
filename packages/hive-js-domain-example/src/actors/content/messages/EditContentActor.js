@@ -23,7 +23,7 @@ class EditContentActor extends MessageActor {
   async perform (payload, modelInstance, repository) {
     const { command, event, model } = await super.perform(payload, modelInstance, repository)
     model.edited = true
-    return { command, event, model }
+    return { id: payload.meta.id, command, event, model }
   }
 }
 
