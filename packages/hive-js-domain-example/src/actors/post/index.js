@@ -1,2 +1,1 @@
-export { default as PostEventActor } from './PostEventActor'
-export { default as PostQueryActor } from './PostQueryActor'
+export { default as PostActor } from './PostActor'

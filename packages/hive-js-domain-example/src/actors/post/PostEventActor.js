@@ -1,19 +1,13 @@
 // imports
-import { parse, Actor, Schema } from 'hive-io'
+import CONSTANTS from '../../constants'
 
-import {
-  CreateContentActor,
-  DisableContentActor,
-  EditContentActor,
-  EnableContentActor
-} from '../content/messages'
-import ViewActor from '../ViewActor'
+import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
 import ContentIdSchema from '../../schemas/json/content/ContentId.json'
 
 // private properties
-const ACTORS = Symbol('MessageActors')
+const REPOSITORY = Symbol('Consumer ephemeral DB')
 
 // constants
 const REFS = {
@@ -24,65 +18,54 @@ const REFS = {
  * class PostEventActor
  */
 class PostEventActor extends Actor {
-  constructor (postSchema, actors) {
+  constructor (postSchema, model) {
     super(parse`/post/${'postId'}`, postSchema)
 
-    Object.defineProperty(this, ACTORS, { value: actors })
+    Object.defineProperty(this, REPOSITORY, { value: model })
   }
 
-  // TODO: implement ephemeral data calls here
   async perform (payload, modelInstance, repository) {
-    switch (payload.meta.model) {
-      case 'CreatedContent': {
-        const { command, event, model } =
-          await this[ACTORS].createContentActor.perform(payload, modelInstance, repository)
+    const id = payload.meta.id || payload.data.id.id
+    const conditions = { 'id.id': id }
 
-        model.viewed = 0
-        return { command, event, model }
-      }
+    let update
+    switch (payload.meta.model) {
+      case 'CreatedContent':
+        update = payload.data
+        break
 
       case 'DisabledContent':
-        return this[ACTORS].disableContentActor.perform(payload, modelInstance, repository)
+        update = { $set: { enabled: false } }
+        break
 
       case 'EditedContent':
-        return this[ACTORS].editContentActor.perform(payload, modelInstance, repository)
+        update = { $set: { text: payload.data.text } }
+        break
 
       case 'EnabledContent':
-        return this[ACTORS].enableContentActor.perform(payload, modelInstance, repository)
+        update = { $set: { enabled: true } }
+        break
 
-      case 'View': {
-        const { model } = await this[ACTORS].viewActor.perform(payload)
-        ++modelInstance.viewed
-        return { id: model.id, command: null, event: model, model: modelInstance }
-      }
+      case 'View':
+        update = { $inc: { views: 1 } }
+        break
 
       default:
         throw new Error('Command|Event not recognized')
     }
+
+    await this[REPOSITORY].findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
   }
 }
 
 /*
- * Proxy<PostEventActor> for async initialization of the Schema w/ refs
+ * Proxy<PostEventActor> for async initialization of the Schema w/ refs and Mongo connection
  */
 export default new Proxy(PostEventActor, {
-  construct: async function (PostEventActor) {
-    // TODO: add connection to ephemeral storage (MongoDB) here
-
+  construct: async function (PostEventActor, argsList) {
+    const model = argsList[0]
     const postSchema = await new Schema(PostSchema, REFS)
 
-    const createContentActor = await new CreateContentActor()
-    const disableContentActor = await new DisableContentActor()
-    const editContentActor = await new EditContentActor()
-    const enableContentActor = await new EnableContentActor()
-    const viewActor = await new ViewActor()
-
-    return new PostEventActor(postSchema, {
-      createContentActor,
-      disableContentActor,
-      editContentActor,
-      enableContentActor,
-      viewActor
-    })
+    return new PostEventActor(postSchema, model)
   }
 })

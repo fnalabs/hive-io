@@ -2,7 +2,8 @@
 // imports
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
-import { Actor, Model } from 'hive-io'
+import sinon from 'sinon'
+import { Actor } from 'hive-io'
 
 import PostEventActor from '../../../src/actors/post/PostEventActor'
 
@@ -11,17 +12,17 @@ chai.use(dirtyChai)
 // constants
 const createdPayload = {
   data: { text: 'something', id: { id: '1' } },
-  meta: { model: 'CreatedContent', version: 1, id: { id: '1' } }
+  meta: { model: 'CreatedContent', version: 1, id: '1' }
 }
 const disabledPayload = {
-  meta: { model: 'DisabledContent', version: 2, id: { id: '1' } }
+  meta: { model: 'DisabledContent', version: 2, id: '1' }
 }
 const editedPayload = {
   data: { text: 'something else' },
-  meta: { model: 'EditedContent', version: 3, id: { id: '1' } }
+  meta: { model: 'EditedContent', version: 3, id: '1' }
 }
 const enabledPayload = {
-  meta: { model: 'EnabledContent', version: 4, id: { id: '1' } }
+  meta: { model: 'EnabledContent', version: 4, id: '1' }
 }
 const viewPayload = {
   data: { id: { id: 'something' } },
@@ -30,17 +31,18 @@ const viewPayload = {
 
 // tests
 describe('PostEventActor', () => {
-  let postEventActor
+  let postEventActor, modelMock
 
-  after(() => {
+  afterEach(() => {
+    modelMock = null
     postEventActor = null
   })
 
-  before(async () => {
-    postEventActor = await new PostEventActor()
-  })
-
   describe('#constructor', () => {
+    beforeEach(async () => {
+      postEventActor = await new PostEventActor({})
+    })
+
     it('should create a PostEventActor successfully', () => {
       expect(postEventActor).to.be.an.instanceof(Actor)
       expect(postEventActor.perform).to.be.a('function')
@@ -51,164 +53,57 @@ describe('PostEventActor', () => {
   })
 
   describe('#perform', () => {
-    context('CreatedContent event', () => {
-      it('should perform successfully', async () => {
-        const { model } = await postEventActor.perform(createdPayload)
-
-        expect(model).to.be.an.instanceof(Model)
-        expect(model.id.id).to.equal('1')
-        expect(model.text).to.equal('something')
-        expect(model.edited).to.be.false()
-        expect(model.enabled).to.be.true()
-        expect(model.viewed).to.equal(0)
-      })
-
-      it('should throw an error for invalid data', async () => {
-        const payload1 = {
-          data: { text: null },
-          meta: { model: 'CreatedContent', id: { id: '1' } }
-        }
-        try {
-          await postEventActor.perform(payload1)
-        } catch (e) {
-          expect(e.message).to.equal('#type: value is not a string')
-        }
-
-        const payload2 = {
-          data: {
-            id: { id: 1 },
-            text: 'something'
-          },
-          meta: { model: 'CreatedContent', id: { id: '1' } }
-        }
-        try {
-          await postEventActor.perform(payload2)
-        } catch (e) {
-          expect(e.message).to.equal('#type: value is not a string')
-        }
-      })
+    beforeEach(async () => {
+      modelMock = {
+        findOneAndUpdate: sinon.stub().returnsThis(),
+        exec: sinon.spy()
+      }
+      postEventActor = await new PostEventActor(modelMock)
     })
 
-    context('DisabledContent event', () => {
-      it('should perform successfully', async () => {
-        const modelInstance = await postEventActor.replay([createdPayload])
-        const { model } = await postEventActor.perform(disabledPayload, modelInstance)
+    it('should perform CreatedContent successfully', async () => {
+      await postEventActor.perform(createdPayload)
 
-        expect(model).to.be.an.instanceof(Model)
-        expect(model.id.id).to.equal('1')
-        expect(model.text).to.equal('something')
-        expect(model.edited).to.be.false()
-        expect(model.enabled).to.be.false()
-        expect(model.viewed).to.equal(0)
-      })
-
-      it('should throw an error for content already disabled', async () => {
-        const modelInstance = await postEventActor.replay([createdPayload, disabledPayload])
-
-        try {
-          await postEventActor.perform(disabledPayload, modelInstance)
-        } catch (e) {
-          expect(e.message).to.equal('#DisabledContent: content already disabled')
-        }
-      })
+      expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
+      expect(modelMock.exec.calledOnce).to.be.true()
     })
 
-    context('EditedContent event', () => {
-      it('should perform successfully', async () => {
-        const modelInstance = await postEventActor.replay([createdPayload, disabledPayload])
-        const { model } = await postEventActor.perform(editedPayload, modelInstance)
+    it('should perform DisabledContent successfully', async () => {
+      await postEventActor.perform(disabledPayload)
 
-        expect(model).to.be.an.instanceof(Model)
-        expect(model.id.id).to.equal('1')
-        expect(model.text).to.equal('something else')
-        expect(model.edited).to.be.true()
-        expect(model.enabled).to.be.false()
-        expect(model.viewed).to.equal(0)
-      })
-
-      it('should throw an error for invalid data', async () => {
-        const payload = {
-          data: { text: null },
-          meta: { model: 'EditedContent', id: { id: '1' } }
-        }
-        const modelInstance = await postEventActor.replay([createdPayload, disabledPayload])
-
-        try {
-          await postEventActor.perform(payload, modelInstance)
-        } catch (e) {
-          expect(e.message).to.equal('#type: value is not a string')
-        }
-      })
+      expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
+      expect(modelMock.exec.calledOnce).to.be.true()
     })
 
-    context('EnabledContent event', () => {
-      it('should perform successfully', async () => {
-        const modelInstance = await postEventActor.replay([createdPayload, disabledPayload, editedPayload])
-        const { model } = await postEventActor.perform(enabledPayload, modelInstance)
+    it('should perform EditedContent successfully', async () => {
+      await postEventActor.perform(editedPayload)
 
-        expect(model).to.be.an.instanceof(Model)
-        expect(model.id.id).to.equal('1')
-        expect(model.text).to.equal('something else')
-        expect(model.edited).to.be.true()
-        expect(model.enabled).to.be.true()
-        expect(model.viewed).to.equal(0)
-      })
-
-      it('should throw an error for content already enabled', async () => {
-        const modelInstance = await postEventActor.replay([createdPayload, disabledPayload, editedPayload, enabledPayload])
-
-        try {
-          await postEventActor.perform(enabledPayload, modelInstance)
-        } catch (e) {
-          expect(e.message).to.equal('#EnabledContent: content already enabled')
-        }
-      })
+      expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
+      expect(modelMock.exec.calledOnce).to.be.true()
     })
 
-    context('View message', () => {
-      it('should perform successfully', async () => {
-        const modelInstance = await postEventActor.replay([createdPayload])
-        const { model } = await postEventActor.perform(viewPayload, modelInstance)
+    it('should perform EnabledContent successfully', async () => {
+      await postEventActor.perform(enabledPayload)
 
-        expect(model).to.be.an.instanceof(Model)
-        expect(model.id.id).to.equal('1')
-        expect(model.text).to.equal('something')
-        expect(model.edited).to.be.false()
-        expect(model.enabled).to.be.true()
-        expect(model.viewed).to.equal(1)
-      })
+      expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
+      expect(modelMock.exec.calledOnce).to.be.true()
+    })
 
-      it('should throw an error for invalid data', async () => {
-        const payload = {
-          data: { id: { id: 1 } },
-          meta: { model: 'View' }
-        }
-        try {
-          await postEventActor.perform(payload)
-        } catch (e) {
-          expect(e.message).to.equal('#type: value is not a string')
-        }
-      })
+    it('should perform View successfully', async () => {
+      await postEventActor.perform(viewPayload)
+
+      expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
+      expect(modelMock.exec.calledOnce).to.be.true()
     })
 
     it('should throw an error if passed a message it doesn\'t understand', async () => {
       const payload1 = {
-        meta: { model: 'Something' }
+        meta: { model: 'Something', id: '1' }
       }
       try {
         await postEventActor.perform(payload1)
       } catch (e) {
         expect(e.message).to.equal('Command|Event not recognized')
-      }
-    })
-  })
-
-  describe('#replay', () => {
-    it('should throw an error if passed an event out of sequence', async () => {
-      try {
-        await postEventActor.replay([createdPayload, editedPayload])
-      } catch (e) {
-        expect(e.message).to.equal('EditedContent out of sequence')
       }
     })
   })
