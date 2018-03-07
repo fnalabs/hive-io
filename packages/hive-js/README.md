@@ -8,32 +8,7 @@
 
 A reactive, serverless JavaScript framework.
 
-## TODO
-
-### Actors
-#### Actor
-- one Model only
-- .perform creates, validates, and returns instance of Model
-- "wraps" MessageActors to manage Commands issued against Model
-  - returns the result of switch/case handling for MessageActors (refer to unit tests for a crude example of this)
-
-#### MessageActor
-- extends Actor
-- one Command and Event pair
-- .perform creates, validates, and returns instances of all above values
-
-### Model
-- flexible representation of data structures
-- implemented with Schema objects to provide definition and validation of data
-- supports immutable instances with descriptors
-- fully async in construction and validation
-
-### Schema
-- [schema(JSON)<sup>js</sup>](https://www.npmjs.com/package/schema-json-js), immutable JSON Schemas to define your Models
-- fully async in construction and validation
-
-## Future
-- feature requests via [issues](https://github.com/fnalabs/hive-io/issues)
+TODO
 
 ## Changelog
 #### v2.0.0
