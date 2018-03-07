@@ -15,7 +15,7 @@ export default class PostSchema extends Schema {
           unique: true
         }
       },
-      content: {
+      text: {
         type: String,
         required: true
       },
@@ -46,7 +46,13 @@ export default class PostSchema extends Schema {
         minimize: false,
         transform (doc, ret) {
           delete ret._id
-          return ret
+          return {
+            data: ret,
+            meta: {
+              model: 'Post',
+              id: ret.id.id
+            }
+          }
         }
       },
       id: false,
