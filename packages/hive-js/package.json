@@ -1,6 +1,6 @@
 {
   "name": "hive-io",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-beta",
   "description": "A reactive, serverless JavaScript framework.",
   "main": "index.js",
   "scripts": {
