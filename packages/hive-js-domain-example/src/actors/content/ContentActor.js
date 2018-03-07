@@ -33,22 +33,23 @@ class ContentActor extends Actor {
   async perform (payload, modelInstance, repository) {
     switch (payload.meta.model) {
       case 'CreateContent':
-        payload.meta.id = { id: uuidV4() }
+        payload.meta.id = uuidV4()
+        payload.meta.version = 1
       case 'CreatedContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].createContentActor.perform(payload, modelInstance, repository)
 
       case 'DisableContent':
-        payload.meta.id = { id: payload.meta.urlParams.contentId }
+        payload.meta.id = payload.meta.urlParams.contentId
       case 'DisabledContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].disableContentActor.perform(payload, modelInstance, repository)
 
       case 'EditContent':
-        payload.meta.id = { id: payload.meta.urlParams.contentId }
+        payload.meta.id = payload.meta.urlParams.contentId
       case 'EditedContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].editContentActor.perform(payload, modelInstance, repository)
 
       case 'EnableContent':
-        payload.meta.id = { id: payload.meta.urlParams.contentId }
+        payload.meta.id = payload.meta.urlParams.contentId
       case 'EnabledContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].enableContentActor.perform(payload, modelInstance, repository)
 
@@ -58,8 +59,10 @@ class ContentActor extends Actor {
   }
 
   async replay (payload, repository) {
-    if (payload.meta.id || (payload.meta.urlParams && payload.meta.urlParams.contentId)) {
-      const aggregate = await repository.get(payload.meta.urlParams.contentId)
+    const isUrlParam = payload.meta.urlParams && payload.meta.urlParams.contentId
+    if (payload.meta.id || isUrlParam) {
+      const id = isUrlParam ? payload.meta.urlParams.contentId : payload.meta.id
+      const aggregate = await repository.get(id)
       return super.replay(aggregate, repository)
     }
   }

@@ -12,17 +12,17 @@ chai.use(dirtyChai)
 // constants
 const createPayload = {
   data: { text: 'something' },
-  meta: { model: 'CreateContent', version: 1, urlParams: {} }
+  meta: { model: 'CreateContent', urlParams: {} }
 }
 const createdPayload = {
   data: { text: 'something', id: { id: '1' } },
-  meta: { model: 'CreatedContent', version: 1, id: { id: '1' } }
+  meta: { model: 'CreatedContent', version: 1, id: '1' }
 }
 const disablePayload = {
   meta: { model: 'DisableContent', version: 2, urlParams: { contentId: '1' } }
 }
 const disabledPayload = {
-  meta: { model: 'DisabledContent', version: 2, id: { id: '1' } }
+  meta: { model: 'DisabledContent', version: 2, id: '1' }
 }
 const editPayload = {
   data: { text: 'something else' },
@@ -30,13 +30,13 @@ const editPayload = {
 }
 const editedPayload = {
   data: { text: 'something else' },
-  meta: { model: 'EditedContent', version: 3, id: { id: '1' } }
+  meta: { model: 'EditedContent', version: 3, id: '1' }
 }
 const enablePayload = {
   meta: { model: 'EnableContent', version: 4, urlParams: { contentId: '1' } }
 }
 const enabledPayload = {
-  meta: { model: 'EnabledContent', version: 4, id: { id: '1' } }
+  meta: { model: 'EnabledContent', version: 4, id: '1' }
 }
 
 // tests

@@ -23,14 +23,14 @@ class CreateContentActor extends MessageActor {
   async perform (payload, modelInstance, repository) {
     if (typeof modelInstance !== 'undefined') throw new Error(`#${payload.meta.model}: ${modelInstance.id.id} already exists`)
 
-    payload.data.id = payload.meta.id
+    payload.data.id = { id: payload.meta.id }
 
     const { command, event, model } = await super.perform(payload, modelInstance, repository)
 
     model.enabled = true
     model.edited = false
 
-    return { id: payload.data.id, command, event, model }
+    return { id: payload.data.id.id, command, event, model }
   }
 }
 
