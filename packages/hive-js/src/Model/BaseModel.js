@@ -66,7 +66,9 @@ export default class Model {
       // return a proxy to the object to enforce all added properties to use model descriptors
       return new Proxy(object, {
         defineProperty: (object, property, descriptor) =>
-          Object.defineProperty(object, property, { ...descriptors, value: descriptor.value })
+          typeof property === 'symbol'
+            ? Object.defineProperty(object, property, { value: descriptor.value })
+            : Object.defineProperty(object, property, { ...descriptors, value: descriptor.value })
       })
     }
   }
