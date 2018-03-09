@@ -1,62 +1,61 @@
-import CONFIG from '../conf/appConfig';
-
 // imports
-import Koa from 'koa';
-import Router from 'koa-router';
+import { parse } from 'url'
 
-import bodyparser from 'koa-bodyparser';
-import cors from 'kcors';
-import helmet from 'koa-helmet';
-import logger from 'koa-logger';
+import EventObserver from './observer'
+import EventStore from './store'
+import Repository from './repository'
 
-import CommandRouter from './router';
-import EventObserver from './observer';
-import EventStore from './store';
-import Repository from './repository';
+// constants
+const pingUrlRegexp = new RegExp('^/ping$')
 
-// init app
-const aggregate = require(CONFIG.AGGREGATE_LIB).domain.aggregate[CONFIG.AGGREGATE];
+// export main
+export default async function main (CONFIG, micro) {
+  const { json, send } = micro
+  const isConsumer = CONFIG.PROCESSOR_TYPE === 'consumer'
+  const isProducer = CONFIG.PROCESSOR_TYPE === 'producer'
 
-const store = new EventStore();
-const repository = new Repository(store);
+  // init dependencies
+  const Actor = await require(CONFIG.ACTOR_LIB)[CONFIG.ACTOR]
+  const actor = await new Actor()
+  const store = new EventStore(CONFIG)
+  const repository = new Repository(CONFIG, store)
 
-const healthRouter = new Router().get('/health', ctx => ctx.status = 200);
-const app = new Koa();
+  // bootstrap event observer
+  if (/^(consumer|stream_processor)$/.test(CONFIG.PROCESSOR_TYPE)) {
+    new EventObserver(actor, repository, store, isConsumer) // eslint-disable-line no-new
+  }
 
-// bootstrap event observer
-if (/^(consumer|stream_processor)$/.test(CONFIG.PROCESSOR_TYPE)) {
-    const observer = new EventObserver(aggregate.default, repository, store); // eslint-disable-line no-unused-vars
+  // router for microservice
+  async function route (req, res) {
+    if (pingUrlRegexp.test(req.url)) return send(res, 200)
+
+    // if Stream Processor type is consumer, return 400
+    if (!isProducer) return send(res, 400)
+
+    try {
+      // construct payload with parsed request data for query processing
+      const payload = await json(req)
+      payload.meta = {
+        ...payload.meta,
+        headers: { ...req.headers },
+        method: req.method,
+        url: parse(req.url, true),
+        urlParams: actor.parse(req.url)
+      }
+
+      const aggregate = await actor.replay(payload, repository)
+      const { id, event, model } = await actor.perform(payload, aggregate, repository)
+      await repository.record(id, event, model)
+
+      /* istanbul ignore if */
+      if (CONFIG.NODE_ENV === 'development') console.log(`'${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
+      return send(res, 200, event)
+    } catch (e) {
+      /* istanbul ignore if */
+      if (CONFIG.NODE_ENV === 'development') console.log(e)
+      return send(res, 400, e)
+    }
+  }
+
+  return micro(route)
 }
-
-// bootstrap app
-app
-    .use(logger())
-    .use(bodyparser())
-    .use(cors())
-    .use(helmet())
-    .use(helmet.noCache())
-    .use(helmet.referrerPolicy())
-
-    // healthcheck router
-    .use(healthRouter.routes())
-    .use(healthRouter.allowedMethods());
-
-// if Stream Processor type is either producer/stream_processor, init and attach CommandRouter to app
-if (/^(producer|stream_processor)$/.test(CONFIG.PROCESSOR_TYPE)) {
-    const commandRouter = new CommandRouter(aggregate.default, aggregate.handlers, repository);
-
-    app.use(commandRouter.routes()).use(commandRouter.allowedMethods());
-}
-
-// handle error response for all other requests
-app.use(async ctx => {
-        return ctx.status = 404;
-    })
-
-    // log any errors that occurred
-    .on('error', err => {
-        console.log(err);
-    });
-
-
-export default app;

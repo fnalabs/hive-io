@@ -1,41 +1,23 @@
-import Rx from 'rxjs/Rx';
+// imports
+import { Observable } from 'rxjs/Rx'
 
-const AGGREGATE = Symbol('reference for aggregate class');
-const REPOSITORY = Symbol('reference for repository connection object');
-const OBSERVABLE = Symbol('reference to Observable instance for event stream');
-
-
+/*
+ * EventObserver class
+ */
 export default class EventObserver {
-
-    constructor(Aggregate, repository, store) {
-        this[AGGREGATE] = Aggregate;
-        this[REPOSITORY] = repository;
-
-        // set observable to listen for messages from the event store consumer
-        this[OBSERVABLE] = Rx.Observable
-            .fromEventPattern(handler => store.consumer.on('message', handler))
-            .concatMap(this.handle)
-            .subscribe(() => {});
+  constructor (actor, repository, store, isConsumer) {
+    /* istanbul ignore next */
+    async function execute (value) {
+      const aggregate = await actor.replay(value, repository)
+      const { id, model } = await actor.perform(value, aggregate, repository)
+      if (isConsumer) await repository.update(id, model)
     }
 
-    handle = event => {
-        const value = JSON.parse(event.value);
-
-        return Rx.Observable.fromPromise(this.execute(value));
-    }
-
-    execute = async value => {
-        try {
-            const aggregate = await this[REPOSITORY]
-                .get(this[REPOSITORY].getKey(value, this[AGGREGATE].name), this[AGGREGATE]);
-
-            aggregate.applyData(value);
-
-            await this[REPOSITORY].update(aggregate);
-        }
-        catch (e) {
-            console.log(e);
-        }
-    }
-
+    // bootstrap event observer
+    /* istanbul ignore next */
+    Observable
+      .fromEventPattern(handler => store.consumer.on('message', handler))
+      .concatMap(event => Observable.fromPromise(execute(JSON.parse(event.value))))
+      .subscribe(() => {})
+  }
 }

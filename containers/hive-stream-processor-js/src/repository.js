@@ -1,81 +1,65 @@
-import CONFIG from '../conf/appConfig';
-
-import Redis from 'ioredis';
-import Redlock from 'redlock';
+// imports
+import Redis from 'ioredis'
+import Redlock from 'redlock'
 
 // private properties
-const CACHE = Symbol('reference to cache client connection object');
-const LOCK = Symbol('reference to pessimistic locking connection object');
-const STORE = Symbol('reference to Event Store client connection object');
+const CACHE = Symbol('cache client connection')
+const LOCK = Symbol('pessimistic locking connection')
+const STORE = Symbol('Event Store client connection')
+const TTL = Symbol('Redlock TTL')
 
-
+/*
+ * Repository class
+ */
 export default class Repository {
+  constructor (CONFIG, store) {
+    this[TTL] = CONFIG.LOCK_TTL
+    this[CACHE] = new Redis(CONFIG.CACHE_URL)
+    this[LOCK] = new Redlock([this[CACHE]], {
+      // the expected clock drift; for more details
+      // see http://redis.io/topics/distlock
+      driftFactor: CONFIG.LOCK_DRIFT_FACTOR, // time in ms
+      // the max number of times Redlock will attempt
+      // to lock a resource before erroring
+      retryCount: CONFIG.LOCK_RETRY_COUNT,
+      // the time in ms between attempts
+      retryDelay: CONFIG.LOCK_RETRY_DELAY, // time in ms
+      // the max time in ms randomly added to retries
+      // to improve performance under high contention
+      // see https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
+      retryJitter: CONFIG.LOCK_RETRY_JITTER // time in ms
+    })
+    this[STORE] = store
 
-    constructor(store) {
-        this[CACHE] = new Redis(CONFIG.CACHE_URL);
-        this[LOCK] = new Redlock([this[CACHE]], {
-            // the expected clock drift; for more details
-            // see http://redis.io/topics/distlock
-            driftFactor: CONFIG.LOCK_DRIFT_FACTOR, // time in ms
-            // the max number of times Redlock will attempt
-            // to lock a resource before erroring
-            retryCount: CONFIG.LOCK_RETRY_COUNT,
-            // the time in ms between attempts
-            retryDelay: CONFIG.LOCK_RETRY_DELAY, // time in ms
-            // the max time in ms randomly added to retries
-            // to improve performance under high contention
-            // see https://www.awsarchitectureblog.com/2015/03/backoff.html
-            retryJitter: CONFIG.LOCK_RETRY_JITTER // time in ms
-        });
-        this[STORE] = store;
+    // handle client errors
+    /* istanbul ignore next */
+    this[CACHE].on('error', err => console.log('A redis error has occurred:', err))
+    /* istanbul ignore next */
+    this[LOCK].on('clientError', err => console.log('A redlock error has occurred:', err))
 
-        // handle client errors
-        this[CACHE].on('error', err => {
-            console.log('A redis error has occurred:', err);
-        });
-        this[LOCK].on('clientError', (err) => {
-            console.log('A redlock error has occurred:', err);
-        });
+    // quit connection if process is interrupted
+    process.on('SIGINT', this[CACHE].quit)
+    process.on('SIGUSR2', this[CACHE].quit)
+  }
 
-        // quit connection if process is interrupted
-        process.on('SIGINT', () => this[CACHE].quit());
-        process.on('SIGUSR2', () => this[CACHE].quit());
-    }
+  async delete (id) {
+    return this[CACHE].del(id)
+  }
 
-    delete = async id => {
-        return await this[CACHE].del(id);
-    }
+  async get (id) {
+    return this[CACHE].get(id)
+  }
 
-    get = async (id, Aggregate) => {
-        const data = await this[CACHE].get(id);
+  async record (id, event, model) {
+    const lock = await this[LOCK].lock(`lock:${id}`, this[TTL])
+    await this[STORE].log(id, event)
+    await this[CACHE].set(id, JSON.stringify(model))
+    return lock.unlock()
+  }
 
-        return new Aggregate(JSON.parse(data || '{}'));
-    }
-
-    record = async (event, aggregate) => {
-        const key = this.getKey(aggregate, aggregate.constructor.name);
-
-        await this[LOCK].lock(`lock:${key}`, CONFIG.LOCK_TTL).then(async (lock) => {
-            await this[STORE].log(event);
-            await this[CACHE].set(key, JSON.stringify(aggregate));
-
-            return lock.unlock();
-        });
-    }
-
-    update = async aggregate => {
-        const key = this.getKey(aggregate, aggregate.constructor.name);
-
-        await this[LOCK].lock(`lock:${key}`, CONFIG.LOCK_TTL).then(async (lock) => {
-            await this[CACHE].set(key, JSON.stringify(aggregate));
-
-            return lock.unlock();
-        });
-    }
-
-    getKey(data, name) {
-        if (!data.id) return null;
-        return data.id.id ? `${name}:${data.id.id}` : data.id;
-    }
-
+  async update (id, model) {
+    const lock = await this[LOCK].lock(`lock:${id}`, this[TTL])
+    await this[CACHE].set(id, JSON.stringify(model))
+    return lock.unlock()
+  }
 }
