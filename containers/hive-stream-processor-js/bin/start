@@ -1,8 +1,12 @@
 #!/usr/bin/env node
-require('babel-polyfill');
+const CONFIG = require('../conf/appConfig')
+const micro = require('micro')
 
-const CONFIG = require('../conf/appConfig');
-
-const app = require('../dist');
-
-app.listen(CONFIG.PORT);
+require('../dist')(CONFIG, micro)
+  .then(app => {
+    app.listen(CONFIG.PORT)
+    console.info('app running on port', CONFIG.PORT)
+  })
+  .catch(error => {
+    console.log('error', error.message)
+  })
