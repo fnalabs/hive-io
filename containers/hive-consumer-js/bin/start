@@ -1,23 +1,12 @@
 #!/usr/bin/env node
-require('babel-polyfill');
+const CONFIG = require('../conf/appConfig')
+const micro = require('micro')
 
-const CONFIG = require('../conf/appConfig');
-
-const mongoose = require('mongoose');
-
-const app = require('../dist');
-
-const promise = new Promise(function (resolve, reject) {
-    mongoose.Promise = Promise;
-
-    mongoose.connection
-        .on('error', function (error) { reject(error); })
-        .on('close', function () { console.log('Database connection closed.'); }) // eslint-disable-line no-console
-        .once('open', function () { resolve(mongoose.connections); });
-
-    mongoose.connect(CONFIG.MONGO_URL);
-});
-
-promise
-    .then(() => app.listen(process.env.API_PORT || 3000))
-    .catch((err) => console.log('Error connecting to database\n' + err)); // eslint-disable-line no-console
+require('../dist')(CONFIG, micro)
+  .then(app => {
+    app.listen(CONFIG.PORT)
+    console.info('app running on port', CONFIG.PORT)
+  })
+  .catch(error => {
+    console.log('error', error.message)
+  })
