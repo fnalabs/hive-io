@@ -1,0 +1,44 @@
+#! /usr/bin/env node
+const fs = require('fs')
+const archiver = require('archiver')
+
+const output = fs.createWriteStream('./app.tar.gz')
+const archive = archiver('tar', {
+  gzip: true,
+  zlib: { level: 9 } // Sets the compression level.
+})
+
+// handle warnings
+archive.on('warning', function (err) {
+  if (err.code === 'ENOENT') {
+    // log warning
+    console.info(err)
+  } else {
+    // throw error
+    throw err
+  }
+})
+
+// handle errors
+archive.on('error', function (err) {
+  throw err
+})
+
+// pipe archive data to the output file
+archive.pipe(output)
+
+// append directories
+archive.directory('bin')
+archive.directory('conf')
+archive.directory('dist')
+
+// append files
+archive.file('package-lock.json')
+archive.file('package.json')
+
+// append meta files
+archive.file('LICENSE')
+archive.file('README.md')
+
+// Wait for streams to complete
+archive.finalize()

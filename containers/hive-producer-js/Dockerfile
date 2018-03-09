@@ -1,9 +1,11 @@
 # start with Alpine Linux Base image
-# NOTE: change FROM statement to preferred Node.js image
-FROM node:6.10.3-alpine
-MAINTAINER Adam Eilers <adam.eilers@gmail.com>
+# NOTE: change 'ARG IMG_VER="..."' statement to preferred Node.js image
+ARG IMG_VER="8.9.4-alpine"
+FROM node:${IMG_VER}
+LABEL maintainer="Adam Eilers"
 
 # NOTE: if user created, change APP_PATH to user's workspace
+ARG APP_MODULE="hive-io-domain-example"
 ARG APP_PATH="/opt/app"
 ARG APP_SOURCE="app.tar.gz"
 ARG NODE_ENV
@@ -19,12 +21,11 @@ ADD ${APP_SOURCE} ${APP_PATH}
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
-RUN apk update \
-    && apk add bash-completion \
-    && bash ./bin/install
+RUN apk add --update bash-completion && bash ./bin/install
 
 # expose standard Node.js port of 3000
-EXPOSE 3000
+EXPOSE ${PORT}
 
 # NOTE: change CMD to be command to start node app
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["npm", "start"]
