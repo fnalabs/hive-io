@@ -3,11 +3,12 @@ module.exports = Object.freeze({
   NODE_ENV: process.env.NODE_ENV || 'production',
   PORT: process.env.PORT || 3000,
   PROCESSOR_TYPE: process.env.PROCESSOR_TYPE || 'producer',
+  PRODUCER_TOPIC: process.env.PRODUCER_TOPIC || 'content',
+  CONSUMER_TOPIC: process.env.CONSUMER_TOPIC,
   // actor configurations
   ACTOR: process.env.ACTOR || 'ContentActor',
   ACTOR_LIB: process.env.ACTOR_LIB || 'hive-io-domain-example',
   // event store configurations
-  EVENT_STORE_TOPIC: process.env.EVENT_STORE_TOPIC || 'content',
   EVENT_STORE_ID: process.env.EVENT_STORE_ID,
   EVENT_STORE_URL: process.env.EVENT_STORE_URL,
   EVENT_STORE_TYPE: process.env.EVENT_STORE_TYPE || 3,

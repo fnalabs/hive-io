@@ -11,7 +11,7 @@ The third role of the Stream Processor is the most complex and likely least used
 The Hive Framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency. Riak also seems like a viable solution for this requirement as it is a similar product that also provides strong consistency concepts.
 
 ## Usage
-This starter kit extends all of the features of [docker-nodejs-starter](https://github.com/aeilers/docker-nodejs-starter).
+TODO
 
 ### Examples
 Below is a snippet of a `docker-compose.yml` definition for development. Change values as you see fit.
@@ -62,9 +62,10 @@ Name                  | Type    | Default                     | Description
 NODE_ENV              | String  | 'production'             | app runtime environment
 PORT                  | Number  | 3000                     | app port to listen on
 PROCESSOR_TYPE        | String  | 'producer'               | type of Stream Processor you wish to run (can also be 'consumer' or 'stream_processor')
+PRODUCER_TOPIC        | String  | 'content'                | Kafka topic the events will be stored under
+CONSUMER_TOPIC        | String  |                          | Kafka topic the events will be consumed from
 ACTOR                 | String  | 'ContentActor'           | Actor (Model) the microservice is responsible for
 ACTOR_LIB             | String  | 'hive-io-domain-module'  | module where the ACTOR resides
-EVENT_STORE_TOPIC     | String  | 'content'                | Kafka topic the models will be stored under
 EVENT_STORE_ID        | String  |                          | unique identifier for Kafka client connection
 EVENT_STORE_URL       | String  |                          | URL where Kafka is hosted
 EVENT_STORE_TYPE      | Number  | 3                        | Kafka HighLevelProducer keyed partitioner type to guarantee order

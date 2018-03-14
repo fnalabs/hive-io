@@ -53,7 +53,7 @@ export default async function main (CONFIG, micro) {
     } catch (e) {
       /* istanbul ignore if */
       if (CONFIG.NODE_ENV === 'development') console.log(e)
-      return send(res, 400, e)
+      return send(res, e.status || 400, e)
     }
   }
 

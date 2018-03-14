@@ -40,7 +40,7 @@ describe('store', () => {
             constructor () { clientSpy() }
             refreshMetadata () { refreshSpy() }
           },
-          ConsumerGroup: class HighLevelProducer {
+          ConsumerGroup: class ConsumerGroup {
             constructor () { consumerSpy() }
           },
           HighLevelProducer: class HighLevelProducer {
@@ -56,7 +56,7 @@ describe('store', () => {
     it('should create the Store object with the default processor type', () => {
       store = new Store({
         PROCESSOR_TYPE: 'producer',
-        EVENT_STORE_TOPIC: '',
+        PRODUCER_TOPIC: '',
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
@@ -79,7 +79,7 @@ describe('store', () => {
     it('should create the Store object with the consumer processor type', () => {
       store = new Store({
         PROCESSOR_TYPE: 'consumer',
-        EVENT_STORE_TOPIC: '',
+        CONSUMER_TOPIC: '',
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
@@ -92,16 +92,17 @@ describe('store', () => {
 
       expect(store.consumer).to.be.an('object')
 
-      expect(clientSpy.calledOnce).to.be.true()
+      expect(clientSpy.called).to.be.false()
       expect(consumerSpy.calledOnce).to.be.true()
       expect(producerSpy.called).to.be.false()
-      expect(refreshSpy.calledOnce).to.be.true()
+      expect(refreshSpy.called).to.be.false()
     })
 
     it('should create the Store object with the stream_processor processor type', () => {
       store = new Store({
         PROCESSOR_TYPE: 'stream_processor',
-        EVENT_STORE_TOPIC: '',
+        PRODUCER_TOPIC: '',
+        CONSUMER_TOPIC: '',
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
@@ -155,9 +156,9 @@ describe('store', () => {
         }
       })
       store = new Store({
-        AGGREGATE_LIST: '',
+        PROCESSOR_TYPE: 'producer',
+        PRODUCER_TOPIC: '',
         EVENT_STORE_URL: '',
-        EVENT_STORE_TOPIC: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
         EVENT_STORE_TIMEOUT: '',

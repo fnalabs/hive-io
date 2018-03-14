@@ -15,19 +15,31 @@ const CLOSE = Symbol('closing the Kafka consumer/client')
  * EventStore class
  */
 export default class EventStore {
-  constructor (CONFIG) {
-    this[TOPIC] = CONFIG.EVENT_STORE_TOPIC
-    this[CLIENT] = new Client(CONFIG.EVENT_STORE_URL, `${CONFIG.EVENT_STORE_ID}-${uuidV4()}`)
+  constructor (CONFIG, connectionType) {
+    if (CONFIG.PROCESSOR_TYPE !== 'consumer') {
+      this[TOPIC] = CONFIG.PRODUCER_TOPIC
 
-    this[PRODUCER] = CONFIG.PROCESSOR_TYPE === 'consumer'
-      ? null
-      : new HighLevelProducer(this[CLIENT], {
+      this[CLIENT] = new Client(CONFIG.EVENT_STORE_URL, `${CONFIG.EVENT_STORE_ID}-${uuidV4()}`)
+      this[PRODUCER] = new HighLevelProducer(this[CLIENT], {
         partitionerType: CONFIG.EVENT_STORE_TYPE
       })
 
+      // NOTE: this is required for our HighLevelProducer with KeyedPartitioner usage
+      //        to resolve errors on first send on a fresh instance. see:
+      //          - https://www.npmjs.com/package/kafka-node#highlevelproducer-with-keyedpartitioner-errors-on-first-send
+      //          - https://github.com/SOHU-Co/kafka-node/issues/354
+      //          - https://github.com/SOHU-Co/kafka-node/pull/378
+      /* istanbul ignore next */
+      this[CLIENT].refreshMetadata([this[TOPIC]], () => {})
+    } else {
+      this[TOPIC] = null
+      this[CLIENT] = null
+      this[PRODUCER] = null
+    }
+
     // NOTE to make consumer rebuild from the earliest log for development, you must make groupId unique
     //      e.g. `${CONFIG.EVENT_STORE_ID}-${uuidV4()}` instead of just CONFIG.EVENT_STORE_ID
-    this[CONSUMER] = CONFIG.PROCESSOR_TYPE === 'producer'
+    this[CONSUMER] = CONFIG.PROCESSOR_TYPE === 'producer' && typeof CONFIG.CONSUMER_TOPIC !== 'string'
       ? null
       : new ConsumerGroup({
         host: CONFIG.EVENT_STORE_URL,
@@ -35,15 +47,7 @@ export default class EventStore {
         sessionTimeout: CONFIG.EVENT_STORE_TIMEOUT,
         protocol: [CONFIG.EVENT_STORE_PROTOCOL],
         fromOffset: CONFIG.EVENT_STORE_OFFSET
-      }, this[TOPIC])
-
-    // NOTE: this is required for our HighLevelProducer with KeyedPartitioner usage
-    //        to resolve errors on first send on a fresh instance. see:
-    //          - https://www.npmjs.com/package/kafka-node#highlevelproducer-with-keyedpartitioner-errors-on-first-send
-    //          - https://github.com/SOHU-Co/kafka-node/issues/354
-    //          - https://github.com/SOHU-Co/kafka-node/pull/378
-    /* istanbul ignore next */
-    this[CLIENT].refreshMetadata([this[TOPIC]], () => {})
+      }, CONFIG.CONSUMER_TOPIC)
 
     // NOTE: this is required for restarts as the consumer connection must be closed. for more info, see:
     //        https://www.npmjs.com/package/kafka-node#failedtorebalanceconsumererror-exception-node_exists-110
@@ -80,10 +84,13 @@ export default class EventStore {
     process.removeAllListeners('SIGINT')
     process.removeAllListeners('SIGUSR2')
 
-    this[CLIENT].close(() => {
-      !this[CONSUMER]
-        ? process.kill(process.pid)
-        : this[CONSUMER].close(true, () => process.kill(process.pid))
-    })
+    if (this[CLIENT]) {
+      this[CLIENT].close(() => {
+        !this[CONSUMER]
+          ? process.kill(process.pid)
+          : this[CONSUMER].close(true, () => process.kill(process.pid))
+      })
+    } else if (this[CONSUMER]) this[CONSUMER].close(true, () => process.kill(process.pid))
+    else process.kill(process.pid)
   }
 }
