@@ -12,24 +12,20 @@ describe('store', () => {
   describe('#constructor', () => {
     const sandbox = sinon.createSandbox()
 
-    let clientSpy, consumerSpy, refreshSpy, observableStubs
+    let consumerSpy, observableStubs
 
     after(() => {
       Store = null
       store = null
 
-      clientSpy = null
       consumerSpy = null
-      refreshSpy = null
       observableStubs = null
 
       sandbox.restore()
     })
 
     before(() => {
-      clientSpy = sinon.spy()
       consumerSpy = sinon.spy()
-      refreshSpy = sinon.spy()
       observableStubs = {
         fromEventPattern: sinon.stub().returnsThis(),
         concatMap: sinon.stub().returnsThis(),
@@ -38,10 +34,6 @@ describe('store', () => {
 
       Store = proxyquire('../src/store', {
         'kafka-node': {
-          Client: class Client {
-            constructor () { clientSpy() }
-            refreshMetadata () { refreshSpy() }
-          },
           ConsumerGroup: class HighLevelProducer {
             constructor () { consumerSpy() }
           }
@@ -64,9 +56,7 @@ describe('store', () => {
     it('should create the Store object', () => {
       expect(store).to.exist()
 
-      expect(clientSpy.calledOnce).to.be.true()
       expect(consumerSpy.calledOnce).to.be.true()
-      expect(refreshSpy.calledOnce).to.be.true()
 
       expect(observableStubs.fromEventPattern.calledOnce).to.be.true()
       expect(observableStubs.concatMap.calledOnce).to.be.true()

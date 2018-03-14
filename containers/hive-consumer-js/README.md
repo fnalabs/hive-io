@@ -7,7 +7,7 @@ Consumers handle the query responsibilities in the CQRS pattern. They are respon
 The Hive Framework leverages MongoDB as a storage solution for these microservices because of its rich data modeling and querying capabilities. Apache Cassandra also seems like a viable solution for this requirement because of its ability to handle high-volume reads/writes and a rich query language.
 
 ## Usage
-This starter kit extends all of the features of [docker-nodejs-starter](https://github.com/fnalabs/docker-nodejs-starter).
+TODO
 
 ### Examples
 Below is a snippet of a `docker-compose.yml` definition for development. Change values as you see fit.
