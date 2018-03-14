@@ -39,7 +39,7 @@ class PostEventActor extends Actor {
         break
 
       case 'EditedContent':
-        update = { $set: { text: payload.data.text } }
+        update = { $set: { text: payload.data.text, edited: true } }
         break
 
       case 'EnabledContent':
