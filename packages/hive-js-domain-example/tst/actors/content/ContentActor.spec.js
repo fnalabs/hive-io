@@ -19,21 +19,21 @@ const createdPayload = {
   meta: { model: 'CreatedContent', version: 1, id: '1' }
 }
 const disablePayload = {
-  meta: { model: 'DisableContent', version: 2, urlParams: { contentId: '1' } }
+  meta: { model: 'DisableContent', version: 1, urlParams: { contentId: '1' } }
 }
 const disabledPayload = {
   meta: { model: 'DisabledContent', version: 2, id: '1' }
 }
 const editPayload = {
   data: { text: 'something else' },
-  meta: { model: 'EditContent', version: 3, urlParams: { contentId: '1' } }
+  meta: { model: 'EditContent', version: 2, urlParams: { contentId: '1' } }
 }
 const editedPayload = {
   data: { text: 'something else' },
   meta: { model: 'EditedContent', version: 3, id: '1' }
 }
 const enablePayload = {
-  meta: { model: 'EnableContent', version: 4, urlParams: { contentId: '1' } }
+  meta: { model: 'EnableContent', version: 3, urlParams: { contentId: '1' } }
 }
 const enabledPayload = {
   meta: { model: 'EnabledContent', version: 4, id: '1' }

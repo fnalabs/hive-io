@@ -40,16 +40,19 @@ class ContentActor extends Actor {
 
       case 'DisableContent':
         payload.meta.id = payload.meta.urlParams.contentId
+        payload.meta.version++
       case 'DisabledContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].disableContentActor.perform(payload, modelInstance, repository)
 
       case 'EditContent':
         payload.meta.id = payload.meta.urlParams.contentId
+        payload.meta.version++
       case 'EditedContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].editContentActor.perform(payload, modelInstance, repository)
 
       case 'EnableContent':
         payload.meta.id = payload.meta.urlParams.contentId
+        payload.meta.version++
       case 'EnabledContent': // eslint-disable-line no-fallthrough
         return this[ACTORS].enableContentActor.perform(payload, modelInstance, repository)
 
