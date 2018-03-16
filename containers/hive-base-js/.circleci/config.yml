@@ -1,0 +1,88 @@
+version: 2.0
+
+jobs:
+  checkout_code:
+    docker:
+      - image: circleci/node:8.9.4
+    working_directory: ~/hive-rest-js
+    steps:
+      - checkout
+      - save_cache:
+          key: repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/hive-rest-js
+
+  install_dependencies:
+    docker:
+      - image: circleci/node:8.9.4
+    working_directory: ~/hive-rest-js
+    steps:
+      - restore_cache:
+          keys:
+            - repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys:
+            - dependencies-{{ .Branch }}-{{ checksum "package.json" }}
+      - run: npm install --no-optional
+      - save_cache:
+          key: dependencies-{{ .Branch }}-{{ checksum "package.json" }}
+          paths:
+            - ~/hive-rest-js/node_modules
+
+  test:
+    docker:
+      - image: circleci/node:8.9.4
+    working_directory: ~/hive-rest-js
+    steps:
+      - restore_cache:
+          keys:
+            - repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys:
+            - dependencies-{{ .Branch }}-{{ checksum "package.json" }}
+      - run:
+          name: Run lint and unit tests
+          command: npm test
+      - run:
+          name: Run coverage report
+          command: npm run coverage
+      - store_test_results:
+          path: ~/hive-rest-js/coverage.lcov
+      - store_artifacts:
+          path: ~/hive-rest-js/coverage.lcov
+
+  build:
+    docker:
+      - image: circleci/node:8.9.4
+    working_directory: ~/hive-rest-js
+    steps:
+      - restore_cache:
+          keys:
+            - repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys:
+            - dependencies-{{ .Branch }}-{{ checksum "package.json" }}
+      - run:
+          name: Build and compress code
+          command: npm run build && node ./bin/compress
+      - save_cache:
+          key: assets-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/hive-rest-js/app.tar.gz
+      - store_artifacts:
+          path: ~/hive-rest-js/app.tar.gz
+
+workflows:
+  version: 2
+  code-review:
+    jobs:
+      - checkout_code
+      - install_dependencies:
+          requires:
+            - checkout_code
+      - test:
+          requires:
+            - install_dependencies
+      - build:
+          requires:
+            - test

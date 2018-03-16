@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+const CONFIG = require('../conf/appConfig')
+const micro = require('micro')
+
+require('../dist')(CONFIG, micro)
+  .then(app => {
+    app.listen(CONFIG.PORT)
+    console.info('app running on port', CONFIG.PORT)
+  })
+  .catch(error => {
+    console.error('error', error.message)
+  })

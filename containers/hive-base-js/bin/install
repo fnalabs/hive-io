@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+###
+# utility functions
+###
+clearApkCache () {
+  rm -rf \
+    /tmp/* \
+    /var/cache/apk/*
+}
+
+printLine () {
+  local DIVIDER="===================="
+  local TEMPLATE="\n\n${DIVIDER}${DIVIDER}${DIVIDER}\n%s\n\n\n"
+
+  printf "${TEMPLATE}" "${1}"
+}
+
+###
+# base environment install script for Alpine Linux on Docker
+###
+baseInstall () {
+  ###
+  # NOTE: packages for env improvements are a personal preference here...
+  #   - bash-completion coreutils grep tree
+  ###
+  printLine "Installing environment dependencies"
+  apk add \
+    coreutils \
+    dumb-init \
+    grep \
+    tree
+}
+
+###
+# project install script for project dependencies
+#   - this can and should be run as needed in dev environment to update project dependencies
+#       - example: re-running "npm install" to update versions
+###
+projectInstall () {
+  if [[ "${NODE_ENV}" == "production" ]]; then
+    printLine "Installing (Production) Node.js Dependencies"
+    npm install --quiet --no-optional --production
+  else
+
+    if [[ -f ./package.json ]]; then
+      printLine "Installing (All) Node.js Dependencies"
+      npm install --quiet --no-optional
+    fi
+
+  fi
+
+  printLine "Installing microservice Actor module"
+  npm install --quiet --no-optional ${APP_MODULE}
+
+  printLine "Clearing Node and NPM cache"
+  rm -rf \
+    ${HOME}/.npm \
+    ${HOME}/.node-gyp
+}
+
+###
+# install script for Alpine Linux on Docker
+###
+runInstall () {
+  baseInstall
+  projectInstall
+  clearApkCache
+
+  # set permissions for node user group
+  chgrp -R node .
+  chmod -R g+w .
+}
+
+runInstall
