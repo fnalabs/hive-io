@@ -1,0 +1,96 @@
+{
+  "name": "hive-rest-js",
+  "version": "2.0.0-beta",
+  "description": "Starter kit for Hive Framework Producers in Node.js w/ Micro implementations in Docker",
+  "main": "./bin/start",
+  "scripts": {
+    "prebuild": "del dist",
+    "build": "babel src --out-dir dist",
+    "coverage": "NODE_ENV=test nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "dev": "nodemon -e js,json -w src -w conf -x \"npm run start:dev\" & nodemon -e js -w tst -x \"npm test\"",
+    "fix": "standard --fix",
+    "prerelease": "del app.tar.gz",
+    "release": "NODE_ENV=production npm test && npm run build && node ./bin/compress",
+    "start": "NODE_ENV=production node ./bin/start",
+    "start:dev": "NODE_ENV=development npm run build && node ./bin/start",
+    "pretest": "del coverage coverage.lcov .nyc_output",
+    "test": "standard",
+    "posttest": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
+    "version": "npm run release && git add --all",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fnalabs/hive-rest-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fnalabs/hive-rest-js/issues"
+  },
+  "homepage": "https://github.com/fnalabs/hive-rest-js#readme",
+  "author": "Adam Eilers",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=8",
+    "npm": ">=5"
+  },
+  "dependencies": {
+    "micro": "~9.1.0"
+  },
+  "devDependencies": {
+    "archiver": "~2.1.0",
+    "babel-cli": "~6.26.0",
+    "babel-core": "~6.26.0",
+    "babel-eslint": "~8.2.1",
+    "babel-plugin-add-module-exports": "~0.2.1",
+    "babel-plugin-istanbul": "~4.1.5",
+    "babel-plugin-syntax-object-rest-spread": "~6.13.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "~6.26.0",
+    "babel-register": "~6.26.0",
+    "chai": "~4.1.2",
+    "chai-as-promised": "~7.1.1",
+    "chai-http": "~3.0.0",
+    "codecov": "~3.0.0",
+    "del-cli": "~1.1.0",
+    "dirty-chai": "~2.0.1",
+    "mocha": "~5.0.4",
+    "nodemon": "~1.17.1",
+    "nyc": "~11.4.1",
+    "proxyquire": "~2.0.0",
+    "sinon": "~4.4.2",
+    "standard": "~11.0.0"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 80,
+    "statements": 80,
+    "functions": 80,
+    "branches": 80,
+    "watermarks": {
+      "lines": [
+        80,
+        90
+      ],
+      "functions": [
+        80,
+        90
+      ],
+      "branches": [
+        80,
+        90
+      ],
+      "statements": [
+        80,
+        90
+      ]
+    },
+    "require": [
+      "babel-register"
+    ],
+    "sourceMap": false,
+    "instrument": false
+  },
+  "standard": {
+    "parser": "babel-eslint"
+  }
+}
