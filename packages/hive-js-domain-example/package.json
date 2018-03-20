@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/fnalabs/hive-js-domain-example#readme",
   "author": "Adam Eilers",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=8",
     "npm": ">=5"
