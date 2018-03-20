@@ -2,11 +2,11 @@
 import { parse, Actor, Schema } from 'hive-io'
 
 import ViewSchema from '../schemas/json/View.json'
-import ContentIdSchema from '../schemas/json/content/ContentId.json'
+import PostIdSchema from '../schemas/json/post/PostId.json'
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/ContentId': ContentIdSchema
+  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
 }
 
 /*
@@ -14,7 +14,7 @@ const REFS = {
  */
 class ViewActor extends Actor {
   constructor (viewSchema) {
-    super(parse`/view/${'contentId'}`, viewSchema)
+    super(parse`/view/${'postId'}`, viewSchema)
   }
 }
 

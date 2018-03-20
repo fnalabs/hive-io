@@ -5,8 +5,8 @@ import { parse, Actor, Schema } from 'hive-io'
 import PostEventActor from './PostEventActor'
 import PostQueryActor from './PostQueryActor'
 
-import PostSchema from '../../schemas/json/Post.json'
-import ContentIdSchema from '../../schemas/json/content/ContentId.json'
+import PostSchema from '../../schemas/json/post/Post.json'
+import PostIdSchema from '../../schemas/json/post/PostId.json'
 
 import MongoSchema from '../../schemas/mongoose/Post'
 
@@ -15,7 +15,7 @@ const ACTORS = Symbol('MessageActors hash')
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/ContentId': ContentIdSchema
+  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
 }
 
 /*

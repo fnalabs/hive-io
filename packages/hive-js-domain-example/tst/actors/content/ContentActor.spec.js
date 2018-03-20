@@ -19,21 +19,21 @@ const createdPayload = {
   meta: { model: 'CreatedContent', version: 1, id: '1' }
 }
 const disablePayload = {
-  meta: { model: 'DisableContent', version: 1, urlParams: { contentId: '1' } }
+  meta: { model: 'DisableContent', version: 1, urlParams: { postId: '1' } }
 }
 const disabledPayload = {
   meta: { model: 'DisabledContent', version: 2, id: '1' }
 }
 const editPayload = {
   data: { text: 'something else' },
-  meta: { model: 'EditContent', version: 2, urlParams: { contentId: '1' } }
+  meta: { model: 'EditContent', version: 2, urlParams: { postId: '1' } }
 }
 const editedPayload = {
   data: { text: 'something else' },
   meta: { model: 'EditedContent', version: 3, id: '1' }
 }
 const enablePayload = {
-  meta: { model: 'EnableContent', version: 3, urlParams: { contentId: '1' } }
+  meta: { model: 'EnableContent', version: 3, urlParams: { postId: '1' } }
 }
 const enabledPayload = {
   meta: { model: 'EnabledContent', version: 4, id: '1' }
@@ -144,7 +144,7 @@ describe('ContentActor', () => {
       it('should throw an error for invalid data', async () => {
         const payload = {
           data: { text: null },
-          meta: { model: 'EditContent', urlParams: { contentId: 1 } }
+          meta: { model: 'EditContent', urlParams: { postId: 1 } }
         }
         const modelInstance = await contentActor.replay(payload, { get () { return [createdPayload, disabledPayload] } })
 

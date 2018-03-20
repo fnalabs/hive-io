@@ -6,7 +6,7 @@
   "properties": {
     "id": {
       "description": "Content Id Value Object",
-      "$ref": "https://hiveframework.io/api/v1/models/ContentId"
+      "$ref": "https://hiveframework.io/api/v1/models/PostId"
     }
   }
 }

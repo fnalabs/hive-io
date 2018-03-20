@@ -2,14 +2,14 @@
 import { parse, MessageActor, Schema } from 'hive-io'
 
 import ContentSchema from '../../../schemas/json/content/Content.json'
-import ContentIdSchema from '../../../schemas/json/content/ContentId.json'
+import PostIdSchema from '../../../schemas/json/post/PostId.json'
 
 import CreateContentSchema from '../../../schemas/json/content/commands/CreateContent.json'
 import CreatedContentSchema from '../../../schemas/json/content/events/CreatedContent.json'
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/ContentId': ContentIdSchema
+  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
 }
 
 /*

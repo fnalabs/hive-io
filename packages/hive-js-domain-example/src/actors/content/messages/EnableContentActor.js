@@ -2,14 +2,14 @@
 import { parse, MessageActor, Schema } from 'hive-io'
 
 import ContentSchema from '../../../schemas/json/content/Content.json'
-import ContentIdSchema from '../../../schemas/json/content/ContentId.json'
+import PostIdSchema from '../../../schemas/json/post/PostId.json'
 
 import EnableContentSchema from '../../../schemas/json/content/commands/EnableContent.json'
 import EnabledContentSchema from '../../../schemas/json/content/events/EnabledContent.json'
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/ContentId': ContentIdSchema
+  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
 }
 
 /*
@@ -17,7 +17,7 @@ const REFS = {
  */
 class EnableContentActor extends MessageActor {
   constructor (contentSchema, enabledContentSchema, enableContentSchema) {
-    super(parse`/content/${'contentId'}`, contentSchema, enabledContentSchema, enableContentSchema)
+    super(parse`/content/${'postId'}`, contentSchema, enabledContentSchema, enableContentSchema)
   }
 
   async perform (payload, modelInstance, repository) {

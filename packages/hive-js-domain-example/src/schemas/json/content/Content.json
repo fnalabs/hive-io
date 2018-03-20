@@ -5,8 +5,8 @@
   "type": "object",
   "properties": {
     "id": {
-      "description": "Content Id Value Object",
-      "$ref": "https://hiveframework.io/api/v1/models/ContentId"
+      "description": "Post Id Value Object",
+      "$ref": "https://hiveframework.io/api/v1/models/PostId"
     },
     "text": {
       "description": "main post content",
@@ -24,5 +24,6 @@
       "type": "boolean",
       "default": true
     }
-  }
+  },
+  "additionalProperties": false
 }
