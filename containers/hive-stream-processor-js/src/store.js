@@ -53,8 +53,8 @@ export default class EventStore {
     //        https://www.npmjs.com/package/kafka-node#failedtorebalanceconsumererror-exception-node_exists-110
     process.removeAllListeners('SIGINT')
     process.removeAllListeners('SIGUSR2')
-    process.on('SIGINT', this[CLOSE])
-    process.on('SIGUSR2', this[CLOSE])
+    process.on('SIGINT', this[CLOSE].bind(this))
+    process.on('SIGUSR2', this[CLOSE].bind(this))
   }
 
   get consumer () {

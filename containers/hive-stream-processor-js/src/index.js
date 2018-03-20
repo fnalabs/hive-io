@@ -31,6 +31,7 @@ export default async function main (CONFIG, micro) {
 
     // if Stream Processor type is consumer, return 400
     if (!isProducer) return send(res, 400)
+    if (req.method === 'GET') return send(res, 405, 'Stream Processors don\'t accept GET requests')
 
     try {
       // construct payload with parsed request data for query processing
@@ -47,13 +48,11 @@ export default async function main (CONFIG, micro) {
       const { id, event, model } = await actor.perform(payload, aggregate, repository)
       await repository.record(id, event, model)
 
-      /* istanbul ignore if */
-      if (CONFIG.NODE_ENV === 'development') console.log(`'${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
+      console.info(`${req.method} '${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
       return send(res, 200, event)
     } catch (e) {
-      /* istanbul ignore if */
-      if (CONFIG.NODE_ENV === 'development') console.log(e)
-      return send(res, e.status || 400, e)
+      console.error(e)
+      return send(res, e.statusCode || 400, e)
     }
   }
 

@@ -8,5 +8,5 @@ require('../dist')(CONFIG, micro)
     console.info('app running on port', CONFIG.PORT)
   })
   .catch(error => {
-    console.log('error', error.message)
+    console.error(error)
   })
