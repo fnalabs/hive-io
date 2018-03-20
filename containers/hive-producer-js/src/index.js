@@ -18,6 +18,7 @@ export default async function main (CONFIG, micro) {
   // router for microservice
   async function route (req, res) {
     if (pingUrlRegexp.test(req.url)) return send(res, 200)
+    if (req.method !== 'POST') return send(res, 405, 'Producers only accept POST requests')
 
     try {
       // construct payload with parsed request data for query processing
@@ -33,13 +34,11 @@ export default async function main (CONFIG, micro) {
       const { model } = await actor.perform(payload)
       await store.log(model)
 
-      /* istanbul ignore if */
-      if (CONFIG.NODE_ENV === 'development') console.log(`'${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
+      console.info(`${req.method} '${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
       return send(res, 200, model)
     } catch (e) {
-      /* istanbul ignore if */
-      if (CONFIG.NODE_ENV === 'development') console.log(e)
-      return send(res, 400, e)
+      console.error(e)
+      return send(res, e.statusCode || 400, e)
     }
   }
 

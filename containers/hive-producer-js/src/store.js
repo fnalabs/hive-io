@@ -21,11 +21,10 @@ export default class EventStore {
       partitionerType: CONFIG.EVENT_STORE_TYPE
     })
 
-    // NOTE: this is required for our HighLevelProducer with KeyedPartitioner usage
-    //        to resolve errors on first send on a fresh instance. see:
-    //          - https://www.npmjs.com/package/kafka-node#highlevelproducer-with-keyedpartitioner-errors-on-first-send
-    //          - https://github.com/SOHU-Co/kafka-node/issues/354
-    //          - https://github.com/SOHU-Co/kafka-node/pull/378
+    // NOTE: this is required for KeyedPartitioner usage to resolve errors on first send on a fresh instance. see:
+    //        - https://www.npmjs.com/package/kafka-node#highlevelproducer-with-keyedpartitioner-errors-on-first-send
+    //        - https://github.com/SOHU-Co/kafka-node/issues/354
+    //        - https://github.com/SOHU-Co/kafka-node/pull/378
     /* istanbul ignore next */
     this[CLIENT].refreshMetadata([this[TOPIC]], () => {})
 
@@ -33,8 +32,8 @@ export default class EventStore {
     //        https://www.npmjs.com/package/kafka-node#failedtorebalanceconsumererror-exception-node_exists-110
     process.removeAllListeners('SIGINT')
     process.removeAllListeners('SIGUSR2')
-    process.on('SIGINT', this[CLOSE])
-    process.on('SIGUSR2', this[CLOSE])
+    process.on('SIGINT', this[CLOSE].bind(this))
+    process.on('SIGUSR2', this[CLOSE].bind(this))
   }
 
   async log (model) {

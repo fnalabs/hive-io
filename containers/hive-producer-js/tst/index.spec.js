@@ -17,7 +17,8 @@ describe('app', () => {
     let logStubs = [
       sinon.stub(),
       sinon.stub(),
-      sinon.stub().throws(Error)
+      sinon.stub().throws(Error),
+      sinon.stub()
     ]
 
     afterEach(() => {
@@ -63,7 +64,7 @@ describe('app', () => {
         })
     })
 
-    it('should respond with 200 from /test on successful post', done => {
+    it('should respond with 200 from /test on successful POST', done => {
       chai.request(app)
         .post('/test')
         .send({meta: {}})
@@ -80,7 +81,7 @@ describe('app', () => {
         })
     })
 
-    it('should respond with 400 from /test on unsuccessful post', done => {
+    it('should respond with 400 from /test on unsuccessful POST', done => {
       chai.request(app)
         .post('/test')
         .send({meta: {}})
@@ -92,6 +93,22 @@ describe('app', () => {
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
           expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 405 from /test on unsuccessful GET', done => {
+      chai.request(app)
+        .get('/test/1')
+        .end((err, res) => {
+          expect(err).to.not.be.null()
+          expect(res).to.have.status(405)
+
+          expect(logStub.called).to.be.false()
+          expect(parseStub.called).to.be.false()
+          expect(performStub.called).to.be.false()
+          expect(urlStub.called).to.be.false()
 
           done()
         })
