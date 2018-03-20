@@ -1,6 +1,6 @@
 {
   "name": "hive-io-rest-example",
-  "version": "0.0.0",
+  "version": "2.0.0-alpha",
   "description": "An example REST module to help describe implementation details when leveraging hive-io.",
   "main": "index.js",
   "scripts": {
