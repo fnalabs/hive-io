@@ -1,15 +1,15 @@
 // imports
 import { parse, Actor, Schema } from 'hive-io'
 
-import PostSchema from '../../schemas/json/Post.json'
-import ContentIdSchema from '../../schemas/json/content/ContentId.json'
+import PostSchema from '../../schemas/json/post/Post.json'
+import PostIdSchema from '../../schemas/json/post/PostId.json'
 
 // private properties
 const REPOSITORY = Symbol('Consumer ephemeral DB')
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/ContentId': ContentIdSchema
+  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
 }
 
 /*
@@ -24,9 +24,11 @@ class PostQueryActor extends Actor {
   async perform (payload) {
     if (payload.meta.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
 
-    return typeof payload.meta.urlParams.postId === 'string'
-      ? this[REPOSITORY].findOne({ 'id.id': payload.meta.urlParams.postId }).exec()
-      : this[REPOSITORY].find().exec()
+    const model = typeof payload.meta.urlParams.postId === 'string'
+      ? await this[REPOSITORY].findOne({ 'id.id': payload.meta.urlParams.postId }).exec()
+      : await this[REPOSITORY].find().exec()
+
+    return { model }
   }
 }
 
