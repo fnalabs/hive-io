@@ -15,9 +15,10 @@ describe('app', () => {
 
   describe('#routes', () => {
     let performStubs = [
-      sinon.stub(),
-      sinon.stub(),
-      sinon.stub().throws(Error)
+      sinon.stub().returns({}),
+      sinon.stub().returns({}),
+      sinon.stub().throws(Error),
+      sinon.stub().returns({})
     ]
 
     afterEach(() => {
@@ -60,10 +61,9 @@ describe('app', () => {
         })
     })
 
-    it('should respond with 200 from /test on successful post', done => {
+    it('should respond with 200 from /test on successful GET', done => {
       chai.request(app)
-        .post('/test')
-        .send({meta: {}})
+        .get('/test')
         .end((err, res) => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
@@ -76,10 +76,9 @@ describe('app', () => {
         })
     })
 
-    it('should respond with 400 from /test on unsuccessful post', done => {
+    it('should respond with 400 from /test on unsuccessful GET', done => {
       chai.request(app)
-        .post('/test')
-        .send({meta: {}})
+        .get('/test')
         .end((err, res) => {
           expect(err).to.not.be.null()
           expect(res).to.have.status(400)
@@ -87,6 +86,22 @@ describe('app', () => {
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
           expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 405 from /test on unsuccessful POST', done => {
+      chai.request(app)
+        .post('/test/1')
+        .send({meta: {}})
+        .end((err, res) => {
+          expect(err).to.not.be.null()
+          expect(res).to.have.status(405)
+
+          expect(parseStub.called).to.be.false()
+          expect(performStub.called).to.be.false()
+          expect(urlStub.called).to.be.false()
 
           done()
         })

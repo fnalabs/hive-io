@@ -20,6 +20,7 @@ export default async function main (CONFIG, micro) {
   // router for microservice
   async function route (req, res) {
     if (pingUrlRegexp.test(req.url)) return send(res, 200)
+    if (req.method !== 'GET') return send(res, 405, 'Consumers only receive GET requests')
 
     // construct payload with parsed request data for query processing
     const payload = {
@@ -32,15 +33,13 @@ export default async function main (CONFIG, micro) {
     }
 
     try {
-      const response = await actor.perform(payload)
+      const { model } = await actor.perform(payload)
 
-      /* istanbul ignore if */
-      if (CONFIG.NODE_ENV === 'development') console.log(`'${req.url}' queried successfully at ${new Date().toJSON()}`)
-      return send(res, 200, response)
+      console.info(`${req.method} '${req.url}' queried successfully at ${new Date().toJSON()}`)
+      return send(res, 200, model)
     } catch (e) {
-      /* istanbul ignore if */
-      if (CONFIG.NODE_ENV === 'development') console.log(e)
-      return send(res, 400, e)
+      console.error(e)
+      return send(res, e.statusCode || 400, e)
     }
   }
 
