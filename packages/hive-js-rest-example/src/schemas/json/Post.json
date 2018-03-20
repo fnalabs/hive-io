@@ -1,0 +1,30 @@
+{
+  "title": "Post",
+  "description": "validation schema used to create and modify Posts",
+  "$id": "https://hiveframework.io/api/v1/models/Post",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "UUID v4 for Content",
+      "type": "string"
+    },
+    "text": {
+      "description": "main post content",
+      "type": "string",
+      "maxLength": 140,
+      "minLength": 2
+    },
+    "edited": {
+      "description": "edited flag",
+      "type": "boolean",
+      "default": false
+    },
+    "enabled": {
+      "description": "enabled flag",
+      "type": "boolean",
+      "default": true
+    },
+    "additionalProperties": false,
+    "required": ["text"]
+  }
+}
