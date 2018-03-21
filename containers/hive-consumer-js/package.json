@@ -15,7 +15,7 @@
     "start:dev": "NODE_ENV=development npm run build && node ./bin/start",
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
-    "posttest": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
+    "posttest": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --timeout 5000 --recursive --exit 'tst/**/*.spec.js'",
     "version": "npm run release && git add --all",
     "postversion": "git push && git push --tags"
   },
