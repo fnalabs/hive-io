@@ -5,7 +5,7 @@ FROM node:${IMG_VER}
 LABEL maintainer="Adam Eilers"
 
 # NOTE: if user created, change APP_PATH to user's workspace
-ARG APP_MODULE="hive-io-rest-example"
+ARG APP_MODULE
 ARG APP_PATH="/opt/app"
 ARG APP_SOURCE="app.tar.gz"
 ARG NODE_ENV

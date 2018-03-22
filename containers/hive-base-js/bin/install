@@ -50,8 +50,10 @@ projectInstall () {
 
   fi
 
-  printLine "Installing microservice Actor module"
-  npm install --quiet --no-optional ${APP_MODULE}
+  if [ -v APP_MODULE ]; then
+    printLine "Installing microservice Actor module"
+    npm install --quiet --no-optional ${APP_MODULE}
+  fi
 
   printLine "Clearing Node and NPM cache"
   rm -rf \

@@ -29,7 +29,7 @@ export default async function main (CONFIG, micro) {
 
       const { model } = await actor.perform(payload)
 
-      console.info(`'${req.method}' '${req.url}' payload processed successfully at ${new Date().toJSON()}`)
+      console.info(`${req.method} '${req.url}' payload processed successfully at ${new Date().toJSON()}`)
       return send(res, 200, model)
     } catch (e) {
       console.error(e)
