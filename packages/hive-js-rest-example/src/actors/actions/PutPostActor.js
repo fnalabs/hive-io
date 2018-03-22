@@ -4,7 +4,6 @@ import CONSTANTS from '../../constants'
 import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
-import MongoSchema from '../../schemas/mongoose/Post'
 
 // private properties
 const REPOSITORY = Symbol('Consumer DB')
@@ -23,7 +22,7 @@ class PutPostActor extends Actor {
     await super.perform(payload)
 
     // prepare upload params
-    const conditions = { id: payload.data.id }
+    const conditions = { _id: payload.meta.urlParams.postId }
     const update = { $set: { text: payload.data.text, edited: true } }
 
     // upload to mongo
@@ -40,8 +39,7 @@ class PutPostActor extends Actor {
 export default new Proxy(PutPostActor, {
   construct: async function (PutPostActor, argsList) {
     const repository = argsList[0]
-    const model = repository.model('Post', new MongoSchema())
     const postSchema = await new Schema(PostSchema)
-    return new PutPostActor(postSchema, model)
+    return new PutPostActor(postSchema, repository)
   }
 })

@@ -3,7 +3,6 @@ import uuidV4 from 'uuid/v4'
 import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
-import MongoSchema from '../../schemas/mongoose/Post'
 
 // private properties
 const REPOSITORY = Symbol('Consumer DB')
@@ -22,7 +21,7 @@ class PostPostActor extends Actor {
     await super.perform(payload)
 
     // upload to mongo
-    const post = { id: uuidV4(), text: payload.data.text }
+    const post = { _id: uuidV4(), text: payload.data.text }
     const model = await new this[REPOSITORY](post).save()
 
     return { model }
@@ -35,8 +34,7 @@ class PostPostActor extends Actor {
 export default new Proxy(PostPostActor, {
   construct: async function (PostPostActor, argsList) {
     const repository = argsList[0]
-    const model = repository.model('Post', new MongoSchema())
     const postSchema = await new Schema(PostSchema)
-    return new PostPostActor(postSchema, model)
+    return new PostPostActor(postSchema, repository)
   }
 })

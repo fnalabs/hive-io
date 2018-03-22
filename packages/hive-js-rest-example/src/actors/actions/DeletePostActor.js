@@ -4,7 +4,6 @@ import CONSTANTS from '../../constants'
 import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
-import MongoSchema from '../../schemas/mongoose/Post'
 
 // private properties
 const REPOSITORY = Symbol('Consumer DB')
@@ -20,7 +19,7 @@ class DeletePostActor extends Actor {
 
   async perform (payload) {
     // upload to mongo
-    const conditions = { id: payload.meta.urlParams.postId }
+    const conditions = { _id: payload.meta.urlParams.postId }
     const update = { $set: { enabled: false } }
     const model =
       await this[REPOSITORY].findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
@@ -35,8 +34,7 @@ class DeletePostActor extends Actor {
 export default new Proxy(DeletePostActor, {
   construct: async function (DeletePostActor, argsList) {
     const repository = argsList[0]
-    const model = repository.model('Post', new MongoSchema())
     const postSchema = await new Schema(PostSchema)
-    return new DeletePostActor(postSchema, model)
+    return new DeletePostActor(postSchema, repository)
   }
 })

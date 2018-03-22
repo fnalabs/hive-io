@@ -2,7 +2,6 @@
 import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
-import MongoSchema from '../../schemas/mongoose/Post'
 
 // private properties
 const REPOSITORY = Symbol('Consumer DB')
@@ -17,11 +16,11 @@ class GetPostActor extends Actor {
   }
 
   async perform (payload) {
-    const id = payload.meta.urlParams.postId
-    const conditions = { id }
+    const _id = payload.meta.urlParams.postId
+    const conditions = { _id }
     const update = { $inc: { views: 1 } }
 
-    const model = typeof id === 'string'
+    const model = typeof _id === 'string'
       ? await this[REPOSITORY].findOneAndUpdate(conditions, update).exec()
       : await this[REPOSITORY].find().exec()
 
@@ -35,8 +34,7 @@ class GetPostActor extends Actor {
 export default new Proxy(GetPostActor, {
   construct: async function (GetPostActor, argsList) {
     const repository = argsList[0]
-    const model = repository.model('Post', new MongoSchema())
     const postSchema = await new Schema(PostSchema)
-    return new GetPostActor(postSchema, model)
+    return new GetPostActor(postSchema, repository)
   }
 })

@@ -10,11 +10,11 @@ import { Actor } from 'hive-io'
 chai.use(dirtyChai)
 
 // constants
-const getPayload = { meta: { urlParams: { postId: '1' }, method: 'GET' } }
-const getAllPayload = { meta: { urlParams: { postId: undefined }, method: 'GET' } }
-const postPayload = { data: { text: 'something' }, meta: { urlParams: { postId: '1' }, method: 'POST' } }
-const putPayload = { data: { text: 'something else' }, meta: { urlParams: { postId: '1' }, method: 'PUT' } }
-const deletePayload = { meta: { urlParams: { postId: '1' }, method: 'DELETE' } }
+const getPayload = { meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'GET' } }
+const getAllPayload = { meta: { url: { pathname: '/post' }, urlParams: { postId: undefined }, method: 'GET' } }
+const postPayload = { data: { text: 'something' }, meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'POST' } }
+const putPayload = { data: { text: 'something else' }, meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'PUT' } }
+const deletePayload = { meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'DELETE' } }
 
 // tests
 describe('PostActor', () => {
@@ -106,9 +106,17 @@ describe('PostActor', () => {
     expect(findOneAndUpdateSpy.calledOnce).to.be.true()
   })
 
+  it('should throw an error for any other url paths', async () => {
+    try {
+      await postActor.perform({ meta: { url: { pathname: '/something' }, method: 'GET' } })
+    } catch (e) {
+      expect(e.message).to.equal('/something not supported')
+    }
+  })
+
   it('should throw an error for any other HTTP verbs', async () => {
     try {
-      await postActor.perform({ meta: { method: 'STEVE' } })
+      await postActor.perform({ meta: { url: { pathname: '/post' }, method: 'STEVE' } })
     } catch (e) {
       expect(e.message).to.equal('HTTP verb not supported')
     }

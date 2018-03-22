@@ -11,6 +11,10 @@ import {
 } from './actions'
 
 import PostSchema from '../schemas/json/Post.json'
+import MongoSchema from '../schemas/mongoose/Post'
+
+// constants
+const urlRegexp = new RegExp('^/post')
 
 // private properties
 const ACTORS = Symbol('Actors')
@@ -25,6 +29,8 @@ class PostActor extends Actor {
   }
 
   async perform (payload) {
+    if (!urlRegexp.test(payload.meta.url.pathname)) throw new Error(`${payload.meta.url.pathname} not supported`)
+
     switch (payload.meta.method) {
       case 'GET':
         return this[ACTORS].getPostActor.perform(payload)
@@ -51,11 +57,12 @@ export default new Proxy(PostActor, {
   construct: async function (PostActor) {
     const repository = await mongoConnect()
     const postSchema = await new Schema(PostSchema)
+    const PostModel = repository.model('Post', new MongoSchema())
 
-    const deletePostActor = await new DeletePostActor(repository)
-    const getPostActor = await new GetPostActor(repository)
-    const postPostActor = await new PostPostActor(repository)
-    const putPostActor = await new PutPostActor(repository)
+    const deletePostActor = await new DeletePostActor(PostModel)
+    const getPostActor = await new GetPostActor(PostModel)
+    const postPostActor = await new PostPostActor(PostModel)
+    const putPostActor = await new PutPostActor(PostModel)
 
     return new PostActor(postSchema, {
       deletePostActor,
