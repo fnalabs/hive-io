@@ -8,9 +8,11 @@
     "build": "NODE_ENV=production bash ./bin/build",
     "coverage": "NODE_ENV=test nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "dev": "nodemon -e js,json -w src -w conf -x \"npm run build\" & nodemon -e js -w tst -x \"npm test\"",
+    "document": "documentation build -c documentation.yml -f html -o docs/ src/**",
     "fix": "standard --fix",
     "prerelease": "del package.tar.gz",
     "release": "NODE_ENV=production npm test && npm run build && node ./bin/compress",
+    "postrelease": "npm run document",
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
     "posttest": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
@@ -24,7 +26,7 @@
   "bugs": {
     "url": "https://github.com/fnalabs/hive-js/issues"
   },
-  "homepage": "https://github.com/fnalabs/hive-js#readme",
+  "homepage": "https://fnalabs.github.io/hive-js/",
   "author": "Adam Eilers",
   "license": "Apache-2.0",
   "engines": {
@@ -32,7 +34,7 @@
     "npm": ">=5"
   },
   "dependencies": {
-    "schema-json-js": "0.0.0-beta"
+    "schema-json-js": "0.0.0-beta.1"
   },
   "devDependencies": {
     "archiver": "~2.1.1",
@@ -49,10 +51,11 @@
     "codecov": "~3.0.0",
     "del-cli": "~1.1.0",
     "dirty-chai": "~2.0.1",
-    "mocha": "~5.0.3",
-    "nodemon": "~1.17.1",
-    "nyc": "~11.4.1",
-    "standard": "~11.0.0",
+    "documentation": "~6.1.0",
+    "mocha": "~5.0.5",
+    "nodemon": "~1.17.2",
+    "nyc": "~11.6.0",
+    "standard": "~11.0.1",
     "uglify-es": "~3.3.9"
   },
   "nyc": {
@@ -87,6 +90,9 @@
     "instrument": false
   },
   "standard": {
+    "ignore": [
+      "docs/"
+    ],
     "parser": "babel-eslint"
   }
 }
