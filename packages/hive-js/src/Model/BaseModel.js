@@ -1,11 +1,11 @@
 // protected porperties
 export const VERSION = Symbol('optional property to cache aggregate version')
 
-// private properties
-const DESCRIPTORS = Symbol('hash of recognized descriptors ')
+// "private" properties
+const DESCRIPTORS = Symbol('hash of recognized descriptors')
 const SCHEMA = Symbol('Schema object that defines the data model')
 
-// private methods
+// "private" methods
 const CREATE_MODEL = Symbol('creating a Model')
 
 // constants
@@ -15,8 +15,14 @@ const DEFAULT_DESCRIPTORS = {
   writable: true
 }
 
-/*
- * Model class
+/**
+ * Factory class to generate `Model` instances against their JSON Schema definitions. This class adheres to the JSON API specification and generates JSON API Top Level Document representations of itself when transfromed to JSON. Likewise, it expects `payload` data to be provided in the same structure. It implements a similar pattern to Object property descriptors allowing you to set whether the Model instance's properties are `configurable`, `enumerable`, and/or `writable`. It adds another descriptor, `immutable`, to allow for the creation of immutable instances of a Model.
+ * @class
+ * @name Model
+ * @param {Object} payload - A JSON API Top Level Document Object literal containing the Model's `meta` and optional `data`.
+ * @param {Object} schema - An Object literal containing the JSON Schema definition of the Model.
+ * @param {Object} [refs] - An optional Object literal of cached JSON Schema definitions referenced in the main schema.
+ * @param {Object} [descriptors={configurable:true,enumerable:true,writable:true}] - An optional Object literal containing the desired property descriptors for the Model instance.
  */
 export default class Model {
   constructor (payload, schema, descriptors = DEFAULT_DESCRIPTORS) {
@@ -35,12 +41,17 @@ export default class Model {
     })
 
     // parse descriptors and initialize model with data
-    const parsedDescriptors = descriptors.immutable ? { enumerable: true } : DEFAULT_DESCRIPTORS
+    const parsedDescriptors = descriptors.immutable ? { enumerable: true } : descriptors
     return this[CREATE_MODEL](this, data, parsedDescriptors)
   }
 
-  /*
-   * create model
+  /**
+   * @private
+   * Method used to iteratively assign data to the model.
+   * @param {Object} object - Recursive reference to the Model instance as data is assigned.
+   * @param {Object} source - Recursive reference to the source data being assigned to the Model instance.
+   * @param {Object} descriptors - An Object literal containing the descriptors to attach to the Model instance's properties along with its associated data.
+   * @returns {Object} The Model instance with all of the assigned data.
    */
   [CREATE_MODEL] (object, source, descriptors) {
     // iterate over object/array passed as source data
@@ -73,8 +84,9 @@ export default class Model {
     }
   }
 
-  /*
-   * conforms to JSON API specification Top Level
+  /**
+   * Method used to transform the Model instance to conform to the JSON API specification Top Level Document definition.
+   * @returns {Object} An Object literal containing the `meta` and optional `data` of the Model instance.
    */
   toJSON () {
     const ret = { meta: {} }
@@ -89,17 +101,30 @@ export default class Model {
     return ret
   }
 
-  /*
-   * static methods to allow manual invocation of model validation
+  /**
+   * Static method to get the JSON Schema instance associated with the instance of a Model.
+   * @param {Model} model - The Model instance.
+   * @returns {Schema} - The associated JSON Schema instance.
    */
   static schema (model) {
     return model[SCHEMA]
   }
 
+  /**
+   * Static method to get the List of errors from the last time `validate` was called on the associated JSON Schema instance from the Model instance.
+   * @param {Model} model - The Model instance.
+   * @returns {Array<string>} The List of errors.
+   */
   static errors (model) {
     return model[SCHEMA].errors
   }
 
+  /**
+   * [`async`] Static method to manually run the JSON Schema instance's `validate` method on the specified Model instance. This method will also perform partial schema validation if passed as the second parameter.
+   * @param {Model} model - The Model instance.
+   * @param {Schema} [schema] - An optional JSON Schema instance.
+   * @returns {boolean} `true` if validation is successful, otherwise `false`.
+   */
   static async validate (model, schema) {
     return model[SCHEMA].validate(model, schema || model[SCHEMA])
   }

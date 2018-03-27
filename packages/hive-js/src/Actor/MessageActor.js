@@ -6,18 +6,34 @@ import { VERSION } from '../Model/BaseModel'
 
 import Actor from './BaseActor'
 
-// private properties
+// "private" properties
 const COMMAND = Symbol('Command schema')
 const EVENT = Symbol('Command schema')
 
-// private methods
+// "private" methods
 const ASSERT_VERSION = Symbol('validating and returning new version')
 
 // constants
 const immutable = true
 
-/*
- * MessageActor class
+/**
+ * Class that extends `Actor` with more specific handling of Domain Commands|Events to act upon the Model. It takes 2 additional parameters than the base `Actor`, the Command and Event JSON Schema definitions.
+ * @param {Object} [url=parse`/default/${'defaultId'}`] - The parsed template literal for the Actor's URL.
+ * @param {Schema} modelSchema - The instance of the associated Model's JSON Schema definition.
+ * @param {Schema} eventSchema - The instance of the Actor's associated Event JSON Schema definition.
+ * @param {Schema} [commandSchema={}] - The optional instance of the Actor's associated Command JSON Schema definition.
+ * @example <caption>An example MessageActor class from the <a href="https://github.com/fnalabs/hive-js#examples">README</a>. It is meant to be wrapped with one of the application types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when `perform` and `replay` methods are called.</caption>
+ * import { parse, MessageActor } from 'hive-io'
+ *
+ * export default class ExampleActor extends MessageActor {
+ *   constructor (exampleSchema, eventSchema, commandSchema) {
+ *     super(parse`/example/${'exampleId'}`, exampleSchema, eventSchema, commandSchema)
+ *   }
+ *
+ *   async perform (payload, modelInstance, repository) {
+ *     // Do something interesting with the payload against the modelInstance
+ *   }
+ * }
  */
 export default class MessageActor extends Actor {
   constructor (url, modelSchema, eventSchema, commandSchema = {}) {
@@ -31,10 +47,14 @@ export default class MessageActor extends Actor {
     })
   }
 
-  /*
-   * perform method
+  /**
+   * [`async`] Method that performs the specified Command in the `payload` to the specified `modelInstance`. It can optionally be passed a reference to a `repository` which is usually a transactional cache of the `modelInstance`.
+   * @param {Object} payload - A valid JSON API Top Level Document structured payload.
+   * @param {Object} [modelInstance] - An optional instance of the model associated with the payload or `undefined` if performing a create action.
+   * @param {Object} [repository] - An optional reference to the transactional cache containing the model and other domain data.
+   * @returns {Object} An Object literal containing the latest materialized view of the model and the immutable  instances of the command and event.
    */
-  async perform (payload, model, repository) {
+  async perform (payload, modelInstance, repository) {
     // init and validate command and event
     const command = this[COMMAND].title === payload.meta.model
       ? await new Model(payload, this[COMMAND], { immutable })
@@ -42,14 +62,18 @@ export default class MessageActor extends Actor {
     const event = await new Model(payload, this[EVENT], { immutable })
 
     // call parent perform to init or apply data to model and validate
-    const result = await super.perform(payload, model, repository)
+    const { model } = await super.perform(payload, modelInstance, repository)
 
     // return hash of model instances if everything is successful
-    return { command, event, model: result.model }
+    return { command, event, model }
   }
 
-  /*
-   * assign method
+  /**
+   * Method used to generate the materialized view of a specified `model` from specified `data`. It also handles data `version` specified in the `meta` Object literal to optionally assist in optimisted concurrency techniques if set.
+   * @param {Object} model - The instance of a model to receive new data.
+   * @param {Object} [data={}] - The data to apply to the model.
+   * @param {Object} [meta] - The meta associated with the data being assigned.
+   * @returns {Object} The updated instance of the model.
    */
   assign (model, data, meta) {
     if (meta && typeof meta.version === 'number') {
@@ -58,6 +82,13 @@ export default class MessageActor extends Actor {
     return super.assign(model, data)
   }
 
+  /**
+   * @private
+   * Method used to verify that the data is in the correct sequence before being applied to the model.
+   * @param {Object} meta - The meta Object literal associated with the data being assigned.
+   * @param {number} version - The current version of the model.
+   * @returns {number} The new version to assign to the model.
+   */
   [ASSERT_VERSION] (meta, version) {
     if (meta.version !== version + 1) throw new RangeError(`${meta.model} out of sequence`)
     return meta.version
