@@ -1,10 +1,12 @@
 # Project specific
 bin
+docs
 src
 tmp*
 tst
 .*
 package.tar.gz
+documentation.yml
 
 # Logs
 logs
