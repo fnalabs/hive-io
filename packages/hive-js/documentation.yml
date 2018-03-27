@@ -41,7 +41,7 @@ toc:
       ```
   - name: Schema
     description: |
-      The `Schema` [class](https://fnalabs.github.io/schema-json-js) exposed in this framework exists in a [different](https://www.npmjs.com/package/schema-json-js) [project](https://github.com/fnalabs/schema-json-js). It is a JSON Schema validator class that supports the `draft-04` and `draft-06` versions of the specification. It is used to enrich the `Model` with structured validation that is very flexible to evolve as your business needs do.
+      The `Schema` [class](https://fnalabs.github.io/schema-json-js/) exposed in this framework exists in a [different](https://www.npmjs.com/package/schema-json-js) [project](https://github.com/fnalabs/schema-json-js). It is a JSON Schema validator class that supports the `draft-04` and `draft-06` versions of the specification. It is used to enrich the `Model` with structured validation that is very flexible to evolve as your business needs do.
   - Model
   - Actor
   - MessageActor
