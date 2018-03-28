@@ -42,13 +42,14 @@ docker build -t fnalabs/hive-producer-js .
 ### Environment variables
 Below is a table describing the possible environment variables to run the Hive Framework Producer. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
-Name               | Type    | Default                   | Description
------------------- | ------- | ------------------------- | -------------------------------------------------------
-NODE_ENV           | String  | 'production'              | app runtime environment
-PORT               | Number  | 3000                      | app port to listen on
-ACTOR              | String  | 'ViewActor'               | Actor (Model) the microservice is responsible for
-ACTOR_LIB          | String  | 'hive-io-domain-example'  | module where the ACTOR resides
-EVENT_STORE_TOPIC  | String  | 'view'                    | Kafka topic the models will be stored under
-EVENT_STORE_ID     | String  |                           | unique identifier for Kafka client connection
-EVENT_STORE_URL    | String  |                           | URL where Kafka is hosted
-EVENT_STORE_TYPE   | Number  | 2                         | cyclic partitioner type
+Name                | Type    | Default                   | Description
+------------------- | ------- | ------------------------- | -------------------------------------------------------
+NODE_ENV            | String  | 'production'              | app runtime environment
+PORT                | Number  | 3000                      | app port to listen on
+ACTOR               | String  | 'ViewActor'               | Actor (Model) the microservice is responsible for
+ACTOR_LIB           | String  | 'hive-io-domain-example'  | module where the ACTOR resides
+EVENT_STORE_TOPIC   | String  | 'view'                    | Kafka topic the models will be stored under
+EVENT_STORE_ID      | String  |                           | unique identifier for Kafka client connection
+EVENT_STORE_URL     | String  |                           | URL where Kafka is hosted
+EVENT_STORE_TYPE    | String  | 'gzip'                    | compression codec type: `none`, `gzip`, `snappy`, `lz4`
+EVENT_STORE_BUFFER  | Number  | 1000                      | time (in `ms`) to buffer incoming messages to batch
