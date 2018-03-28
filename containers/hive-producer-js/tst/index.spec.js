@@ -36,7 +36,7 @@ describe('app', () => {
       urlStub = sinon.stub().returns({})
 
       const main = proxyquire('../src/', {
-        'kafka-node': {
+        'node-rdkafka': {
           ViewActor: class Actor {
             perform () { return performStub() }
             parse () { return parseStub() }
@@ -45,7 +45,7 @@ describe('app', () => {
         'url': { parse () { return urlStub() } },
         './store': class Store { log () { logStub() } }
       })
-      app = await main({ ACTOR_LIB: 'kafka-node', ACTOR: 'ViewActor' }, micro)
+      app = await main({ ACTOR_LIB: 'node-rdkafka', ACTOR: 'ViewActor' }, micro)
     })
 
     it('should respond with 200 from /ping', done => {
@@ -86,7 +86,7 @@ describe('app', () => {
         .post('/test')
         .send({meta: {}})
         .end((err, res) => {
-          expect(err).to.not.be.null()
+          expect(err).to.be.null()
           expect(res).to.have.status(400)
 
           expect(logStub.calledOnce).to.be.true()
@@ -102,7 +102,7 @@ describe('app', () => {
       chai.request(app)
         .get('/test/1')
         .end((err, res) => {
-          expect(err).to.not.be.null()
+          expect(err).to.be.null()
           expect(res).to.have.status(405)
 
           expect(logStub.called).to.be.false()

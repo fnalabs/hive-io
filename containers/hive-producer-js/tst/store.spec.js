@@ -12,89 +12,31 @@ describe('store', () => {
   let Store, store
 
   describe('#constructor', () => {
-    const sandbox = sinon.createSandbox()
-
-    let clientSpy, producerSpy, refreshSpy
+    let constructorSpy, connectSpy, onSpy, produceSpy
 
     after(() => {
       Store = null
       store = null
 
-      clientSpy = null
-      producerSpy = null
-      refreshSpy = null
-
-      sandbox.restore()
+      constructorSpy = null
+      connectSpy = null
+      onSpy = null
+      produceSpy = null
     })
 
     before(() => {
-      clientSpy = sinon.spy()
-      producerSpy = sinon.spy()
-      refreshSpy = sinon.spy()
+      constructorSpy = sinon.spy()
+      connectSpy = sinon.spy()
+      produceSpy = sinon.spy()
+      onSpy = sinon.spy()
 
       Store = proxyquire('../src/store', {
-        'kafka-node': {
-          Client: class Client {
-            constructor () { clientSpy() }
-            refreshMetadata () { refreshSpy() }
-          },
-          HighLevelProducer: class HighLevelProducer {
-            constructor () { producerSpy() }
-          }
-        }
-      })
-      store = new Store({
-        EVENT_STORE_URL: '',
-        EVENT_STORE_ID: '',
-        EVENT_STORE_TYPE: '',
-        MODEL: ''
-      })
-
-      sandbox.spy(process, 'on')
-      sandbox.spy(process, 'removeAllListeners')
-    })
-
-    it('should create the Store object', () => {
-      expect(store).to.exist()
-
-      expect(store.log).to.be.a('function')
-
-      expect(clientSpy.calledOnce).to.be.true()
-      expect(producerSpy.calledOnce).to.be.true()
-      expect(refreshSpy.calledOnce).to.be.true()
-    })
-  })
-
-  describe('#log', () => {
-    const sandbox = sinon.createSandbox()
-
-    let sendStub, toJsonStub
-    const sendStubs = [
-      (data, fn) => fn(false, {}),
-      (data, fn) => fn(true, {})
-    ]
-
-    afterEach(() => {
-      Store = null
-      store = null
-
-      sendStub = null
-      toJsonStub = null
-
-      sandbox.restore()
-    })
-
-    beforeEach(() => {
-      sendStub = sendStubs.shift()
-      toJsonStub = sinon.stub().returns({meta: {}})
-
-      Store = proxyquire('../src/store', {
-        'kafka-node': {
-          Client: class Client {
-            refreshMetadata () {}
-          },
-          HighLevelProducer: class HighLevelProducer {
-            send (data, cb) { sendStub(data, cb) }
+        'node-rdkafka': {
+          Producer: class Producer {
+            constructor () { constructorSpy() }
+            connect () { connectSpy() }
+            on () { onSpy() }
+            produce () { produceSpy() }
           }
         }
       })
@@ -102,20 +44,67 @@ describe('store', () => {
         EVENT_STORE_TOPIC: '',
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
-        EVENT_STORE_TYPE: ''
+        EVENT_STORE_TYPE: '',
+        EVENT_STORE_BUFFER: ''
       })
+    })
 
-      sandbox.spy(process, 'on')
-      sandbox.spy(process, 'removeAllListeners')
+    it('should create the Store object', () => {
+      expect(store).to.exist()
+
+      expect(store.log).to.be.a('function')
+
+      expect(constructorSpy.calledOnce).to.be.true()
+      expect(connectSpy.calledOnce).to.be.true()
+      expect(onSpy.calledOnce).to.be.true()
+      expect(produceSpy.called).to.be.false()
+    })
+  })
+
+  describe('#log', () => {
+    let produceStub, toJsonStub
+    const produceStubs = [
+      sinon.stub().returns(true),
+      sinon.stub().returns(false)
+    ]
+
+    afterEach(() => {
+      Store = null
+      store = null
+
+      produceStub = null
+      toJsonStub = null
+    })
+
+    beforeEach(() => {
+      produceStub = produceStubs.shift()
+      toJsonStub = sinon.stub().returns({meta: {}})
+
+      Store = proxyquire('../src/store', {
+        'node-rdkafka': {
+          Producer: class Producer {
+            connect () {}
+            on () {}
+            produce () { return produceStub() }
+          }
+        }
+      })
+      store = new Store({
+        EVENT_STORE_TOPIC: '',
+        EVENT_STORE_URL: '',
+        EVENT_STORE_ID: '',
+        EVENT_STORE_TYPE: '',
+        EVENT_STORE_BUFFER: ''
+      })
     })
 
     it('should handle normal log posts', async () => {
-      await expect(store.log({ toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      await expect(store.log('id', { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
       expect(toJsonStub.calledOnce).to.be.true()
     })
 
     it('should be rejected', async () => {
-      await expect(store.log({ toJSON () { return toJsonStub() } })).to.eventually.be.rejected()
+      await expect(store.log('id', { toJSON () { return toJsonStub() } })).to.eventually.be.rejected()
       expect(toJsonStub.calledOnce).to.be.true()
     })
   })

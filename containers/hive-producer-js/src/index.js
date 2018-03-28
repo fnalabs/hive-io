@@ -31,8 +31,8 @@ export default async function main (CONFIG, micro) {
         urlParams: actor.parse(req.url)
       }
 
-      const { model } = await actor.perform(payload)
-      await store.log(model)
+      const { id, model } = await actor.perform(payload)
+      await store.log(id, model)
 
       console.info(`${req.method} '${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
       return send(res, 200, model)
