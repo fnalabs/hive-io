@@ -7,6 +7,8 @@ clearApkCache () {
   rm -rf \
     /tmp/* \
     /var/cache/apk/*
+
+  apk del .build-deps
 }
 
 printLine () {
@@ -29,7 +31,21 @@ baseInstall () {
     coreutils \
     dumb-init \
     grep \
+    lz4-libs \
     tree
+
+  apk add --no-cache --virtual .build-deps \
+    bsd-compat-headers \
+    ca-certificates \
+    g++ \
+    gcc \
+    libc-dev \
+    lz4-dev \
+    make \
+    musl-dev \
+    py-setuptools \
+    python \
+    zlib-dev
 }
 
 ###
