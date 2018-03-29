@@ -34,10 +34,8 @@ export default async function main (CONFIG, micro) {
       const { id, model } = await actor.perform(payload)
       await store.log(id, model)
 
-      console.info(`${req.method} '${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
       return send(res, 200, model)
     } catch (e) {
-      console.error(e)
       return send(res, e.statusCode || 400, e)
     }
   }

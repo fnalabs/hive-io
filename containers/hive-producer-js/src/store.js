@@ -2,8 +2,8 @@
 import { Producer } from 'node-rdkafka'
 
 // private properties
-const PRODUCER = Symbol('Kafka HighLevelProducer')
-const TOPIC = Symbol('Topic config definition')
+const PRODUCER = Symbol('Kafka Producer')
+const TOPIC = Symbol('Topic')
 
 /*
  * EventStore class
@@ -12,15 +12,12 @@ export default class EventStore {
   constructor (CONFIG) {
     this[TOPIC] = CONFIG.EVENT_STORE_TOPIC
 
-    // Our producer with its Kafka brokers
-    // This call returns a new writable stream to our topic 'topic-name'
     this[PRODUCER] = new Producer({
       'metadata.broker.list': CONFIG.EVENT_STORE_URL,
       'client.id': CONFIG.EVENT_STORE_ID,
       'compression.codec': CONFIG.EVENT_STORE_TYPE,
       'queue.buffering.max.ms': CONFIG.EVENT_STORE_BUFFER,
-      'socket.keepalive.enable': true,
-      'dr_cb': true
+      'socket.keepalive.enable': true
     })
     this[PRODUCER].connect()
 

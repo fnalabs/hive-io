@@ -4,11 +4,10 @@
 # utility functions
 ###
 clearApkCache () {
+  apk del .build-deps
   rm -rf \
     /tmp/* \
     /var/cache/apk/*
-
-  apk del .build-deps
 }
 
 printLine () {
@@ -59,10 +58,10 @@ projectInstall () {
     npm install --quiet --no-optional --production
   else
 
-    if [[ -f ./package.json ]]; then
-      printLine "Installing (All) Node.js Dependencies"
-      npm install --quiet --no-optional
-    fi
+  if [[ -f ./package.json ]]; then
+    printLine "Installing (All) Node.js Dependencies"
+    npm install --quiet --no-optional
+  fi
 
   fi
 
