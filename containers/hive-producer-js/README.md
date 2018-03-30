@@ -18,6 +18,7 @@ hive-producer-js:
       NODE_ENV: "development"
   image: hive-producer-js
   environment:
+    CLUSTER_SIZE: 1
     EVENT_STORE_URL: "hive-io-kafka-db:2181"
     EVENT_STORE_ID: "producer-client"
   depends_on:
@@ -46,6 +47,7 @@ Name                | Type    | Default                   | Description
 ------------------- | ------- | ------------------------- | -------------------------------------------------------
 NODE_ENV            | String  | 'production'              | app runtime environment
 PORT                | Number  | 3000                      | app port to listen on
+CLUSTER_SIZE        | Number  | [total CPUs available]    | defaults to the total available CPUs allocated to the container or to the size you specify here
 ACTOR               | String  | 'ViewActor'               | Actor (Model) the microservice is responsible for
 ACTOR_LIB           | String  | 'hive-io-domain-example'  | module where the ACTOR resides
 EVENT_STORE_TOPIC   | String  | 'view'                    | Kafka topic the models will be stored under
