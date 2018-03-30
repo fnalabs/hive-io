@@ -1,6 +1,6 @@
 {
   "name": "hive-stream-processor-js",
-  "version": "2.0.0",
+  "version": "2.0.0-beta",
   "description": "Starter kit for Hive Framework Stream Processors in Node.js w/ Micro implementations in Docker",
   "main": "./bin/start",
   "scripts": {
@@ -35,11 +35,10 @@
   },
   "dependencies": {
     "ioredis": "~3.2.2",
-    "kafka-node": "~2.4.1",
-    "micro": "~9.1.0",
-    "redlock": "~3.1.1",
-    "rxjs": "~5.5.6",
-    "uuid": "~3.2.1"
+    "micro": "~9.1.4",
+    "node-rdkafka": "~2.3.1",
+    "redlock": "~3.1.2",
+    "rxjs": "~5.5.8"
   },
   "devDependencies": {
     "archiver": "~2.1.0",
@@ -53,16 +52,16 @@
     "babel-register": "~6.26.0",
     "chai": "~4.1.2",
     "chai-as-promised": "~7.1.1",
-    "chai-http": "~3.0.0",
+    "chai-http": "~4.0.0",
     "codecov": "~3.0.0",
     "del-cli": "~1.1.0",
     "dirty-chai": "~2.0.1",
-    "mocha": "~5.0.4",
-    "nodemon": "~1.17.1",
-    "nyc": "~11.4.1",
-    "proxyquire": "~2.0.0",
-    "sinon": "~4.4.2",
-    "standard": "~11.0.0"
+    "mocha": "~5.0.5",
+    "nodemon": "~1.17.2",
+    "nyc": "~11.6.0",
+    "proxyquire": "~2.0.1",
+    "sinon": "~4.4.9",
+    "standard": "~11.0.1"
   },
   "nyc": {
     "check-coverage": true,
