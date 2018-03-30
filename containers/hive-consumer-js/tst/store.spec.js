@@ -10,22 +10,26 @@ describe('store', () => {
   let Store, store
 
   describe('#constructor', () => {
-    const sandbox = sinon.createSandbox()
-
-    let consumerSpy, observableStubs
+    let consumerSpy, connectSpy, onSpy, subscribeSpy, consumeSpy, observableStubs
 
     after(() => {
       Store = null
       store = null
 
       consumerSpy = null
+      connectSpy = null
+      onSpy = null
+      subscribeSpy = null
+      consumeSpy = null
       observableStubs = null
-
-      sandbox.restore()
     })
 
     before(() => {
       consumerSpy = sinon.spy()
+      connectSpy = sinon.spy()
+      onSpy = sinon.spy()
+      subscribeSpy = sinon.spy()
+      consumeSpy = sinon.spy()
       observableStubs = {
         fromEventPattern: sinon.stub().returnsThis(),
         concatMap: sinon.stub().returnsThis(),
@@ -33,9 +37,13 @@ describe('store', () => {
       }
 
       Store = proxyquire('../src/store', {
-        'kafka-node': {
-          ConsumerGroup: class HighLevelProducer {
+        'node-rdkafka': {
+          KafkaConsumer: class KafkaConsumer {
             constructor () { consumerSpy() }
+            connect () { connectSpy() }
+            on (id, cb) { onSpy(); cb() }
+            subscribe () { subscribeSpy() }
+            consume () { consumeSpy() }
           }
         },
         'rxjs/Rx': { Observable: observableStubs }
@@ -48,15 +56,16 @@ describe('store', () => {
         EVENT_STORE_OFFSET: '',
         AGGREGATE_LIST: ''
       })
-
-      sandbox.spy(process, 'on')
-      sandbox.spy(process, 'removeAllListeners')
     })
 
     it('should create the Store object', () => {
       expect(store).to.exist()
 
       expect(consumerSpy.calledOnce).to.be.true()
+      expect(connectSpy.calledOnce).to.be.true()
+      expect(onSpy.calledOnce).to.be.true()
+      expect(subscribeSpy.calledOnce).to.be.true()
+      expect(consumeSpy.calledOnce).to.be.true()
 
       expect(observableStubs.fromEventPattern.calledOnce).to.be.true()
       expect(observableStubs.concatMap.calledOnce).to.be.true()

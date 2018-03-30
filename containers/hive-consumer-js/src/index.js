@@ -35,10 +35,8 @@ export default async function main (CONFIG, micro) {
     try {
       const { model } = await actor.perform(payload)
 
-      console.info(`${req.method} '${req.url}' queried successfully at ${new Date().toJSON()}`)
       return send(res, 200, model)
     } catch (e) {
-      console.error(e)
       return send(res, e.statusCode || 400, e)
     }
   }
