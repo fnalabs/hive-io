@@ -16,7 +16,7 @@ export default class EventObserver {
     // bootstrap event observer
     /* istanbul ignore next */
     Observable
-      .fromEventPattern(handler => store.consumer.on('message', handler))
+      .fromEventPattern(handler => store.consumer.on('data', handler))
       .concatMap(event => Observable.fromPromise(execute(JSON.parse(event.value))))
       .subscribe(() => {})
   }

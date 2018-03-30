@@ -48,10 +48,8 @@ export default async function main (CONFIG, micro) {
       const { id, event, model } = await actor.perform(payload, aggregate, repository)
       await repository.record(id, event, model)
 
-      console.info(`${req.method} '${payload.meta.model}' payload logged successfully at ${new Date().toJSON()}`)
       return send(res, 200, event)
     } catch (e) {
-      console.error(e)
       return send(res, e.statusCode || 400, e)
     }
   }

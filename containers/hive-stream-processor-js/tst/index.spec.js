@@ -41,7 +41,7 @@ describe('app', () => {
         urlStub = sinon.stub().returns({})
 
         const main = proxyquire('../src/', {
-          'kafka-node': {
+          'node-rdkafka': {
             ViewActor: class Actor {
               perform () { return performStub() }
               parse () { return parseStub() }
@@ -53,7 +53,7 @@ describe('app', () => {
           './repository': class Repository { record () { recordStub() } },
           './store': class Store {}
         })
-        app = await main({ ACTOR_LIB: 'kafka-node', ACTOR: 'ViewActor', PROCESSOR_TYPE: 'producer' }, micro)
+        app = await main({ ACTOR_LIB: 'node-rdkafka', ACTOR: 'ViewActor', PROCESSOR_TYPE: 'producer' }, micro)
       })
 
       it('should respond with 200 from /ping', done => {
@@ -98,7 +98,7 @@ describe('app', () => {
           .post('/test')
           .send({meta: {}})
           .end((err, res) => {
-            expect(err).to.not.be.null()
+            expect(err).to.be.null()
             expect(res).to.have.status(400)
 
             expect(observerSpy.called).to.be.false()
@@ -116,7 +116,7 @@ describe('app', () => {
         chai.request(app)
           .get('/test/1')
           .end((err, res) => {
-            expect(err).to.not.be.null()
+            expect(err).to.be.null()
             expect(res).to.have.status(405)
 
             expect(observerSpy.called).to.be.false()
@@ -156,7 +156,7 @@ describe('app', () => {
         urlStub = sinon.stub().returns({})
 
         const main = proxyquire('../src/', {
-          'kafka-node': {
+          'node-rdkafka': {
             ViewActor: class Actor {
               perform () { return performStub() }
               parse () { return parseStub() }
@@ -168,7 +168,7 @@ describe('app', () => {
           './repository': class Repository { record () { recordStub() } },
           './store': class Store {}
         })
-        app = await main({ ACTOR_LIB: 'kafka-node', ACTOR: 'ViewActor', PROCESSOR_TYPE: 'consumer' }, micro)
+        app = await main({ ACTOR_LIB: 'node-rdkafka', ACTOR: 'ViewActor', PROCESSOR_TYPE: 'consumer' }, micro)
       })
 
       it('should respond with 200 from /ping', done => {
@@ -194,7 +194,7 @@ describe('app', () => {
           .post('/test')
           .send({meta: {}})
           .end((err, res) => {
-            expect(err).to.not.be.null()
+            expect(err).to.be.null()
             expect(res).to.have.status(400)
 
             expect(observerSpy.calledOnce).to.be.true()
@@ -234,7 +234,7 @@ describe('app', () => {
         urlStub = sinon.stub().returns({})
 
         const main = proxyquire('../src/', {
-          'kafka-node': {
+          'node-rdkafka': {
             ViewActor: class Actor {
               perform () { return performStub() }
               parse () { return parseStub() }
@@ -246,7 +246,7 @@ describe('app', () => {
           './repository': class Repository { record () { recordStub() } },
           './store': class Store {}
         })
-        app = await main({ ACTOR_LIB: 'kafka-node', ACTOR: 'ViewActor', PROCESSOR_TYPE: 'consumer' }, micro)
+        app = await main({ ACTOR_LIB: 'node-rdkafka', ACTOR: 'ViewActor', PROCESSOR_TYPE: 'consumer' }, micro)
       })
 
       it('should respond with 200 from /ping', done => {
@@ -272,7 +272,7 @@ describe('app', () => {
           .post('/test')
           .send({meta: {}})
           .end((err, res) => {
-            expect(err).to.not.be.null()
+            expect(err).to.be.null()
             expect(res).to.have.status(400)
 
             expect(observerSpy.calledOnce).to.be.true()

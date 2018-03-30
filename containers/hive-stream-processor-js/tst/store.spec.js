@@ -12,45 +12,51 @@ describe('store', () => {
   let Store, store
 
   describe('#constructor', () => {
-    const sandbox = sinon.createSandbox()
-
-    let clientSpy, consumerSpy, producerSpy, refreshSpy
+    let consumerSpy, consumerConnectSpy, consumerOnSpy, consumerSubscribeSpy, consumerConsumeSpy
+    let producerSpy, producerConnectSpy, producerOnSpy
 
     afterEach(() => {
       Store = null
       store = null
 
-      clientSpy = null
       consumerSpy = null
-      producerSpy = null
-      refreshSpy = null
+      consumerConnectSpy = null
+      consumerOnSpy = null
+      consumerSubscribeSpy = null
+      consumerConsumeSpy = null
 
-      sandbox.restore()
+      producerSpy = null
+      producerConnectSpy = null
+      producerOnSpy = null
     })
 
     beforeEach(() => {
-      clientSpy = sinon.spy()
       consumerSpy = sinon.spy()
+      consumerConnectSpy = sinon.spy()
+      consumerOnSpy = sinon.spy()
+      consumerSubscribeSpy = sinon.spy()
+      consumerConsumeSpy = sinon.spy()
+
       producerSpy = sinon.spy()
-      refreshSpy = sinon.spy()
+      producerConnectSpy = sinon.spy()
+      producerOnSpy = sinon.spy()
 
       Store = proxyquire('../src/store', {
-        'kafka-node': {
-          Client: class Client {
-            constructor () { clientSpy() }
-            refreshMetadata () { refreshSpy() }
-          },
-          ConsumerGroup: class ConsumerGroup {
+        'node-rdkafka': {
+          KafkaConsumer: class KafkaConsumer {
             constructor () { consumerSpy() }
+            connect () { consumerConnectSpy() }
+            on (id, cb) { consumerOnSpy(); cb() }
+            subscribe () { consumerSubscribeSpy() }
+            consume () { consumerConsumeSpy() }
           },
-          HighLevelProducer: class HighLevelProducer {
+          Producer: class Producer {
             constructor () { producerSpy() }
+            connect () { producerConnectSpy() }
+            on () { producerOnSpy() }
           }
         }
       })
-
-      sandbox.spy(process, 'on')
-      sandbox.spy(process, 'removeAllListeners')
     })
 
     it('should create the Store object with the default processor type', () => {
@@ -67,13 +73,18 @@ describe('store', () => {
 
       expect(store).to.exist()
 
-      expect(store.consumer).to.be.null()
+      expect(store.consumer).to.be.undefined()
       expect(store.log).to.be.a('function')
 
-      expect(clientSpy.calledOnce).to.be.true()
       expect(consumerSpy.called).to.be.false()
+      expect(consumerConnectSpy.called).to.be.false()
+      expect(consumerOnSpy.called).to.be.false()
+      expect(consumerSubscribeSpy.called).to.be.false()
+      expect(consumerConsumeSpy.called).to.be.false()
+
       expect(producerSpy.calledOnce).to.be.true()
-      expect(refreshSpy.calledOnce).to.be.true()
+      expect(producerConnectSpy.calledOnce).to.be.true()
+      expect(producerOnSpy.calledOnce).to.be.true()
     })
 
     it('should create the Store object with the consumer processor type', () => {
@@ -92,10 +103,15 @@ describe('store', () => {
 
       expect(store.consumer).to.be.an('object')
 
-      expect(clientSpy.called).to.be.false()
       expect(consumerSpy.calledOnce).to.be.true()
+      expect(consumerConnectSpy.calledOnce).to.be.true()
+      expect(consumerOnSpy.calledOnce).to.be.true()
+      expect(consumerSubscribeSpy.calledOnce).to.be.true()
+      expect(consumerConsumeSpy.calledOnce).to.be.true()
+
       expect(producerSpy.called).to.be.false()
-      expect(refreshSpy.called).to.be.false()
+      expect(producerConnectSpy.called).to.be.false()
+      expect(producerOnSpy.called).to.be.false()
     })
 
     it('should create the Store object with the stream_processor processor type', () => {
@@ -115,43 +131,44 @@ describe('store', () => {
 
       expect(store.consumer).to.be.an('object')
 
-      expect(clientSpy.calledOnce).to.be.true()
       expect(consumerSpy.calledOnce).to.be.true()
+      expect(consumerConnectSpy.calledOnce).to.be.true()
+      expect(consumerOnSpy.calledOnce).to.be.true()
+      expect(consumerSubscribeSpy.calledOnce).to.be.true()
+      expect(consumerConsumeSpy.calledOnce).to.be.true()
+
       expect(producerSpy.calledOnce).to.be.true()
-      expect(refreshSpy.calledOnce).to.be.true()
+      expect(producerConnectSpy.calledOnce).to.be.true()
+      expect(producerOnSpy.calledOnce).to.be.true()
     })
   })
 
   describe('#log', () => {
-    const sandbox = sinon.createSandbox()
-
-    let sendStub, toJsonStub
-    const sendStubs = [
-      (data, fn) => fn(false, {}),
-      (data, fn) => fn(true, {})
+    let produceStub, toJsonStub
+    const produceStubs = [
+      sinon.stub().returns(true),
+      sinon.stub().returns(false)
     ]
 
     afterEach(() => {
       Store = null
       store = null
 
-      sendStub = null
-
-      sandbox.restore()
+      produceStub = null
+      toJsonStub = null
     })
 
     beforeEach(() => {
-      sendStub = sendStubs.shift()
+      produceStub = produceStubs.shift()
       toJsonStub = sinon.stub().returns({meta: {}})
 
       Store = proxyquire('../src/store', {
-        'kafka-node': {
-          Client: class Client {
-            refreshMetadata () {}
-          },
-          ConsumerGroup: class HighLevelProducer {},
-          HighLevelProducer: class HighLevelProducer {
-            send (data, cb) { sendStub(data, cb) }
+        'node-rdkafka': {
+          KafkaConsumer: class KafkaConsumer {},
+          Producer: class Producer {
+            connect () {}
+            on () {}
+            produce () { return produceStub() }
           }
         }
       })
@@ -165,9 +182,6 @@ describe('store', () => {
         EVENT_STORE_PROTOCOL: '',
         EVENT_STORE_OFFSET: ''
       })
-
-      sandbox.spy(process, 'on')
-      sandbox.spy(process, 'removeAllListeners')
     })
 
     it('should handle normal log posts', async () => {
