@@ -61,6 +61,7 @@ Name                  | Type    | Default                     | Description
 --------------------- | ------- | ------------------------ | -------------------------------------------------------
 NODE_ENV              | String  | 'production'             | app runtime environment
 PORT                  | Number  | 3000                     | app port to listen on
+CLUSTER_SIZE          | Number  | [total CPUs available]   | defaults to the total available CPUs allocated to the container or to the size you specify here
 PROCESSOR_TYPE        | String  | 'producer'               | type of Stream Processor you wish to run (can also be 'consumer' or 'stream_processor')
 PRODUCER_TOPIC        | String  | 'content'                | Kafka topic the events will be stored under
 CONSUMER_TOPIC        | String  |                          | Kafka topic the events will be consumed from

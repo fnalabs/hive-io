@@ -2,6 +2,7 @@ module.exports = Object.freeze({
   // application configurations
   NODE_ENV: process.env.NODE_ENV || 'production',
   PORT: process.env.PORT || 3000,
+  CLUSTER_SIZE: process.env.CLUSTER_SIZE,
   PROCESSOR_TYPE: process.env.PROCESSOR_TYPE || 'producer',
   PRODUCER_TOPIC: process.env.PRODUCER_TOPIC || 'content',
   CONSUMER_TOPIC: process.env.CONSUMER_TOPIC,
