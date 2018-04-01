@@ -55,6 +55,7 @@ Name                  | Type    | Default                     | Description
 --------------------- | ------- | ------------------------- | -------------------------------------------------------
 NODE_ENV              | String  | 'production'              | app runtime environment
 PORT                  | Number  | 3000                      | app port to listen on
+CLUSTER_SIZE          | Number  | [total CPUs available]    | defaults to the total available CPUs allocated to the container or to the size you specify here
 AGGREGATE_LIST        | String  | 'content,view'            | comma separated list of aggregates to consume
 ACTOR                 | String  | 'PostActor'               | Actor to denormalize the aggregates
 ACTOR_LIB             | String  | 'hive-io-domain-example'  | library where the PROJECTION resides

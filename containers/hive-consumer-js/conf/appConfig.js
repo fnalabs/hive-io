@@ -2,6 +2,7 @@ module.exports = Object.freeze({
   // application configurations
   NODE_ENV: process.env.NODE_ENV || 'production',
   PORT: process.env.PORT || 3000,
+  CLUSTER_SIZE: process.env.CLUSTER_SIZE,
   // domain configurations
   AGGREGATE_LIST: (process.env.AGGREGATE_LIST && process.env.AGGREGATE_LIST.split(',')) || ['content', 'view'],
   // actor configurations
