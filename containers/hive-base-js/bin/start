@@ -1,12 +1,35 @@
 #!/usr/bin/env node
 const CONFIG = require('../conf/appConfig')
+const CPU_COUNT = CONFIG.CLUSTER_SIZE || require('os').cpus().length
+
+const cluster = require('cluster')
 const micro = require('micro')
 
-require('../dist')(CONFIG, micro)
-  .then(app => {
-    app.listen(CONFIG.PORT)
-    console.info('app running on port', CONFIG.PORT)
+const app = require('../dist')
+
+if (cluster.isMaster && CPU_COUNT > 1) {
+  console.log(`Master ${process.pid} is running`)
+
+  for (let i = 0; i < CPU_COUNT; i++) {
+    cluster.fork()
+  }
+
+  let exitedWorkers = 0
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`)
+
+    exitedWorkers++
+    if (exitedWorkers === CPU_COUNT - 1) process.exit()
   })
-  .catch(error => {
-    console.error('error', error.message)
-  })
+} else {
+  app(CONFIG, micro)
+    .then(app => {
+      app.listen(CONFIG.PORT)
+      console.info('app running on port', CONFIG.PORT)
+    })
+    .catch(error => {
+      console.error(error)
+    })
+
+  if (CPU_COUNT > 1) console.log(`Worker ${process.pid} started`)
+}

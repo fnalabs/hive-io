@@ -96,7 +96,7 @@ describe('app', () => {
         .post('/test')
         .send({meta: {}})
         .end((err, res) => {
-          expect(err).to.not.be.null()
+          expect(err).to.be.null()
           expect(res).to.have.status(400)
 
           expect(parseStub.calledOnce).to.be.true()
