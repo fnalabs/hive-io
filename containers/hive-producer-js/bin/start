@@ -31,5 +31,5 @@ if (cluster.isMaster && CPU_COUNT > 1) {
       console.error(error)
     })
 
-  console.log(`Worker ${process.pid} started`)
+  if (CPU_COUNT > 1) console.log(`Worker ${process.pid} started`)
 }
