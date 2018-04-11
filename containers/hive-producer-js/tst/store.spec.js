@@ -12,7 +12,7 @@ describe('store', () => {
   let Store, store
 
   describe('#constructor', () => {
-    let constructorSpy, connectSpy, onSpy, produceSpy
+    let constructorSpy, connectSpy, onSpy, produceSpy, setPollIntervalSpy
 
     after(() => {
       Store = null
@@ -22,13 +22,15 @@ describe('store', () => {
       connectSpy = null
       onSpy = null
       produceSpy = null
+      setPollIntervalSpy = null
     })
 
     before(() => {
       constructorSpy = sinon.spy()
       connectSpy = sinon.spy()
-      produceSpy = sinon.spy()
       onSpy = sinon.spy()
+      produceSpy = sinon.spy()
+      setPollIntervalSpy = sinon.spy()
 
       Store = proxyquire('../src/store', {
         'node-rdkafka': {
@@ -37,6 +39,7 @@ describe('store', () => {
             connect () { connectSpy() }
             on () { onSpy() }
             produce () { produceSpy() }
+            setPollInterval () { setPollIntervalSpy() }
           }
         }
       })
@@ -45,7 +48,8 @@ describe('store', () => {
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
-        EVENT_STORE_BUFFER: ''
+        EVENT_STORE_BUFFER: '',
+        EVENT_STORE_POLL_INTERVAL: ''
       })
     })
 
@@ -58,6 +62,7 @@ describe('store', () => {
       expect(connectSpy.calledOnce).to.be.true()
       expect(onSpy.calledOnce).to.be.true()
       expect(produceSpy.called).to.be.false()
+      expect(setPollIntervalSpy.calledOnce).to.be.true()
     })
   })
 
@@ -86,6 +91,7 @@ describe('store', () => {
             connect () {}
             on () {}
             produce () { return produceStub() }
+            setPollInterval () {}
           }
         }
       })
@@ -94,7 +100,8 @@ describe('store', () => {
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
-        EVENT_STORE_BUFFER: ''
+        EVENT_STORE_BUFFER: '',
+        EVENT_STORE_POLL_INTERVAL: ''
       })
     })
 

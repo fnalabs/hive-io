@@ -19,6 +19,7 @@ export default class EventStore {
       'queue.buffering.max.ms': CONFIG.EVENT_STORE_BUFFER,
       'socket.keepalive.enable': true
     })
+    this[PRODUCER].setPollInterval(CONFIG.EVENT_STORE_POLL_INTERVAL)
     this[PRODUCER].connect()
 
     /* istanbul ignore next */
