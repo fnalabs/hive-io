@@ -13,7 +13,7 @@ describe('store', () => {
 
   describe('#constructor', () => {
     let consumerSpy, consumerConnectSpy, consumerOnSpy, consumerSubscribeSpy, consumerConsumeSpy
-    let producerSpy, producerConnectSpy, producerOnSpy
+    let producerSpy, producerConnectSpy, producerOnSpy, producerSetPollIntervalSpy
 
     afterEach(() => {
       Store = null
@@ -28,6 +28,7 @@ describe('store', () => {
       producerSpy = null
       producerConnectSpy = null
       producerOnSpy = null
+      producerSetPollIntervalSpy = null
     })
 
     beforeEach(() => {
@@ -40,6 +41,7 @@ describe('store', () => {
       producerSpy = sinon.spy()
       producerConnectSpy = sinon.spy()
       producerOnSpy = sinon.spy()
+      producerSetPollIntervalSpy = sinon.spy()
 
       Store = proxyquire('../src/store', {
         'node-rdkafka': {
@@ -54,6 +56,7 @@ describe('store', () => {
             constructor () { producerSpy() }
             connect () { producerConnectSpy() }
             on () { producerOnSpy() }
+            setPollInterval () { producerSetPollIntervalSpy() }
           }
         }
       })
@@ -66,7 +69,8 @@ describe('store', () => {
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
-        EVENT_STORE_TIMEOUT: '',
+        EVENT_STORE_BUFFER: '',
+        EVENT_STORE_POLL_INTERVAL: '',
         EVENT_STORE_PROTOCOL: '',
         EVENT_STORE_OFFSET: ''
       })
@@ -85,6 +89,7 @@ describe('store', () => {
       expect(producerSpy.calledOnce).to.be.true()
       expect(producerConnectSpy.calledOnce).to.be.true()
       expect(producerOnSpy.calledOnce).to.be.true()
+      expect(producerSetPollIntervalSpy.calledOnce).to.be.true()
     })
 
     it('should create the Store object with the consumer processor type', () => {
@@ -94,7 +99,8 @@ describe('store', () => {
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
-        EVENT_STORE_TIMEOUT: '',
+        EVENT_STORE_BUFFER: '',
+        EVENT_STORE_POLL_INTERVAL: '',
         EVENT_STORE_PROTOCOL: '',
         EVENT_STORE_OFFSET: ''
       })
@@ -112,6 +118,7 @@ describe('store', () => {
       expect(producerSpy.called).to.be.false()
       expect(producerConnectSpy.called).to.be.false()
       expect(producerOnSpy.called).to.be.false()
+      expect(producerSetPollIntervalSpy.called).to.be.false()
     })
 
     it('should create the Store object with the stream_processor processor type', () => {
@@ -140,6 +147,7 @@ describe('store', () => {
       expect(producerSpy.calledOnce).to.be.true()
       expect(producerConnectSpy.calledOnce).to.be.true()
       expect(producerOnSpy.calledOnce).to.be.true()
+      expect(producerSetPollIntervalSpy.calledOnce).to.be.true()
     })
   })
 
@@ -169,6 +177,7 @@ describe('store', () => {
             connect () {}
             on () {}
             produce () { return produceStub() }
+            setPollInterval () {}
           }
         }
       })
@@ -178,7 +187,8 @@ describe('store', () => {
         EVENT_STORE_URL: '',
         EVENT_STORE_ID: '',
         EVENT_STORE_TYPE: '',
-        EVENT_STORE_TIMEOUT: '',
+        EVENT_STORE_BUFFER: '',
+        EVENT_STORE_POLL_INTERVAL: '',
         EVENT_STORE_PROTOCOL: '',
         EVENT_STORE_OFFSET: ''
       })

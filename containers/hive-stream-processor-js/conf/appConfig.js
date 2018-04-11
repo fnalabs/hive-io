@@ -14,6 +14,7 @@ module.exports = Object.freeze({
   EVENT_STORE_URL: process.env.EVENT_STORE_URL,
   EVENT_STORE_TYPE: process.env.EVENT_STORE_TYPE || 'gzip',
   EVENT_STORE_BUFFER: process.env.EVENT_STORE_BUFFER || 0,
+  EVENT_STORE_POLL_INTERVAL: process.env.EVENT_STORE_POLL_INTERVAL || 1000,
   EVENT_STORE_PROTOCOL: process.env.EVENT_STORE_PROTOCOL || 'roundrobin',
   EVENT_STORE_OFFSET: process.env.EVENT_STORE_OFFSET || 'latest',
   // storage configurations
