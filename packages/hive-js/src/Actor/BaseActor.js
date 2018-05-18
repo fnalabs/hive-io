@@ -39,16 +39,16 @@ export default class Actor {
   }
 
   /**
-   * [`async`] Method that carries out the actions specified in the `payload` to the specified `model`. It can optionally be passed a reference to a `repository` which is usually a transactional cache of the `model`.
-   * @param {Object} payload - A valid JSON API Top Level Document structured payload.
-   * @param {Object} [model] - An optional instance of the model associated with the payload or `undefined` if performing a create action.
+   * [`async`] Method that carries out the actions specified in the `data` to the specified `model`. It can optionally be passed a reference to a `repository` which is usually a transactional cache of the `model`.
+   * @param {Object} data - A FSA Object literal containing the Model's `type` and optional `meta` and `payload`.
+   * @param {Object} [model] - An optional instance of the model associated with the data or `undefined` if performing a create action.
    * @param {Object} [repository] - An optional reference to the transactional cache containing the model and other domain data.
    * @returns {Object} An Object literal containing the latest materialized view of the model.
    */
-  async perform (payload, model, repository) {
-    if (typeof model === 'undefined') model = await new Model(payload, this[MODEL])
+  async perform (data, model, repository) {
+    if (typeof model === 'undefined') model = await new Model(data, this[MODEL])
     else {
-      model = this.assign(model, payload.data, payload.meta)
+      model = this.assign(model, data.payload, data.meta)
       if (!(await Model.validate(model))) throw new Error(Model.errors(model)[0])
     }
     return { model }
@@ -63,8 +63,8 @@ export default class Actor {
   async replay (aggregate, repository) {
     if (Array.isArray(aggregate)) {
       let model
-      for (const payload of aggregate) {
-        const temp = await this.perform(payload, model, repository)
+      for (const data of aggregate) {
+        const temp = await this.perform(data, model, repository)
         model = temp.model
       }
       return model
@@ -74,7 +74,7 @@ export default class Actor {
   }
 
   /**
-   * Method used to generate the materialized view of a specified `model` from specified `data`.
+   * Method used to generate the materialized view of a specified `model` from specified `data`. Arrays on the `model` are completely replaced by the provided `data` currently.
    * @param {Object} model - The instance of a model to receive new data.
    * @param {Object} [data={}] - The data to apply to the model.
    * @returns {Object} The updated instance of the model.

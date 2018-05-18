@@ -4,7 +4,7 @@ import Schema from 'schema-json-js'
 import Model from './BaseModel'
 
 // constants
-// default JSON Schema for JSON API specification Resource Objects
+// default JSON Schema for FSA specification
 const DefaultSchema = {
   title: 'Default',
   $id: 'https://hiveframework.io/api/v1/models/Default',
@@ -15,7 +15,7 @@ const DefaultSchema = {
 }
 
 /*
- * Proxy<Model> for async initialization of the schema and validation of payload on construction
+ * Proxy<Model> for async initialization of the schema and validation of data on construction
  */
 export default new Proxy(Model, {
   construct: async function (Model, argsList) {
@@ -33,12 +33,12 @@ export default new Proxy(Model, {
     else if (!(schema instanceof Schema)) schema = await new Schema(schema, refs)
 
     // validate data and return new Model
-    const payload = argsList[0]
-    if (!(payload && typeof payload === 'object' && !Array.isArray(payload))) {
-      throw new TypeError('Model payload must be an object')
+    const data = argsList[0]
+    if (!(data && typeof data === 'object' && !Array.isArray(data))) {
+      throw new TypeError('Model data must be an object')
     }
-    if (!await schema.validate(payload.data)) throw new Error(...schema.errors)
+    if (!await schema.validate(data.payload)) throw new Error(...schema.errors)
 
-    return new Model(payload, schema, descriptors)
+    return new Model(data, schema, descriptors)
   }
 })

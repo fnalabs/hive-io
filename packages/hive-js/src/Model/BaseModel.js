@@ -16,21 +16,24 @@ const DEFAULT_DESCRIPTORS = {
 }
 
 /**
- * Factory class to generate `Model` instances against their JSON Schema definitions. This class adheres to the JSON API specification and generates JSON API Top Level Document representations of itself when transfromed to JSON. Likewise, it expects `payload` data to be provided in the same structure. It implements a similar pattern to Object property descriptors allowing you to set whether the Model instance's properties are `configurable`, `enumerable`, and/or `writable`. It adds another descriptor, `immutable`, to allow for the creation of immutable instances of a Model.
+ * Factory class to generate `Model` instances against their JSON Schema definitions. This class adheres to the Flux Standard Action (FSA) specification and generates FSA representations of itself when transfromed to JSON. Likewise, it expects `data` to be provided in the same structure. It implements a similar pattern to Object property descriptors allowing you to set whether the Model instance's properties are `configurable`, `enumerable`, and/or `writable`. It adds another descriptor, `immutable`, to allow for the creation of immutable instances of a Model.
  * @class
  * @name Model
- * @param {Object} payload - A JSON API Top Level Document Object literal containing the Model's `meta` and optional `data`.
+ * @param {Object} data - A FSA Object literal containing the Model's `type` and optional `meta` and `payload`.
  * @param {Object} schema - An Object literal containing the JSON Schema definition of the Model.
  * @param {Object} [refs] - An optional Object literal of cached JSON Schema definitions referenced in the main schema.
  * @param {Object} [descriptors={configurable:true,enumerable:true,writable:true}] - An optional Object literal containing the desired property descriptors for the Model instance.
  */
 export default class Model {
-  constructor (payload, schema, descriptors = DEFAULT_DESCRIPTORS) {
-    const { data = {}, meta } = payload
+  constructor (data, schema, descriptors = DEFAULT_DESCRIPTORS) {
+    const { type, payload = {}, meta } = data
 
     // validate
-    if (!(data && typeof data === 'object' && !Array.isArray(data))) {
-      throw new TypeError('#Model: data must be an object if defined')
+    if (!(payload && typeof payload === 'object' && !Array.isArray(payload))) {
+      throw new TypeError('#Model: payload must be an object if defined')
+    }
+    if (schema.title && type !== schema.title) {
+      throw new TypeError('#Model: data type does not match Schema')
     }
 
     // init properties
@@ -40,9 +43,9 @@ export default class Model {
       [SCHEMA]: { value: schema }
     })
 
-    // parse descriptors and initialize model with data
+    // parse descriptors and initialize model with payload
     const parsedDescriptors = descriptors.immutable ? { enumerable: true } : descriptors
-    return this[CREATE_MODEL](this, data, parsedDescriptors)
+    return this[CREATE_MODEL](this, payload, parsedDescriptors)
   }
 
   /**
@@ -85,18 +88,17 @@ export default class Model {
   }
 
   /**
-   * Method used to transform the Model instance to conform to the JSON API specification Top Level Document definition.
+   * Method used to transform the Model instance to conform to the FSA specification standard action definition.
    * @returns {Object} An Object literal containing the `meta` and optional `data` of the Model instance.
    */
   toJSON () {
-    const ret = { meta: {} }
+    const ret = { type: this[SCHEMA].title }
 
     // add data
-    if (Object.keys(this).length) ret.data = { ...this }
+    if (Object.keys(this).length) ret.payload = { ...this }
 
     // add metadata
-    if (this[VERSION]) ret.meta.version = this[VERSION]
-    ret.meta.model = this[SCHEMA].title
+    if (this[VERSION]) ret.meta = {version: this[VERSION]}
 
     return ret
   }

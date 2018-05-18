@@ -20,26 +20,25 @@ import ViewTestSchema from './schemas/ViewTestSchema.json'
 import ViewedTestSchema from './schemas/ViewedTestSchema.json'
 
 // constants
-const createPayload = {
+const createData = {
+  type: 'CreateTest',
   meta: {
-    model: 'CreateTest',
     schema: 'https://hiveframework.io/api/v1/commands/CreateTest'
   }
 }
-const createdPayload = {
+const createdData = {
+  type: 'CreatedTest',
   meta: {
-    model: 'CreatedTest',
     schema: 'https://hiveframework.io/api/v1/events/CreatedTest'
   }
 }
-const viewPayload = {
+const viewData = {
+  type: 'ViewTest',
   meta: {
-    model: 'ViewTest',
     schema: 'https://hiveframework.io/api/v1/commands/ViewTest'
   }
 }
 const meta = {
-  model: 'Test',
   schema: 'https://hiveframework.io/api/v1/models/Test'
 }
 
@@ -74,17 +73,17 @@ describe('class MessageActor', () => {
     viewTestActor = new MessageActor(parse`/view`, testSchema, viewedTestSchema, viewTestSchema)
 
     class TestActor extends Actor {
-      async perform (payload, modelInstance, repository) {
-        switch (payload.meta.model) {
+      async perform (data, modelInstance, repository) {
+        switch (data.type) {
           case 'CreateTest':
           case 'CreatedTest': {
-            const { command, event, model } = await createTestActor.perform(payload, modelInstance, repository)
-            model.view = 0
+            modelInstance = await new Model({ type: 'Test', payload: { view: 0 } }, testSchema)
+            const { command, event, model } = await createTestActor.perform(data, modelInstance, repository)
             return { command, event, model }
           }
           case 'ViewTest':
           case 'ViewedTest': {
-            const { command, event, model } = await viewTestActor.perform(payload, modelInstance, repository)
+            const { command, event, model } = await viewTestActor.perform(data, modelInstance, repository)
             model.view++
             return { command, event, model }
           }
@@ -119,8 +118,8 @@ describe('class MessageActor', () => {
 
   describe('#perform', () => {
     it('should create, validate, and return the command, event, and model', async () => {
-      const replayedModel = await testActor.replay({ data: { view: 1 }, meta })
-      const { command, event, model } = await testActor.perform(viewPayload, replayedModel)
+      const replayedModel = await testActor.replay({ type: 'Test', payload: { view: 1 }, meta })
+      const { command, event, model } = await testActor.perform(viewData, replayedModel)
 
       expect(command).to.be.an.instanceof(Model)
       expect(command).to.deep.equal({})
@@ -134,8 +133,7 @@ describe('class MessageActor', () => {
     })
 
     it('should create, validate, and return the event and model', async () => {
-      const eventActor = new MessageActor(parse`/view`, testSchema, createdTestSchema)
-      const { command, event, model } = await eventActor.perform(createdPayload)
+      const { command, event, model } = await testActor.perform(createdData)
 
       expect(command).to.equal(null)
 
@@ -143,13 +141,13 @@ describe('class MessageActor', () => {
       expect(event).to.deep.equal({})
 
       expect(model).to.be.an.instanceof(Model)
-      expect(model).to.deep.equal({})
+      expect(model).to.deep.equal({ view: 0 })
     })
   })
 
   describe('#assign', () => {
     it('should assign versioned data to a model', () => {
-      const model = createTestActor.assign({[VERSION]: 1}, { view: 1 }, { ...createPayload.meta, version: 2 })
+      const model = createTestActor.assign({[VERSION]: 1}, { view: 1 }, { ...createData.meta, version: 2 })
 
       expect(model).to.deep.equal({ view: 1 })
       expect(model[VERSION]).to.equal(2)
@@ -163,9 +161,9 @@ describe('class MessageActor', () => {
 
     it('should throw and error for trying to assign out-of-sequence versioned data to a model', () => {
       try {
-        viewTestActor.assign({[VERSION]: 2}, { view: 1 }, { ...viewPayload.meta, version: 2 })
+        viewTestActor.assign({[VERSION]: 2}, { view: 1 }, { ...viewData.meta, version: 2 })
       } catch (e) {
-        expect(e.message).to.equal('ViewTest out of sequence')
+        expect(e.message).to.equal('data out of sequence')
       }
     })
   })
