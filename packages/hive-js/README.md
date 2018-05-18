@@ -1,4 +1,4 @@
-# hive-io
+# hive<sup>io</sup>
 
 [![NPM Version][npm-image]][npm-url]
 [![License][license-image]][license-url]
@@ -7,9 +7,9 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-A reactive, "serverless" JavaScript framework.
+A reactive, cloud-native, universal JavaScript library for [hive<sup>io</sup>](https://hiveframework.io).
 
-This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this framework is flexible enough to enable the Actors to adopt new roles on the fly.
+This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
 
 #### Contents
 - [Installing](#installing)
@@ -47,6 +47,9 @@ More examples can be found in the 2 example npm packages:
 
 #### v1.0.0
 - initial release (of `js-cqrs-es`)
+
+#### pre-v1.0.0
+- the dark days
 
 [npm-image]: https://img.shields.io/npm/v/hive-io.svg
 [npm-url]: https://www.npmjs.com/package/hive-io

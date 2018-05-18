@@ -8,9 +8,9 @@ toc:
       [![Dependency Status][depstat-image]][depstat-url]
       [![JavaScript Style Guide][style-image]][style-url]
 
-      A reactive, "serverless" JavaScript framework.
+      A reactive, cloud-native JavaScript library that's part of the Hive<sup>io</sup> framework.
 
-      This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this framework is flexible enough to enable the Actors to adopt new roles on the fly.
+      This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
 
       *NOTE:* More examples can be found in the 2 example npm packages:
         - [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example)
@@ -38,6 +38,25 @@ toc:
       Install using `npm`:
       ```sh
       $ npm install hive-io
+      ```
+  - name: Data interface
+    description: |
+      The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually only `type`.
+      ```javascript
+      {
+        type: String, // <associated_JSON_Schema_title>
+        [payload]: {
+          ...modelData,
+        },
+        [meta]: {
+          [headers]: { ...req.headers }, // All request headers defined
+          [method]: req.method, // HTTP verb (GET, POST, PATCH, PUT, DELETE, etc.)
+          [url]: parse(req.url, true), // Node.js Legacy URL Object
+          [urlParams]: actor.parse(req.url), // Hive^io URL params defined in Actor constructor
+          [version]: Number, // Optional verion to help manage concurrency
+        },
+        [errors]: [<list_of_Errors>],
+      }
       ```
   - name: Schema
     description: |
