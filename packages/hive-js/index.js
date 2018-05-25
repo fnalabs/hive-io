@@ -2,6 +2,7 @@
 const actors = require('./dist/Actor')
 exports.Actor = actors.Actor
 exports.MessageActor = actors.MessageActor
+exports.System = require('./dist/System')
 
 exports.Model = require('./dist/Model')
 exports.Schema = require('schema-json-js')
