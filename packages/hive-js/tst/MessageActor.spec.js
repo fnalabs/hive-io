@@ -73,20 +73,21 @@ describe('class MessageActor', () => {
     viewTestActor = new MessageActor(parse`/view`, testSchema, viewedTestSchema, viewTestSchema)
 
     class TestActor extends Actor {
-      async perform (data, modelInstance, repository) {
+      async perform (modelInstance, data) {
         switch (data.type) {
           case 'CreateTest':
           case 'CreatedTest': {
             modelInstance = await new Model({ type: 'Test', payload: { view: 0 } }, testSchema)
-            const { command, event, model } = await createTestActor.perform(data, modelInstance, repository)
-            return { command, event, model }
+            return createTestActor.perform(modelInstance, data)
           }
           case 'ViewTest':
           case 'ViewedTest': {
-            const { command, event, model } = await viewTestActor.perform(data, modelInstance, repository)
+            const { command, event, model } = await viewTestActor.perform(modelInstance, data)
             model.view++
             return { command, event, model }
           }
+          default:
+            return super.perform(modelInstance, data)
         }
       }
     }
@@ -118,8 +119,8 @@ describe('class MessageActor', () => {
 
   describe('#perform', () => {
     it('should create, validate, and return the command, event, and model', async () => {
-      const replayedModel = await testActor.replay({ type: 'Test', payload: { view: 1 }, meta })
-      const { command, event, model } = await testActor.perform(viewData, replayedModel)
+      const replayed = await testActor.replay({ type: 'Test', payload: { view: 1 }, meta })
+      const { command, event, model } = await testActor.perform(replayed.model, viewData)
 
       expect(command).to.be.an.instanceof(Model)
       expect(command).to.deep.equal({})
@@ -133,7 +134,7 @@ describe('class MessageActor', () => {
     })
 
     it('should create, validate, and return the event and model', async () => {
-      const { command, event, model } = await testActor.perform(createdData)
+      const { command, event, model } = await testActor.perform(undefined, createdData)
 
       expect(command).to.equal(null)
 

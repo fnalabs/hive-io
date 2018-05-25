@@ -68,17 +68,17 @@ describe('class Actor', () => {
   })
 
   describe('#perform', () => {
-    it('should create, validate, and return the new model', async () => {
-      const { model } = await testActor.perform(data)
+    it('should validate and return the model created from data', async () => {
+      const { model } = await testActor.perform(undefined, data)
 
       expect(model).to.be.an.instanceof(Model)
       expect(model).to.deep.equal({ view: 1 })
       expect(await Model.validate(model)).to.be.true()
     })
 
-    it('should assign, validate, and return an existing model', async () => {
+    it('should validate and return an existing model', async () => {
       const testModel = await new Model({ type: 'Test' }, testSchema)
-      const { model } = await testActor.perform(data, testModel)
+      const { model } = await testActor.perform(testModel, data)
 
       expect(model).to.be.an.instanceof(Model)
       expect(model).to.deep.equal({ view: 1 })
@@ -89,14 +89,14 @@ describe('class Actor', () => {
       const testModel1 = await new Model({ type: 'Test' }, testSchema)
 
       try {
-        await testActor.perform({ type: 'Test' }, testModel1)
+        await testActor.perform(testModel1, { type: 'Test' })
       } catch (e) {
         expect(e.message).to.equal('#required: value does not have all required properties')
       }
 
       const testModel2 = await new Model(data, testSchema)
       try {
-        await testActor.perform({ type: 'Test', payload: { view: 'something' } }, testModel2)
+        await testActor.perform(testModel2, { type: 'Test', payload: { view: 'something' } })
       } catch (e) {
         expect(e.message).to.deep.equal('#type: value is not a(n) number')
       }
@@ -105,12 +105,12 @@ describe('class Actor', () => {
 
   describe('#replay', () => {
     it('should replay a single data payload successfully', async () => {
-      const model = await testActor.replay(data)
+      const { model } = await testActor.replay(data)
       expect(model).to.deep.equal({ view: 1 })
     })
 
     it('should replay a sequence of data successfully', async () => {
-      const model = await testActor.replay([data, data, data])
+      const { model } = await testActor.replay([data, data, data])
       expect(model).to.deep.equal({ view: 1 })
     })
   })
@@ -128,6 +128,13 @@ describe('class Actor', () => {
       model = testActor.assign(model, { ...data.payload, another: { nested: 'object' } })
 
       expect(model).to.deep.equal({ view: 1, another: { nested: 'object' } })
+    })
+
+    it('should assign no data successfully', async () => {
+      let model = await new Model({ type: 'Test' }, testSchema)
+      model = testActor.assign(model)
+
+      expect(model).to.deep.equal({})
     })
   })
 
