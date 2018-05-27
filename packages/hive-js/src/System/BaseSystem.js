@@ -83,7 +83,7 @@ export default class System extends EventSystem {
     if (!(actor instanceof Actor)) throw new TypeError('#on: actor is not an Actor')
 
     NODE_ENV
-      ? this[ON](schema.title, actor.perform)
+      ? this[ON](schema.title, actor.perform.bind(actor))
       /* istanbul ignore next */
       : this[ON](schema.title, event => actor.perform(event.detail), options)
 

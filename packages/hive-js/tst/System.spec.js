@@ -44,7 +44,7 @@ describe('class System', () => {
       perform () { performSpy() }
     }
     testSchema = await new Schema(TestSchema)
-    testModel = await new Model(data, testSchema)
+    testModel = await new Model(data, testSchema, { immutable: true })
     testActor = new TestActor(parse`/test`, testSchema)
     testSystem = new System()
   })
@@ -62,6 +62,7 @@ describe('class System', () => {
       // define results Actor to assert results
       class ResultsActor extends Actor {
         perform () {
+          expect(this).to.be.an.instanceof(Actor)
           expect(performSpy.calledOnce).to.be.true()
           done()
         }
