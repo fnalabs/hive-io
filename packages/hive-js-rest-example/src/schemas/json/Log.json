@@ -1,0 +1,25 @@
+{
+  "title": "Log",
+  "description": "schema that defines log format",
+  "$id": "https://hiveframework.io/api/v1/models/Log",
+  "type": "object",
+  "properties": {
+    "headers": {
+      "description": "HTTP headers",
+      "type": "object"
+    },
+    "method": {
+      "description": "HTTP request method",
+      "type": "string"
+    },
+    "url": {
+      "description": "Node.js legacy URL object",
+      "type": "object"
+    },
+    "urlParams": {
+      "description": "Hive^io url params",
+      "type": "object"
+    },
+    "additionalProperties": false
+  }
+}
