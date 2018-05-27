@@ -67,7 +67,7 @@
     "codecov": "~3.0.2",
     "del-cli": "~1.1.0",
     "dirty-chai": "~2.0.1",
-    "documentation": "~7.0.0",
+    "documentation": "~7.1.0",
     "karma": "~2.0.2",
     "karma-browserify": "~5.2.0",
     "karma-chrome-launcher": "~2.2.0",
