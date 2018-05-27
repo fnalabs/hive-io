@@ -31,7 +31,7 @@
     "test": "standard",
     "posttest": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
     "version": "npm run release && git add --all",
-    "postversion": "git push && git push --tags && npm publish"
+    "postversion": "git push -f && git push --tags && npm publish"
   },
   "repository": {
     "type": "git",
