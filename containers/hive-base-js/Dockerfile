@@ -1,6 +1,6 @@
 # start with Alpine Linux Base image
 # NOTE: change 'ARG IMG_VER="..."' statement to preferred Node.js image
-ARG IMG_VER="8.11.0-alpine"
+ARG IMG_VER="8.11.2-alpine"
 FROM node:${IMG_VER}
 LABEL maintainer="Adam Eilers"
 
@@ -21,7 +21,7 @@ ADD ${APP_SOURCE} ${APP_PATH}
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
-RUN apk add --update bash-completion && bash ./bin/install
+RUN apk add --update --no-cache bash-completion && bash ./bin/install
 
 # expose standard Node.js port of 3000
 EXPOSE ${PORT}
