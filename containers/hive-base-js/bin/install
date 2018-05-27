@@ -25,7 +25,7 @@ baseInstall () {
   #   - bash-completion coreutils grep tree
   ###
   printLine "Installing environment dependencies"
-  apk add \
+  apk add --update --no-cache \
     coreutils \
     dumb-init \
     grep \
@@ -38,6 +38,8 @@ baseInstall () {
 #       - example: re-running "npm install" to update versions
 ###
 projectInstall () {
+  npm install -g npm
+
   if [[ "${NODE_ENV}" == "production" ]]; then
     printLine "Installing (Production) Node.js Dependencies"
     npm install --quiet --no-optional --production
