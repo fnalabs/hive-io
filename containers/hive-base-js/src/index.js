@@ -17,21 +17,21 @@ export default async function main (CONFIG, micro) {
     if (pingUrlRegexp.test(req.url)) return send(res, 200)
 
     try {
-      // construct payload with parsed request data for query processing
-      const payload = req.method === 'GET' ? {} : await json(req)
-      payload.meta = {
-        ...payload.meta || {},
+      // construct data with parsed request data for query processing
+      const data = req.method === 'GET' ? {} : await json(req)
+      data.meta = {
+        ...data.meta || {},
         headers: { ...req.headers },
         method: req.method,
         url: parse(req.url, true),
         urlParams: actor.parse(req.url)
       }
 
-      const { model } = await actor.perform(payload)
+      const { model } = await actor.perform(undefined, data)
 
       return send(res, 200, model)
     } catch (e) {
-      return send(res, e.statusCode || 400, e)
+      return send(res, e.statusCode || 400, {errors: [e]})
     }
   }
 
