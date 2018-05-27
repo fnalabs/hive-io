@@ -25,8 +25,6 @@ This is the most basic building block of infrastructure in the Hive Framework. I
 To use, you'll need a few things:
 - **Required**
   - [Docker](https://www.docker.com/)
-- **Recommended**
-  - Load Balancer (Layer 7)
 
 ### Installing
 To start using in your own infrastructure, pull the base image:
