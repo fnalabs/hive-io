@@ -3,26 +3,22 @@ import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
 
-// private properties
-const REPOSITORY = Symbol('Consumer DB')
-
 /*
  * class GetPostActor
  */
 class GetPostActor extends Actor {
-  constructor (postSchema, model) {
-    super(parse`/post/${'postId'}`, postSchema)
-    Object.defineProperty(this, REPOSITORY, { value: model })
+  constructor (postSchema, repository) {
+    super(parse`/post/${'postId'}`, postSchema, repository)
   }
 
-  async perform (payload) {
-    const _id = payload.meta.urlParams.postId
+  async perform (model, data) {
+    const _id = data.meta.urlParams.postId
     const conditions = { _id }
     const update = { $inc: { views: 1 } }
 
-    const model = typeof _id === 'string'
-      ? await this[REPOSITORY].findOneAndUpdate(conditions, update).exec()
-      : await this[REPOSITORY].find().exec()
+    model = typeof _id === 'string'
+      ? await this.repository.findOneAndUpdate(conditions, update).exec()
+      : await this.repository.find().exec()
 
     return { model }
   }

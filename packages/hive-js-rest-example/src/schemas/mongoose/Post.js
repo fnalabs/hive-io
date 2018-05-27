@@ -36,11 +36,8 @@ export default class PostSchema extends Schema {
         transform (doc, ret) {
           delete ret._id
           return {
-            data: ret,
-            meta: {
-              model: 'Post',
-              id: ret.id
-            }
+            type: 'Post',
+            payload: ret
           }
         }
       },
@@ -51,11 +48,8 @@ export default class PostSchema extends Schema {
         transform (doc, ret) {
           delete ret._id
           return {
-            data: ret,
-            meta: {
-              model: 'Post',
-              id: ret.id
-            }
+            type: 'Post',
+            data: ret
           }
         }
       },

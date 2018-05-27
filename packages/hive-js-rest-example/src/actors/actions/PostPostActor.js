@@ -4,25 +4,23 @@ import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
 
-// private properties
-const REPOSITORY = Symbol('Consumer DB')
-
 /*
  * class PostPostActor
  */
 class PostPostActor extends Actor {
-  constructor (postSchema, model) {
-    super(parse`/post/${'postId'}`, postSchema)
-    Object.defineProperty(this, REPOSITORY, { value: model })
+  constructor (postSchema, repository) {
+    super(parse`/post/${'postId'}`, postSchema, repository)
   }
 
-  async perform (payload) {
+  async perform (model, data) {
+    const Model = this.repository
+
     // validate
-    await super.perform(payload)
+    await super.perform(model, data)
 
     // upload to mongo
-    const post = { _id: uuidV4(), text: payload.data.text }
-    const model = await new this[REPOSITORY](post).save()
+    const post = { _id: uuidV4(), text: data.payload.text }
+    model = await new Model(post).save()
 
     return { model }
   }

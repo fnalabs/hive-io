@@ -5,24 +5,21 @@ import { parse, Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
 
-// private properties
-const REPOSITORY = Symbol('Consumer DB')
-
 /*
  * class DeletePostActor
  */
 class DeletePostActor extends Actor {
-  constructor (postSchema, model) {
-    super(parse`/post/${'postId'}`, postSchema)
-    Object.defineProperty(this, REPOSITORY, { value: model })
+  constructor (postSchema, repository) {
+    super(parse`/post/${'postId'}`, postSchema, repository)
   }
 
-  async perform (payload) {
+  async perform (model, data) {
     // upload to mongo
-    const conditions = { _id: payload.meta.urlParams.postId }
+    const conditions = { _id: data.meta.urlParams.postId }
     const update = { $set: { enabled: false } }
-    const model =
-      await this[REPOSITORY].findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
+
+    model =
+      await this.repository.findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
 
     return { model }
   }
