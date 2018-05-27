@@ -37,6 +37,9 @@ More examples can be found in the 2 example npm packages:
 - feature requests via [issues](https://github.com/fnalabs/hive-js/issues)
 
 ## Changelog
+#### v2.0.0-beta.3
+- bug fix
+
 #### v2.0.0-beta.2
 - replaced JSON API specification with Flux Standard Action specification
 - added System class for internal Actor message bus
