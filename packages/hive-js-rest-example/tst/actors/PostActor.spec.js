@@ -10,20 +10,21 @@ import { Actor } from 'hive-io'
 chai.use(dirtyChai)
 
 // constants
-const getPayload = { meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'GET' } }
-const getAllPayload = { meta: { url: { pathname: '/post' }, urlParams: { postId: undefined }, method: 'GET' } }
-const postPayload = { data: { text: 'something' }, meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'POST' } }
-const putPayload = { data: { text: 'something else' }, meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'PUT' } }
-const deletePayload = { meta: { url: { pathname: '/post' }, urlParams: { postId: '1' }, method: 'DELETE' } }
+const getData = { meta: { url: { pathname: '/posts' }, urlParams: { postId: '1' }, method: 'GET' } }
+const getAllData = { meta: { url: { pathname: '/posts' }, urlParams: { postId: undefined }, method: 'GET' } }
+const postData = { type: 'Post', payload: { text: 'something' }, meta: { url: { pathname: '/posts' }, urlParams: { postId: '1' }, method: 'POST' } }
+const putData = { type: 'Post', payload: { text: 'something else' }, meta: { url: { pathname: '/posts' }, urlParams: { postId: '1' }, method: 'PATCH' } }
+const deleteData = { meta: { url: { pathname: '/posts' }, urlParams: { postId: '1' }, method: 'DELETE' } }
 
 // tests
 describe('PostActor', () => {
-  let PostActor, postActor, execSpy, saveSpy, findSpy, findOneAndUpdateSpy, repositoryStub
+  let model, PostActor, postActor, emitSpy, execSpy, saveSpy, findSpy, findOneAndUpdateSpy, repositoryStub
 
   afterEach(() => {
     PostActor = null
     postActor = null
 
+    emitSpy = null
     execSpy = null
     saveSpy = null
     findSpy = null
@@ -32,6 +33,7 @@ describe('PostActor', () => {
   })
 
   beforeEach(async () => {
+    emitSpy = sinon.spy()
     execSpy = sinon.spy()
     saveSpy = sinon.spy()
     findSpy = sinon.spy()
@@ -48,7 +50,12 @@ describe('PostActor', () => {
     })
 
     PostActor = proxyquire('../../src/actors/PostActor', {
-      '../util/mongoConnect': () => repositoryStub()
+      '../util/mongoConnect': () => repositoryStub(),
+      '../systems/LogSystem': new Proxy(Object, {
+        construct: async function (Object) {
+          return { emit: () => emitSpy() }
+        }
+      })
     })
     postActor = await new PostActor()
   })
@@ -62,8 +69,9 @@ describe('PostActor', () => {
   })
 
   it('should process a GET request successfully', async () => {
-    await postActor.perform(getPayload)
+    await postActor.perform(model, getData)
 
+    expect(emitSpy.calledOnce).to.be.true()
     expect(execSpy.calledOnce).to.be.true()
     expect(saveSpy.called).to.be.false()
     expect(findSpy.called).to.be.false()
@@ -71,8 +79,9 @@ describe('PostActor', () => {
   })
 
   it('should process a GET all request successfully', async () => {
-    await postActor.perform(getAllPayload)
+    await postActor.perform(model, getAllData)
 
+    expect(emitSpy.calledOnce).to.be.true()
     expect(execSpy.calledOnce).to.be.true()
     expect(saveSpy.called).to.be.false()
     expect(findSpy.calledOnce).to.be.true()
@@ -80,8 +89,9 @@ describe('PostActor', () => {
   })
 
   it('should process a POST request successfully', async () => {
-    await postActor.perform(postPayload)
+    await postActor.perform(model, postData)
 
+    expect(emitSpy.calledOnce).to.be.true()
     expect(execSpy.called).to.be.false()
     expect(saveSpy.calledOnce).to.be.true()
     expect(findSpy.called).to.be.false()
@@ -89,8 +99,9 @@ describe('PostActor', () => {
   })
 
   it('should process a PUT request successfully', async () => {
-    await postActor.perform(putPayload)
+    await postActor.perform(model, putData)
 
+    expect(emitSpy.calledOnce).to.be.true()
     expect(execSpy.calledOnce).to.be.true()
     expect(saveSpy.called).to.be.false()
     expect(findSpy.called).to.be.false()
@@ -98,8 +109,9 @@ describe('PostActor', () => {
   })
 
   it('should process a DELETE request successfully', async () => {
-    await postActor.perform(deletePayload)
+    await postActor.perform(model, deleteData)
 
+    expect(emitSpy.calledOnce).to.be.true()
     expect(execSpy.calledOnce).to.be.true()
     expect(saveSpy.called).to.be.false()
     expect(findSpy.called).to.be.false()
@@ -108,7 +120,7 @@ describe('PostActor', () => {
 
   it('should throw an error for any other url paths', async () => {
     try {
-      await postActor.perform({ meta: { url: { pathname: '/something' }, method: 'GET' } })
+      await postActor.perform(model, { meta: { url: { pathname: '/something' }, method: 'GET' } })
     } catch (e) {
       expect(e.message).to.equal('/something not supported')
     }
@@ -116,7 +128,7 @@ describe('PostActor', () => {
 
   it('should throw an error for any other HTTP verbs', async () => {
     try {
-      await postActor.perform({ meta: { url: { pathname: '/post' }, method: 'STEVE' } })
+      await postActor.perform(model, { meta: { url: { pathname: '/posts' }, method: 'STEVE' } })
     } catch (e) {
       expect(e.message).to.equal('HTTP verb not supported')
     }

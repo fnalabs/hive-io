@@ -1,52 +1,67 @@
 // imports
+import { parse, Actor, Model, Schema } from 'hive-io'
+
 import mongoConnect from '../util/mongoConnect'
-
-import { parse, Actor, Schema } from 'hive-io'
-
 import {
   DeletePostActor,
   GetPostActor,
   PostPostActor,
   PutPostActor
 } from './actions'
+import LogSystem from '../systems/LogSystem'
 
 import PostSchema from '../schemas/json/Post.json'
+import LogSchema from '../schemas/json/Log.json'
 import MongoSchema from '../schemas/mongoose/Post'
 
 // constants
-const urlRegexp = new RegExp('^/post')
+const urlRegexp = new RegExp('^/posts')
 
 // private properties
 const ACTORS = Symbol('Actors')
+const LOG_SCHEMA = Symbol('Log schema')
 
 /*
  * class PostActor
  */
 class PostActor extends Actor {
-  constructor (postSchema, actors) {
-    super(parse`/post/${'postId'}`, postSchema)
-    Object.defineProperty(this, ACTORS, { value: actors })
+  constructor (postSchema, logSchema, logSystem, actors) {
+    super(parse`/posts/${'postId'}`, postSchema, logSystem)
+    Object.defineProperties(this, {
+      [ACTORS]: { value: actors },
+      [LOG_SCHEMA]: { value: logSchema }
+    })
   }
 
-  async perform (payload) {
-    if (!urlRegexp.test(payload.meta.url.pathname)) throw new Error(`${payload.meta.url.pathname} not supported`)
+  async perform (model, data) {
+    if (!urlRegexp.test(data.meta.url.pathname)) throw new Error(`${data.meta.url.pathname} not supported`)
 
-    switch (payload.meta.method) {
+    let results
+    switch (data.meta.method) {
       case 'GET':
-        return this[ACTORS].getPostActor.perform(payload)
+        results = this[ACTORS].getPostActor.perform(model, data)
+        break
 
-      case 'PUT':
-        return this[ACTORS].putPostActor.perform(payload)
+      case 'PATCH':
+        results = this[ACTORS].putPostActor.perform(model, data)
+        break
 
       case 'POST':
-        return this[ACTORS].postPostActor.perform(payload)
+        results = this[ACTORS].postPostActor.perform(model, data)
+        break
 
       case 'DELETE':
-        return this[ACTORS].deletePostActor.perform(payload)
+        results = this[ACTORS].deletePostActor.perform(model, data)
+        break
 
       default:
         throw new Error('HTTP verb not supported')
     }
+
+    const log = await new Model({ type: 'Log', payload: data.meta }, this[LOG_SCHEMA], { immutable: true })
+    this.repository.emit(log)
+
+    return results
   }
 }
 
@@ -56,15 +71,19 @@ class PostActor extends Actor {
 export default new Proxy(PostActor, {
   construct: async function (PostActor) {
     const repository = await mongoConnect()
+
     const postSchema = await new Schema(PostSchema)
     const PostModel = repository.model('Post', new MongoSchema())
 
-    const deletePostActor = await new DeletePostActor(PostModel)
-    const getPostActor = await new GetPostActor(PostModel)
-    const postPostActor = await new PostPostActor(PostModel)
-    const putPostActor = await new PutPostActor(PostModel)
+    const deletePostActor = await new DeletePostActor(PostModel, repository)
+    const getPostActor = await new GetPostActor(PostModel, repository)
+    const postPostActor = await new PostPostActor(PostModel, repository)
+    const putPostActor = await new PutPostActor(PostModel, repository)
 
-    return new PostActor(postSchema, {
+    const logSchema = await new Schema(LogSchema)
+    const logSystem = await new LogSystem()
+
+    return new PostActor(postSchema, logSchema, logSystem, {
       deletePostActor,
       getPostActor,
       postPostActor,
