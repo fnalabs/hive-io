@@ -20,12 +20,12 @@ const immutable = true
  * Class that extends `Actor` with more specific handling of Domain Commands|Events to act upon the Model. It takes 2 additional parameters than the base `Actor`, the Command and Event JSON Schema definitions.
  *
  * **NOTE:** The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.
- * @property {any} repository - A reference to a storage layer type of your choosing or `undefined`.
- * @param {Object} [url=parse`/default/${'defaultId'}`] - The parsed template literal for the Actor's URL.
- * @param {Schema} modelSchema - The instance of the associated Model's JSON Schema definition.
+ * @property {any} repository - A reference to a storage layer client of your choosing or `undefined`.
+ * @param {Object} [url=parse`/empty`] - The parsed template literal for the Actor's URL.
+ * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
  * @param {Schema} eventSchema - The instance of the Actor's associated Event JSON Schema definition.
  * @param {Schema} [commandSchema={}] - The optional instance of the Actor's associated Command JSON Schema definition.
- * @param {any} [repository] - An optional reference to a storage layer type of your choosing.
+ * @param {any} [repository] - An optional reference to a storage layer client of your choosing.
  * @example <caption>A Command example MessageActor class from the <a href="https://github.com/fnalabs/hive-js#examples">README</a>. It is meant to be wrapped with one of the application types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when `perform` and `replay` methods are called.</caption>
  * import { parse, MessageActor, Schema } from 'hive-io'
  *

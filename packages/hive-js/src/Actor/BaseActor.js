@@ -1,6 +1,4 @@
 // imports
-import Schema from 'schema-json-js'
-
 import { parse } from '../util'
 import Model from '../Model'
 
@@ -12,10 +10,10 @@ export const MODEL = Symbol('Model schema')
  * Class that implements a basic <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> instance. It takes 2 parameters, a parsed template literal representing the Actor's URL and an instance of the associated Model's JSON Schema definition.
  *
  * **NOTE:** The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.
- * @property {any} repository - A reference to a storage layer type of your choosing or `undefined`.
- * @param {Object} [url=parse`/default/${'defaultId'}`] - The parsed template literal for the Actor's URL.
- * @param {Schema} modelSchema - The instance of the associated Model's JSON Schema definition.
- * @param {any} [repository] - An optional reference to a storage layer type of your choosing.
+ * @property {any} repository - A reference to a storage layer client of your choosing or `undefined`.
+ * @param {Object} [url=parse`/empty`] - The parsed template literal for the Actor's URL.
+ * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
+ * @param {any} [repository] - An optional reference to a storage layer client of your choosing.
  * @example <caption>An example Actor class from the <a href="https://github.com/fnalabs/hive-js#examples">README</a>. It is meant to be wrapped with one of the application types (REST, Producer, Consumer, Stream Processor) or to include a connection to the DB of your choice.</caption>
  * import { parse, Actor, Schema } from 'hive-io'
  * import ExampleSchema from '../schemas/ExampleSchema.json'
@@ -34,11 +32,10 @@ export const MODEL = Symbol('Model schema')
  * })
  */
 export default class Actor {
-  constructor (url = parse`/default/${'defaultId'}`, modelSchema, repository) {
+  constructor (url = parse`/empty`, modelSchema, repository) {
     if (!(typeof url === 'object' && !Array.isArray(url))) {
       throw new TypeError('#Actor: url must be an object of parsed values')
     }
-    if (!(modelSchema instanceof Schema)) throw new TypeError('#Actor: model schema must be a Schema')
 
     Object.defineProperties(this, {
       [URL]: { value: url },
