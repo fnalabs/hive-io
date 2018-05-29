@@ -23,9 +23,6 @@ const TestSchema = {
 const meta = {
   schema: 'https://hiveframework.io/api/v1/models/Test'
 }
-const defaultMeta = {
-  schema: 'https://hiveframework.io/api/v1/models/Default'
-}
 
 chai.use(dirtyChai)
 
@@ -107,21 +104,21 @@ describe('class Model', () => {
       })
     })
 
-    context('w/ DefaultSchema', () => {
+    context('w/ EmptySchema', () => {
       it('should asyncronously create a new model', async () => {
-        expect(await new Model({ type: 'Default', payload: { id: 'object' }, meta: defaultMeta })).to.deep.equal({ id: 'object' })
-        expect(await new Model({ type: 'Default', payload: { id: 'object', test: 1 }, meta: defaultMeta })).to.deep.equal({ id: 'object', test: 1 })
-        expect(await new Model({ type: 'Default', payload: { id: 'object', test: ['list'] }, meta: defaultMeta })).to.deep.equal({ id: 'object', test: ['list'] })
-        expect(await new Model({ type: 'Default', payload: { id: 'object', test: { nested: 'object' } }, meta: defaultMeta })).to.deep.equal({ id: 'object', test: { nested: 'object' } })
+        expect(await new Model({})).to.deep.equal({})
+        expect(await new Model({ payload: { id: 'object' } })).to.deep.equal({ id: 'object' })
+        expect(await new Model({ payload: { test: ['list'] } })).to.deep.equal({ test: ['list'] })
+        expect(await new Model({ payload: { test: { nested: 'object' } } })).to.deep.equal({ test: { nested: 'object' } })
       })
 
       it('should always validate as true if no Schema is defined', async () => {
-        let testModel = await new Model({ type: 'Default', payload: { id: 'object' }, meta: defaultMeta })
+        let testModel = await new Model({ payload: { id: 'object' } })
 
         expect(await Model.validate(testModel)).to.be.true()
         expect(Model.errors(testModel)).to.deep.equal([])
 
-        testModel = await new Model({ type: 'Default', payload: { id: 'object', another: { more: { complex: 'object' } } }, meta: defaultMeta })
+        testModel = await new Model({ payload: { id: 'object', another: { more: { complex: 'object' } } } })
 
         expect(await Model.validate(testModel)).to.be.true()
         expect(Model.errors(testModel)).to.deep.equal([])
@@ -237,14 +234,29 @@ describe('class Model', () => {
       })
     })
 
-    context('w/ DefaultSchema', () => {
+    context('w/ EmptySchema', () => {
       it('should return the JSON representation of the Model', async () => {
-        const model = await new Model({ type: 'Default', payload: { id: 'object' }, meta: { model: 'Default', schema: 'https://hiveframework.io/api/v1/models/Default' } })
+        const model = await new Model({ payload: { id: 'object' } })
         const json = model.toJSON()
 
-        expect(json.type).to.equal('Default')
         expect(json.payload).to.deep.equal({ id: 'object' })
       })
+    })
+  })
+
+  describe('#version', () => {
+    it('should return the correct version if defined', async () => {
+      const model = await new Model({ payload: { id: 'object' }, meta: { version: 1 } })
+
+      expect(model).to.deep.equal({ id: 'object' })
+      expect(Model.version(model)).to.equal(1)
+    })
+
+    it('should return undefined if version is not provided', async () => {
+      const model = await new Model({ payload: { id: 'object' } })
+
+      expect(model).to.deep.equal({ id: 'object' })
+      expect(Model.version(model)).to.be.undefined()
     })
   })
 })

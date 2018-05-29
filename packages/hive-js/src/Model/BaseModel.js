@@ -104,6 +104,15 @@ export default class Model {
   }
 
   /**
+   * Static method to get the version associated with the instance of a Model.
+   * @param {Model} model - The Model instance.
+   * @returns {Number|undefined} - The version of the Model instance.
+   */
+  static version (model) {
+    return model[VERSION]
+  }
+
+  /**
    * Static method to get the JSON Schema instance associated with the instance of a Model.
    * @param {Model} model - The Model instance.
    * @returns {Schema} - The associated JSON Schema instance.
