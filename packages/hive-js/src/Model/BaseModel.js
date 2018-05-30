@@ -17,6 +17,8 @@ const DEFAULT_DESCRIPTORS = {
 
 /**
  * Factory class to generate `Model` instances against their JSON Schema definitions. This class adheres to the Flux Standard Action (FSA) specification and generates FSA representations of itself when transfromed to JSON. Likewise, it expects `data` to be provided in the same structure. It implements a similar pattern to Object property descriptors allowing you to set whether the Model instance's properties are `configurable`, `enumerable`, and/or `writable`. It adds another descriptor, `immutable`, to allow for the creation of immutable instances of a Model.
+ *
+ * ***NOTE:*** Third argument in the constructor can be either a JSON Schema `refs` object or a `descriptors` object if `refs` aren't required.
  * @class
  * @name Model
  * @param {Object} data - A FSA Object literal containing the Model's `type` and optional `meta` and `payload`.

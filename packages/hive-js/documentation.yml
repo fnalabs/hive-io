@@ -12,7 +12,7 @@ toc:
 
       This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
 
-      *NOTE:* More examples can be found in the 2 example npm packages:
+      ***NOTE:*** More examples can be found in the 2 example npm packages:
         - [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example)
         - [hive-io-domain-example](https://www.npmjs.com/package/hive-io-domain-example)
 
@@ -44,15 +44,15 @@ toc:
       The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually only `type`.
       ```javascript
       {
-        type: String, // <associated_JSON_Schema_title>
+        [type]: String, // <associated_JSON_Schema_title>
         [payload]: {
           ...modelData,
         },
         [meta]: {
-          [headers]: { ...req.headers }, // All request headers defined
-          [method]: req.method, // HTTP verb (GET, POST, PATCH, PUT, DELETE, etc.)
-          [url]: parse(req.url, true), // Node.js Legacy URL Object
-          [urlParams]: actor.parse(req.url), // Hive^io URL params defined in Actor constructor
+          [headers]: { ...request.headers }, // All request headers defined
+          [method]: request.method, // HTTP verb (GET, POST, PATCH, PUT, DELETE, etc.)
+          [url]: parse(request.url, true), // Node.js Legacy URL Object
+          [urlParams]: actor.parse(request.url), // Hive^io URL params defined in Actor constructor
           [version]: Number, // Optional verion to help manage concurrency
         },
         [errors]: [<list_of_Errors>],
@@ -68,6 +68,13 @@ toc:
   - parse
   - name: Changelog
     description: |
+      #### v2.0.0-beta.4
+      - making Schemas optional for Actors whose only role is routing.
+      - updated the default Schema on Model to accept any model data object.
+
+      #### v2.0.0-beta.3
+      - bug fix
+
       #### v2.0.0-beta.2
       - replaced JSON API specification with Flux Standard Action specification
       - added System class for internal Actor message bus

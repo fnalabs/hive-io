@@ -9,7 +9,7 @@
 
 A reactive, universal JavaScript library for the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
-This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
+This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
 
 #### Contents
 - [Installing](#installing)
@@ -37,6 +37,10 @@ More examples can be found in the 2 example npm packages:
 - feature requests via [issues](https://github.com/fnalabs/hive-js/issues)
 
 ## Changelog
+#### v2.0.0-beta.4
+- making Schemas optional for Actors whose only role is routing.
+- updated the default Schema on Model to accept any model data object.
+
 #### v2.0.0-beta.3
 - bug fix
 

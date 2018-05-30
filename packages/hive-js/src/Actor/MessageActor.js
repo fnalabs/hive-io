@@ -19,7 +19,11 @@ const immutable = true
 /**
  * Class that extends `Actor` with more specific handling of Domain Commands|Events to act upon the Model. It takes 2 additional parameters than the base `Actor`, the Command and Event JSON Schema definitions.
  *
- * **NOTE:** The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.
+ * Primary use case(s) are:
+ * - process CQRS Commands to generate Events to apply to a Model in `perform` method
+ *
+ * ***NOTE:*** The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.
+ * @class
  * @property {any} repository - A reference to a storage layer client of your choosing or `undefined`.
  * @param {Object} [url=parse`/empty`] - The parsed template literal for the Actor's URL.
  * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
