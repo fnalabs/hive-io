@@ -43,6 +43,7 @@ projectInstall () {
   if [[ "${NODE_ENV}" == "production" ]]; then
     printLine "Installing (Production) Node.js Dependencies"
     npm install --quiet --no-optional --production
+    npm prune --production
   else
 
     if [[ -f ./package.json ]]; then
@@ -58,6 +59,7 @@ projectInstall () {
   fi
 
   printLine "Clearing Node and NPM cache"
+  npm cache clean --force
   rm -rf \
     ${HOME}/.npm \
     ${HOME}/.node-gyp
