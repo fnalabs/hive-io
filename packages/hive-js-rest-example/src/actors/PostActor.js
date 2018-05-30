@@ -10,7 +10,6 @@ import {
 } from './actions'
 import LogSystem from '../systems/LogSystem'
 
-import PostSchema from '../schemas/json/Post.json'
 import LogSchema from '../schemas/json/Log.json'
 import MongoSchema from '../schemas/mongoose/Post'
 
@@ -25,8 +24,8 @@ const LOG_SCHEMA = Symbol('Log schema')
  * class PostActor
  */
 class PostActor extends Actor {
-  constructor (postSchema, logSchema, logSystem, actors) {
-    super(parse`/posts/${'postId'}`, postSchema, logSystem)
+  constructor (logSchema, logSystem, actors) {
+    super(parse`/posts/${'postId'}`, undefined, logSystem)
     Object.defineProperties(this, {
       [ACTORS]: { value: actors },
       [LOG_SCHEMA]: { value: logSchema }
@@ -72,7 +71,6 @@ export default new Proxy(PostActor, {
   construct: async function (PostActor) {
     const repository = await mongoConnect()
 
-    const postSchema = await new Schema(PostSchema)
     const PostModel = repository.model('Post', new MongoSchema())
 
     const deletePostActor = await new DeletePostActor(PostModel, repository)
@@ -83,7 +81,7 @@ export default new Proxy(PostActor, {
     const logSchema = await new Schema(LogSchema)
     const logSystem = await new LogSystem()
 
-    return new PostActor(postSchema, logSchema, logSystem, {
+    return new PostActor(logSchema, logSystem, {
       deletePostActor,
       getPostActor,
       postPostActor,
