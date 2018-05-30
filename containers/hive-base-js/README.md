@@ -56,7 +56,7 @@ ACTOR_LIB          | String  | 'hive-io-rest-example'  | module where the ACTOR 
 ## Changelog
 TODO
 
-[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-rest-js:2.0.0-beta.svg
+[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-rest-js.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-rest-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
