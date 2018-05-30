@@ -24,7 +24,7 @@ export default class PostSchema extends Schema {
         type: Boolean,
         default: true
       },
-      views: {
+      viewed: {
         type: Number,
         default: 0
       }

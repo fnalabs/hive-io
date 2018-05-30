@@ -14,7 +14,7 @@ class GetPostActor extends Actor {
   async perform (model, data) {
     const _id = data.meta.urlParams.postId
     const conditions = { _id }
-    const update = { $inc: { views: 1 } }
+    const update = { $inc: { viewed: 1 } }
 
     model = typeof _id === 'string'
       ? await this.repository.findOneAndUpdate(conditions, update).exec()
