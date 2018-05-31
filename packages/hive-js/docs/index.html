@@ -278,7 +278,7 @@
 <a href="https://david-dm.org/fnalabs/hive-js"><img src="https://img.shields.io/david/fnalabs/hive-js.svg" alt="Dependency Status"></a>
 <a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a></p>
 <p>A reactive, universal JavaScript library for the Hive<sup>io</sup> framework.</p>
-<p>This is where the business logic exists in your codebase. The <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.</p>
+<p>This is where the business logic exists in your codebase. The <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> is used as the basic building block to implement standardized, reactive microservices. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.</p>
 <p><strong><em>NOTE:</em></strong> More examples can be found in the 2 example npm packages:</p>
 <ul>
 <li><a href="https://www.npmjs.com/package/hive-io-rest-example">hive-io-rest-example</a></li>
@@ -314,7 +314,7 @@
   </h2>
 
   
-    <p>The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually only <code>type</code>.</p>
+    <p>The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually <code>type</code> and <code>payload</code>.</p>
 <pre class='hljs'>{
   [type]: <span class="hljs-built_in">String</span>, <span class="hljs-comment">// &lt;associated_JSON_Schema_title&gt;</span>
   [payload]: {
@@ -1854,7 +1854,7 @@
   
 
   <p>Tagged template function to parse template literals representing a URL string with optional parameters.</p>
-<p><strong>NOTE:</strong> The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.</p>
+<p><strong><em>NOTE:</em></strong> The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.</p>
 
 
   <div class='pre p1 fill-light mt0'>parse(strings: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>, keys: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>>): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></div>
@@ -1939,14 +1939,20 @@
   </h2>
 
   
-    <h4>v2.0.0-beta.4</h4>
+    <h4>v2.0.0-beta.5</h4>
+<ul>
+<li>bug fix in MessageActor</li>
+<li>more updates to documentation</li>
+</ul>
+<h4>v2.0.0-beta.4</h4>
 <ul>
 <li>making Schemas optional for Actors whose only role is routing.</li>
 <li>updated the default Schema on Model to accept any model data object.</li>
+<li>more updates to documentation</li>
 </ul>
 <h4>v2.0.0-beta.3</h4>
 <ul>
-<li>bug fix</li>
+<li>bug fix in System</li>
 </ul>
 <h4>v2.0.0-beta.2</h4>
 <ul>

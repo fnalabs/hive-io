@@ -37,12 +37,17 @@ More examples can be found in the 2 example npm packages:
 - feature requests via [issues](https://github.com/fnalabs/hive-js/issues)
 
 ## Changelog
+#### v2.0.0-beta.5
+- bug fix in MessageActor
+- more updates to documentation
+
 #### v2.0.0-beta.4
 - making Schemas optional for Actors whose only role is routing.
 - updated the default Schema on Model to accept any model data object.
+- more updates to documentation
 
 #### v2.0.0-beta.3
-- bug fix
+- bug fix in System
 
 #### v2.0.0-beta.2
 - replaced JSON API specification with Flux Standard Action specification

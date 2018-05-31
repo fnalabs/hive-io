@@ -10,7 +10,7 @@ toc:
 
       A reactive, universal JavaScript library for the Hive<sup>io</sup> framework.
 
-      This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices that employ the Actors. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
+      This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
 
       ***NOTE:*** More examples can be found in the 2 example npm packages:
         - [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example)
@@ -41,7 +41,7 @@ toc:
       ```
   - name: Data interface
     description: |
-      The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually only `type`.
+      The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually `type` and `payload`.
       ```javascript
       {
         [type]: String, // <associated_JSON_Schema_title>
@@ -68,12 +68,17 @@ toc:
   - parse
   - name: Changelog
     description: |
+      #### v2.0.0-beta.5
+      - bug fix in MessageActor
+      - more updates to documentation
+
       #### v2.0.0-beta.4
       - making Schemas optional for Actors whose only role is routing.
       - updated the default Schema on Model to accept any model data object.
+      - more updates to documentation
 
       #### v2.0.0-beta.3
-      - bug fix
+      - bug fix in System
 
       #### v2.0.0-beta.2
       - replaced JSON API specification with Flux Standard Action specification

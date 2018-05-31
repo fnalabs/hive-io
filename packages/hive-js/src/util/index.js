@@ -1,7 +1,7 @@
 /**
  * Tagged template function to parse template literals representing a URL string with optional parameters.
  *
- * **NOTE:** The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.
+ * ***NOTE:*** The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.
  * @function
  * @name parse
  * @param {Array<string>} strings - List of strings from the template literal in order of occurence.

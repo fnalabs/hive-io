@@ -1,5 +1,5 @@
 // protected porperties
-export const VERSION = Symbol('optional property to cache aggregate version')
+export const VERSION = Symbol('optional aggregate version')
 
 // "private" properties
 const DESCRIPTORS = Symbol('hash of recognized descriptors')
