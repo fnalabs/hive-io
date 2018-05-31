@@ -51,7 +51,7 @@ To start using:
           - hive-io
         restart: on-failure
       mongo:
-        image: mongo:3.6.4
+        image: mongo:3.6.5
         networks:
           - hive-io
         restart: on-failure
