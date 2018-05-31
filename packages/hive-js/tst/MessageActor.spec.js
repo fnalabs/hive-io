@@ -22,25 +22,13 @@ import ViewedTestSchema from './schemas/ViewedTestSchema.json'
 // constants
 const createData = {
   type: 'CreateTest',
-  meta: {
-    schema: 'https://hiveframework.io/api/v1/commands/CreateTest'
-  }
+  payload: { id: '1' }
 }
 const createdData = {
   type: 'CreatedTest',
-  meta: {
-    schema: 'https://hiveframework.io/api/v1/events/CreatedTest'
-  }
+  payload: { id: '1', view: 0 }
 }
-const viewData = {
-  type: 'ViewTest',
-  meta: {
-    schema: 'https://hiveframework.io/api/v1/commands/ViewTest'
-  }
-}
-const meta = {
-  schema: 'https://hiveframework.io/api/v1/models/Test'
-}
+const viewData = { type: 'ViewTest' }
 
 chai.use(dirtyChai)
 
@@ -69,15 +57,16 @@ describe('class MessageActor', () => {
     viewTestSchema = await new Schema(ViewTestSchema)
     viewedTestSchema = await new Schema(ViewedTestSchema)
 
-    createTestActor = new MessageActor(parse`/view`, testSchema, createdTestSchema, createTestSchema)
+    createTestActor = new MessageActor(parse`/test`, testSchema, createdTestSchema, createTestSchema)
     viewTestActor = new MessageActor(parse`/view`, testSchema, viewedTestSchema, viewTestSchema)
 
     class TestActor extends Actor {
       async perform (modelInstance, data) {
         switch (data.type) {
           case 'CreateTest':
-          case 'CreatedTest': {
-            modelInstance = await new Model({ type: 'Test', payload: { view: 0 } }, testSchema)
+            if (data.payload) data.payload.view = 0
+            else data.payload = { view: 0 }
+          case 'CreatedTest': { // eslint-disable-line no-fallthrough
             return createTestActor.perform(modelInstance, data)
           }
           case 'ViewTest':
@@ -86,6 +75,7 @@ describe('class MessageActor', () => {
             model.view++
             return { command, event, model }
           }
+
           default:
             return super.perform(modelInstance, data)
         }
@@ -118,8 +108,8 @@ describe('class MessageActor', () => {
   })
 
   describe('#perform', () => {
-    it('should create, validate, and return the command, event, and model', async () => {
-      const replayed = await testActor.replay({ type: 'Test', payload: { view: 1 }, meta })
+    it('should update, validate, and return the command, event, and model', async () => {
+      const replayed = await testActor.replay({ type: 'Test', payload: { id: '1', view: 1 } })
       const { command, event, model } = await testActor.perform(replayed.model, viewData)
 
       expect(command).to.be.an.instanceof(Model)
@@ -129,20 +119,47 @@ describe('class MessageActor', () => {
       expect(event).to.deep.equal({})
 
       expect(model).to.be.an.instanceof(Model)
-      expect(model).to.deep.equal({ view: 2 })
+      expect(model).to.deep.equal({ id: '1', view: 2 })
+      expect(await Model.validate(model)).to.be.true()
+    })
+
+    it('should create, validate, and return a new command, event, and model', async () => {
+      const { command, event, model } = await testActor.perform(undefined, createData)
+
+      expect(command).to.be.an.instanceof(Model)
+      expect(command).to.deep.equal({ id: '1', view: 0 })
+
+      expect(event).to.be.an.instanceof(Model)
+      expect(event).to.deep.equal({ id: '1', view: 0 })
+
+      expect(model).to.be.an.instanceof(Model)
+      expect(model).to.deep.equal({ id: '1', view: 0 })
       expect(await Model.validate(model)).to.be.true()
     })
 
     it('should create, validate, and return the event and model', async () => {
       const { command, event, model } = await testActor.perform(undefined, createdData)
 
-      expect(command).to.equal(null)
+      expect(command).to.be.undefined()
 
       expect(event).to.be.an.instanceof(Model)
-      expect(event).to.deep.equal({})
+      expect(event).to.deep.equal({ id: '1', view: 0 })
 
       expect(model).to.be.an.instanceof(Model)
-      expect(model).to.deep.equal({ view: 0 })
+      expect(model).to.deep.equal({ id: '1', view: 0 })
+    })
+
+    it('should create, validate, and return the command and event', async () => {
+      const test = new MessageActor(parse`/test`, undefined, createdTestSchema, createTestSchema)
+      const { command, event, model } = await test.perform(undefined, createData)
+
+      expect(command).to.be.an.instanceof(Model)
+      expect(command).to.deep.equal({ id: '1', view: 0 })
+
+      expect(event).to.be.an.instanceof(Model)
+      expect(event).to.deep.equal({ id: '1', view: 0 })
+
+      expect(model).to.be.undefined()
     })
   })
 

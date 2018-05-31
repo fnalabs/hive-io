@@ -95,13 +95,14 @@ export default class MessageActor extends Actor {
     // init and validate command and event
     const command = this[COMMAND].title === data.type
       ? await new Model(data, this[COMMAND], { immutable })
-      : null
+      : undefined
     const event = await new Model({ ...data, type: this[EVENT].title }, this[EVENT], { immutable })
 
     // call parent perform to init or apply data to model and validate
     if (this[MODEL] && this[MODEL].title) {
       const type = this[MODEL].title
-      await super.perform(model, { ...data, type })
+      const performed = await super.perform(model, { ...data, type })
+      return { ...performed, command, event }
     }
 
     // return hash of model instances if everything is successful

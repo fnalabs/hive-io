@@ -1,5 +1,16 @@
 {
   "title": "CreatedTest",
   "$id": "https://hiveframework.io/api/v1/events/CreatedTest",
-  "additionalProperties": false
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "view": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "additionalProperties": false,
+  "required": ["id"]
 }
