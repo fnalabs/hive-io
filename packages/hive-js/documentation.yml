@@ -68,6 +68,9 @@ toc:
   - parse
   - name: Changelog
     description: |
+      #### v2.0.0-beta.6
+      - bug fix in Actor
+
       #### v2.0.0-beta.5
       - bug fix in MessageActor
       - more updates to documentation

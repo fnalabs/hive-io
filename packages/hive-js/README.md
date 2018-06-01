@@ -37,6 +37,9 @@ More examples can be found in the 2 example npm packages:
 - feature requests via [issues](https://github.com/fnalabs/hive-js/issues)
 
 ## Changelog
+#### v2.0.0-beta.6
+- bug fix in Actor
+
 #### v2.0.0-beta.5
 - bug fix in MessageActor
 - more updates to documentation
