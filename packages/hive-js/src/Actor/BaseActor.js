@@ -94,7 +94,7 @@ export default class Actor {
     const keys = Object.keys(payload)
     for (const key of keys) {
       const value = payload[key] && typeof payload[key] === 'object' && !Array.isArray(payload[key])
-        ? this.assign({}, payload[key])
+        ? this.assign(model[key] || {}, payload[key])
         : payload[key]
       model[key] = value
     }

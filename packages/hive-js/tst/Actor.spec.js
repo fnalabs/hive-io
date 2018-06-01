@@ -123,11 +123,18 @@ describe('class Actor', () => {
       expect(model).to.deep.equal({ view: 1 })
     })
 
-    it('should assign complex data data to a model', async () => {
-      let model = await new Model({ type: 'Test', view: 2 }, testSchema)
+    it('should assign complex data payload to init a model\'s complex nested object', async () => {
+      let model = await new Model({ type: 'Test', payload: { view: 2 } }, testSchema)
       model = testActor.assign(model, { ...data.payload, another: { nested: 'object' } })
 
       expect(model).to.deep.equal({ view: 1, another: { nested: 'object' } })
+    })
+
+    it('should assign complex data payload to an existing model\'s complex nested object', async () => {
+      let model = await new Model({ type: 'Test', payload: { view: 2, another: { complex: 'object', nested: 'arbitrarily' } } }, testSchema)
+      model = testActor.assign(model, { ...data.payload, another: { nested: 'object' } })
+
+      expect(model).to.deep.equal({ view: 1, another: { complex: 'object', nested: 'object' } })
     })
 
     it('should assign no data successfully', async () => {
