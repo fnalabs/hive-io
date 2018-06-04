@@ -38,19 +38,19 @@ class PostActor extends Actor {
     let results
     switch (data.meta.method) {
       case 'GET':
-        results = this[ACTORS].getPostActor.perform(model, data)
+        results = await this[ACTORS].getPostActor.perform(model, data)
         break
 
       case 'PATCH':
-        results = this[ACTORS].putPostActor.perform(model, data)
+        results = await this[ACTORS].putPostActor.perform(model, data)
         break
 
       case 'POST':
-        results = this[ACTORS].postPostActor.perform(model, data)
+        results = await this[ACTORS].postPostActor.perform(model, data)
         break
 
       case 'DELETE':
-        results = this[ACTORS].deletePostActor.perform(model, data)
+        results = await this[ACTORS].deletePostActor.perform(model, data)
         break
 
       default:
