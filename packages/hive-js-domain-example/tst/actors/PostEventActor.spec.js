@@ -59,10 +59,11 @@ describe('PostEventActor', () => {
           }
         })
       })
-      postEventActor = await new PostEventActor()
     })
 
-    it('should create a PostEventActor successfully', () => {
+    it('should create a PostEventActor successfully', async () => {
+      postEventActor = await new PostEventActor()
+
       expect(repositorySpy.calledOnce).to.be.true()
 
       expect(postEventActor).to.be.an.instanceof(Actor)

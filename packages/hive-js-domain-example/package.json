@@ -13,7 +13,7 @@
     "release": "NODE_ENV=production npm test && npm run build && node ./bin/compress",
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
-    "posttest": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
+    "posttest": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --timeout 5000 --recursive --exit 'tst/**/*.spec.js'",
     "version": "npm run release && git add --all",
     "postversion": "git push && git push --tags && npm publish"
   },
