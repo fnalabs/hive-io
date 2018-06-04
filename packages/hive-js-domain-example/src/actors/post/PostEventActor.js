@@ -1,37 +1,38 @@
 // imports
 import CONSTANTS from '../../constants'
 
-import { parse, Actor, Schema } from 'hive-io'
+import { parse, Actor, Model, Schema } from 'hive-io'
 
-import PostSchema from '../../schemas/json/post/Post.json'
-import PostIdSchema from '../../schemas/json/post/PostId.json'
+import mongoConnect from '../../util/mongoConnect'
+import LogSystem from '../../systems/LogSystem'
+
+import LogSchema from '../../schemas/json/Log.json'
+import MongoSchema from '../../schemas/mongoose/Post'
 
 // private properties
-const REPOSITORY = Symbol('Consumer ephemeral DB')
-
-// constants
-const REFS = {
-  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
-}
+const LOG_SCHEMA = Symbol('Log schema')
+const LOG_SYSTEM = Symbol('Log System')
 
 /*
  * class PostEventActor
  */
 class PostEventActor extends Actor {
-  constructor (postSchema, model) {
-    super(parse`/post/${'postId'}`, postSchema)
-
-    Object.defineProperty(this, REPOSITORY, { value: model })
+  constructor (logSchema, logSystem, repository) {
+    super(parse`/posts`, undefined, repository)
+    Object.defineProperties(this, {
+      [LOG_SCHEMA]: { value: logSchema },
+      [LOG_SYSTEM]: { value: logSystem }
+    })
   }
 
-  async perform (payload, modelInstance, repository) {
-    const id = payload.meta.id || payload.data.id.id
-    const conditions = { 'id.id': id }
+  async perform (model, data) {
+    const id = data.payload.postId.id
+    const conditions = { _id: id }
 
     let update
-    switch (payload.meta.model) {
+    switch (data.type) {
       case 'CreatedContent':
-        update = payload.data
+        update = { _id: data.payload.postId.id, text: data.payload.content.text }
         break
 
       case 'DisabledContent':
@@ -39,22 +40,25 @@ class PostEventActor extends Actor {
         break
 
       case 'EditedContent':
-        update = { $set: { text: payload.data.text, edited: true } }
+        update = { $set: { text: data.payload.content.text, edited: true } }
         break
 
       case 'EnabledContent':
         update = { $set: { enabled: true } }
         break
 
-      case 'View':
-        update = { $inc: { views: 1 } }
+      case 'ViewedContent':
+        update = { $inc: { viewed: 1 } }
         break
 
       default:
-        throw new Error('Command|Event not recognized')
+        throw new Error('Event not recognized')
     }
 
-    await this[REPOSITORY].findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
+    await this.repository.findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
+
+    const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostEventActor' } }, this[LOG_SCHEMA], { immutable: true })
+    this[LOG_SYSTEM].emit(log)
   }
 }
 
@@ -62,10 +66,13 @@ class PostEventActor extends Actor {
  * Proxy<PostEventActor> for async initialization of the Schema w/ refs and Mongo connection
  */
 export default new Proxy(PostEventActor, {
-  construct: async function (PostEventActor, argsList) {
-    const model = argsList[0]
-    const postSchema = await new Schema(PostSchema, REFS)
+  construct: async function (PostEventActor) {
+    const repository = await mongoConnect()
+    const model = repository.model('Post', new MongoSchema())
 
-    return new PostEventActor(postSchema, model)
+    const logSchema = await new Schema(LogSchema)
+    const logSystem = await new LogSystem()
+
+    return new PostEventActor(logSchema, logSystem, model)
   }
 })

@@ -1,32 +1,37 @@
 // imports
-import { parse, Actor, Schema } from 'hive-io'
+import { parse, Actor, Model, Schema } from 'hive-io'
 
-import PostSchema from '../../schemas/json/post/Post.json'
-import PostIdSchema from '../../schemas/json/post/PostId.json'
+import mongoConnect from '../../util/mongoConnect'
+import LogSystem from '../../systems/LogSystem'
+
+import LogSchema from '../../schemas/json/Log.json'
+import MongoSchema from '../../schemas/mongoose/Post'
 
 // private properties
-const REPOSITORY = Symbol('Consumer ephemeral DB')
-
-// constants
-const REFS = {
-  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
-}
+const LOG_SCHEMA = Symbol('Log schema')
+const LOG_SYSTEM = Symbol('Log System')
 
 /*
  * class PostQueryActor
  */
 class PostQueryActor extends Actor {
-  constructor (postSchema, model) {
-    super(parse`/post/${'postId'}`, postSchema)
-    Object.defineProperty(this, REPOSITORY, { value: model })
+  constructor (logSchema, logSystem, repository) {
+    super(parse`/posts/${'postId'}`, undefined, repository)
+    Object.defineProperties(this, {
+      [LOG_SCHEMA]: { value: logSchema },
+      [LOG_SYSTEM]: { value: logSystem }
+    })
   }
 
-  async perform (payload) {
-    if (payload.meta.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
+  async perform (modelInst, data) {
+    if (data.meta.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
 
-    const model = typeof payload.meta.urlParams.postId === 'string'
-      ? await this[REPOSITORY].findOne({ 'id.id': payload.meta.urlParams.postId }).exec()
-      : await this[REPOSITORY].find().exec()
+    const model = typeof data.meta.urlParams.postId === 'string'
+      ? await this.repository.findOne({ _id: data.meta.urlParams.postId }).exec()
+      : await this.repository.find().exec()
+
+    const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostQueryActor' } }, this[LOG_SCHEMA], { immutable: true })
+    this[LOG_SYSTEM].emit(log)
 
     return { model }
   }
@@ -36,10 +41,13 @@ class PostQueryActor extends Actor {
  * Proxy<PostQueryActor> for async initialization of the Schema w/ refs
  */
 export default new Proxy(PostQueryActor, {
-  construct: async function (PostQueryActor, argsList) {
-    const model = argsList[0]
+  construct: async function (PostQueryActor) {
+    const repository = await mongoConnect()
+    const model = repository.model('Post', new MongoSchema())
 
-    const postSchema = await new Schema(PostSchema, REFS)
-    return new PostQueryActor(postSchema, model)
+    const logSchema = await new Schema(LogSchema)
+    const logSystem = await new LogSystem()
+
+    return new PostQueryActor(logSchema, logSystem, model)
   }
 })

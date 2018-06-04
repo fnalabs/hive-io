@@ -1,4 +1,2 @@
-export * from './content'
+export { ViewContentActor } from './messages'
 export * from './post'
-
-export { default as ViewActor } from './ViewActor'
