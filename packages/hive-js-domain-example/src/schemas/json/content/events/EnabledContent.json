@@ -1,6 +1,0 @@
-{
-  "title": "EnabledContent",
-  "description": "event used to log enabled post content",
-  "$id": "https://hiveframework.io/api/v1/events/EnabledContent",
-  "additionalProperties": false
-}

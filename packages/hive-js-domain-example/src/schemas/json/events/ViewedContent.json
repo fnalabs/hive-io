@@ -1,0 +1,14 @@
+{
+  "title": "ViewedContent",
+  "description": "event used to capture log data for Post Content views",
+  "$id": "https://hiveframework.io/api/v1/models/View",
+  "type": "object",
+  "properties": {
+    "postId": {
+      "description": "Post Id Value Object",
+      "$ref": "https://hiveframework.io/api/v1/models/PostId"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["postId"]
+}

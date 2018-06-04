@@ -1,0 +1,23 @@
+{
+  "title": "Post",
+  "description": "entity used for XA/SI to validate data from messages",
+  "$id": "https://hiveframework.io/api/v1/models/Post",
+  "type": "object",
+  "properties": {
+    "postId": {
+      "description": "Post Id Value Object",
+      "$ref": "https://hiveframework.io/api/v1/models/PostId"
+    },
+    "content": {
+      "description": "main Post Content",
+      "$ref": "https://hiveframework.io/api/v1/models/Content"
+    },
+    "viewed": {
+      "description": "total views of post content",
+      "type": "integer",
+      "default": 0
+    }
+  },
+  "additionalProperties": false,
+  "required": ["postId", "content"]
+}

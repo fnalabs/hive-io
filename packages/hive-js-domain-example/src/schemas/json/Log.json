@@ -1,0 +1,28 @@
+{
+  "title": "Log",
+  "description": "value object that defines log format",
+  "$id": "https://hiveframework.io/api/v1/models/Log",
+  "type": "object",
+  "properties": {
+    "actor": {
+      "description": "Microservice Actor"
+    },
+    "headers": {
+      "description": "HTTP headers",
+      "type": "object"
+    },
+    "method": {
+      "description": "HTTP request method",
+      "type": "string"
+    },
+    "url": {
+      "description": "Node.js legacy URL object",
+      "type": "object"
+    },
+    "urlParams": {
+      "description": "Hive^io url params",
+      "type": "object"
+    },
+    "additionalProperties": false
+  }
+}

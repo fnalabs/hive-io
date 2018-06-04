@@ -7,13 +7,9 @@ import { Schema } from 'mongoose'
 export default class PostSchema extends Schema {
   constructor () {
     super({
-      id: {
-        id: {
-          type: String,
-          required: true,
-          index: true,
-          unique: true
-        }
+      _id: {
+        type: String,
+        required: true
       },
       text: {
         type: String,
@@ -28,7 +24,7 @@ export default class PostSchema extends Schema {
         type: Boolean,
         default: true
       },
-      views: {
+      viewed: {
         type: Number,
         default: 0
       }
@@ -36,26 +32,27 @@ export default class PostSchema extends Schema {
       toObject: {
         versionKey: false,
         minimize: false,
+        virtuals: true,
         transform (doc, ret) {
           delete ret._id
-          return ret
+          return {
+            type: 'Post',
+            payload: ret
+          }
         }
       },
       toJSON: {
         versionKey: false,
         minimize: false,
+        virtuals: true,
         transform (doc, ret) {
           delete ret._id
           return {
-            data: ret,
-            meta: {
-              model: 'Post',
-              id: ret.id.id
-            }
+            type: 'Post',
+            payload: ret
           }
         }
       },
-      id: false,
       _id: false
     })
   }

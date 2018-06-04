@@ -1,17 +1,13 @@
 {
   "title": "Content",
-  "description": "entity used to create and modify post content",
+  "description": "Content value object used to create and modify Post content",
   "$id": "https://hiveframework.io/api/v1/models/Content",
   "type": "object",
   "properties": {
-    "id": {
-      "description": "Post Id Value Object",
-      "$ref": "https://hiveframework.io/api/v1/models/PostId"
-    },
     "text": {
       "description": "main post content",
       "type": "string",
-      "maxLength": 140,
+      "maxLength": 280,
       "minLength": 2
     },
     "edited": {
@@ -25,5 +21,6 @@
       "default": true
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "required": ["text"]
 }

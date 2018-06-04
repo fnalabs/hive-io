@@ -1,6 +1,0 @@
-{
-  "title": "DisableContent",
-  "description": "command used to disable existing post content",
-  "$id": "https://hiveframework.io/api/v1/commands/DisableContent",
-  "additionalProperties": false
-}
