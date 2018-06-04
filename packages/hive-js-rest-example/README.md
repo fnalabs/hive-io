@@ -1,17 +1,42 @@
 # hive-io-rest-example
+
+[![NPM Version][npm-image]][npm-url]
+[![Build Status][circle-image]][circle-url]
+[![Code Coverage][codecov-image]][codecov-url]
+[![Dependency Status][depstat-image]][depstat-url]
+[![JavaScript Style Guide][style-image]][style-url]
+
 An example REST module to help describe implementation details when leveraging the [Hive<sup>io</sup> framework](https://hiveframework.io).
 
 #### Contents
+- [Overview](#overview)
+    - [Endpoints](#endpoints)
+    - [Source Code](#source-code)
 - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installing](#installing)
     - [Environment Variables](#environment-variables)
 
+## Overview
+This example contains a single resource to handle CRUD functionality of a `Post` object in a Restful implementation. It is a contrived but robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup> framework](https://hiveframework.io).
+
+### Endpoints
+Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
+- `http://localhost/posts (GET, POST)`
+    - POST [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
+- `http://localhost/posts/<postId> (GET, PATCH, DELETE)`
+    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
+    - DELETE Payload = `{}`
+
+***NOTE:*** Network [data payloads](https://fnalabs.github.io/hive-js/#data-interface) follow the Flux Standard Action specification for network transport.
+
+### [Source Code](https://github.com/fnalabs/hive-js-rest-example)
+
 ## Getting Started
-This is a straight forward example of a `Post` Entity that contains text, a couple boolean flags, and a count of how many views it has. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
+This is a straight forward CRUD example of a `Post` Entity that contains text, a couple boolean flags, and a count of how many views it has. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
 
 ### Prerequisites
-To use, you'll need a few things:
+To use, you'll need:
 - **Required**
     - [Docker](https://www.docker.com/)
     - [Docker Compose](https://docs.docker.com/compose/)
@@ -22,7 +47,7 @@ To start using:
     - `Dockerfile`
         ```
         FROM fnalabs/hive-rest-js:latest
-        RUN npm install --save hive-io-rest-example
+        RUN npm install hive-io-rest-example
         ```
     - `docker-compose.yml`
         ```
@@ -66,17 +91,28 @@ To start using:
     ```
 
 ### Environment Variables
-The table below contains a reference the the environment variables used in the example.
+The table below contains a reference to the custom environment variables used in the example. Standard environment variables are documented for the following service containers:
+- [hive-rest-js](https://github.com/fnalabs/hive-rest-js#environment-variables)
 
 Name               | Type    | Default                       | Description
 ------------------ | ------- | ----------------------------- | -------------------------------------------------------
-NODE_ENV           | String  | 'production'                  | app runtime environment
-PORT               | Number  | 3000                          | app port to listen on
-CLUSTER_SIZE       | Number  | [total CPUs available]        | defaults to the total available CPUs allocated to the container or to the size you specify here
-ACTOR              | String  | 'PostActor'                   | Actor (Model) the microservice is responsible for
-ACTOR_LIB          | String  | 'hive-io-rest-example'        | module where the ACTOR resides
 MONGO_URL          | String  | 'mongodb://mongo:27017/post'  | url to connect to MongoDB instance
 FLUENTD_HOST       | String  | 'fluentd'                     | Hostname of Fluentd instance
 FLUENTD_PORT       | Number  | 24224                         | Port of Fluentd instance
 FLUENTD_TIMEOUT    | Number  | 3.0                           | Timeout (in sec) for Fluentd client
 FLUENTD_RECONNECT  | Number  | 600000                        | Reconnect Interval (in sec) for Fluentd client
+
+[npm-image]: https://img.shields.io/npm/v/hive-io-rest-example.svg
+[npm-url]: https://www.npmjs.com/package/hive-io-rest-example
+
+[circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js-rest-example.svg
+[circle-url]: https://circleci.com/gh/fnalabs/hive-js-rest-example
+
+[codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js-rest-example/master.svg
+[codecov-url]: https://codecov.io/gh/fnalabs/hive-js-rest-example
+
+[depstat-image]: https://img.shields.io/david/fnalabs/hive-js-rest-example.svg
+[depstat-url]: https://david-dm.org/fnalabs/hive-js-rest-example
+
+[style-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
+[style-url]: https://standardjs.com
