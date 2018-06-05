@@ -20,10 +20,14 @@ export default async function main (CONFIG, micro) {
   // router for microservice
   async function route (req, res) {
     if (pingUrlRegexp.test(req.url)) return send(res, 200)
-    if (req.method !== 'GET') return send(res, 405, 'Consumers only receive GET requests')
+    if (req.method !== 'GET') {
+      return send(res, 405, {errors: [
+        {message: 'Consumers only receive GET requests'}
+      ]})
+    }
 
-    // construct payload with parsed request data for query processing
-    const payload = {
+    // construct data with parsed request data for query processing
+    const data = {
       meta: {
         headers: { ...req.headers },
         method: req.method,
@@ -33,11 +37,11 @@ export default async function main (CONFIG, micro) {
     }
 
     try {
-      const { model } = await actor.perform(payload)
+      const { model } = await actor.perform(undefined, data)
 
       return send(res, 200, model)
     } catch (e) {
-      return send(res, e.statusCode || 400, e)
+      return send(res, e.statusCode || 400, {errors: [e]})
     }
   }
 

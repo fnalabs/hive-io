@@ -10,7 +10,7 @@ describe('store', () => {
   let Store, store
 
   describe('#constructor', () => {
-    let consumerSpy, connectSpy, onSpy, subscribeSpy, consumeSpy, observableStubs
+    let consumerSpy, connectSpy, onSpy, subscribeSpy, consumeSpy, fromEventPatternStub, fromSpy, concatMapSpy, pipeStub, subscribeStub
 
     after(() => {
       Store = null
@@ -21,7 +21,12 @@ describe('store', () => {
       onSpy = null
       subscribeSpy = null
       consumeSpy = null
-      observableStubs = null
+
+      fromEventPatternStub = null
+      fromSpy = null
+      concatMapSpy = null
+      pipeStub = null
+      subscribeStub = null
     })
 
     before(() => {
@@ -30,11 +35,15 @@ describe('store', () => {
       onSpy = sinon.spy()
       subscribeSpy = sinon.spy()
       consumeSpy = sinon.spy()
-      observableStubs = {
-        fromEventPattern: sinon.stub().returnsThis(),
-        concatMap: sinon.stub().returnsThis(),
-        subscribe: sinon.stub().returnsThis()
-      }
+
+      pipeStub = sinon.stub().returnsThis()
+      subscribeStub = sinon.stub().returnsThis()
+      fromEventPatternStub = sinon.stub().returns({
+        pipe: pipeStub,
+        subscribe: subscribeStub
+      })
+      fromSpy = sinon.spy()
+      concatMapSpy = sinon.spy()
 
       Store = proxyquire('../src/store', {
         'node-rdkafka': {
@@ -46,7 +55,11 @@ describe('store', () => {
             consume () { consumeSpy() }
           }
         },
-        'rxjs/Rx': { Observable: observableStubs }
+        'rxjs': {
+          fromEventPattern: fromEventPatternStub,
+          from: fromSpy
+        },
+        'rxjs/operators': { concatMap: concatMapSpy }
       })
       store = new Store({
         EVENT_STORE_URL: '',
@@ -67,9 +80,11 @@ describe('store', () => {
       expect(subscribeSpy.calledOnce).to.be.true()
       expect(consumeSpy.calledOnce).to.be.true()
 
-      expect(observableStubs.fromEventPattern.calledOnce).to.be.true()
-      expect(observableStubs.concatMap.calledOnce).to.be.true()
-      expect(observableStubs.subscribe.calledOnce).to.be.true()
+      expect(fromEventPatternStub.calledOnce).to.be.true()
+      expect(fromSpy.called).to.be.false()
+      expect(concatMapSpy.calledOnce).to.be.true()
+      expect(pipeStub.calledOnce).to.be.true()
+      expect(subscribeStub.calledOnce).to.be.true()
     })
   })
 })

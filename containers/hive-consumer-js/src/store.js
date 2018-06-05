@@ -1,6 +1,7 @@
 // imports
 import { KafkaConsumer } from 'node-rdkafka'
-import { Observable } from 'rxjs/Rx'
+import { from, fromEventPattern } from 'rxjs'
+import { concatMap } from 'rxjs/operators'
 
 // private properties
 const CONSUMER = Symbol('Kafka Consumer')
@@ -25,9 +26,10 @@ export default class EventStore {
 
     // bootstrap event observer
     /* istanbul ignore next */
-    Observable
-      .fromEventPattern(handler => this[CONSUMER].on('data', handler))
-      .concatMap(event => Observable.fromPromise(actor.perform(JSON.parse(event.value))))
+    fromEventPattern(handler => this[CONSUMER].on('data', handler))
+      .pipe(concatMap(event => {
+        return from(actor.perform(undefined, JSON.parse(event.value.toString())))
+      }))
       .subscribe(() => {})
   }
 }
