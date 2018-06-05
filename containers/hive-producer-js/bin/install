@@ -26,14 +26,14 @@ baseInstall () {
   #   - bash-completion coreutils grep tree
   ###
   printLine "Installing environment dependencies"
-  apk add \
+  apk add --update --no-cache \
     coreutils \
     dumb-init \
     grep \
     lz4-libs \
     tree
 
-  apk add --no-cache --virtual .build-deps \
+  apk add --update --no-cache --virtual .build-deps \
     bsd-compat-headers \
     ca-certificates \
     g++ \
@@ -53,15 +53,18 @@ baseInstall () {
 #       - example: re-running "npm install" to update versions
 ###
 projectInstall () {
+  npm install -g npm
+
   if [[ "${NODE_ENV}" == "production" ]]; then
     printLine "Installing (Production) Node.js Dependencies"
     npm install --quiet --no-optional --production
+    npm prune --production
   else
 
-  if [[ -f ./package.json ]]; then
-    printLine "Installing (All) Node.js Dependencies"
-    npm install --quiet --no-optional
-  fi
+    if [[ -f ./package.json ]]; then
+      printLine "Installing (All) Node.js Dependencies"
+      npm install --quiet --no-optional
+    fi
 
   fi
 
@@ -71,6 +74,7 @@ projectInstall () {
   fi
 
   printLine "Clearing Node and NPM cache"
+  npm cache clean --force
   rm -rf \
     ${HOME}/.npm \
     ${HOME}/.node-gyp
