@@ -18,25 +18,29 @@ export default async function main (CONFIG, micro) {
   // router for microservice
   async function route (req, res) {
     if (pingUrlRegexp.test(req.url)) return send(res, 200)
-    if (req.method !== 'POST') return send(res, 405, 'Producers only accept POST requests')
+    if (req.method !== 'POST') {
+      return send(res, 405, {errors: [
+        {message: 'Producers only accept POST requests'}
+      ]})
+    }
 
     try {
-      // construct payload with parsed request data for query processing
-      const payload = await json(req)
-      payload.meta = {
-        ...payload.meta,
+      // construct data with parsed request data for query processing
+      const data = await json(req)
+      data.meta = {
+        ...data.meta,
         headers: { ...req.headers },
         method: req.method,
         url: parse(req.url, true),
         urlParams: actor.parse(req.url)
       }
 
-      const { id, model } = await actor.perform(payload)
+      const { id, model } = await actor.perform(undefined, data)
       await store.log(id, model)
 
       return send(res, 200, model)
     } catch (e) {
-      return send(res, e.statusCode || 400, e)
+      return send(res, e.statusCode || 400, {errors: [e]})
     }
   }
 
