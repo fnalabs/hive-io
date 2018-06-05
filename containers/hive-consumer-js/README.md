@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Consumer in Node.js w/ [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
+This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Consumer in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -16,13 +16,12 @@ This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573
   - [Examples](#examples)
   - [Environment Variables](#environment-variables)
 - [Future](#future)
-- [Changelog](#changelog)
 
 ## Getting Started
 Consumers handle the query responsibilities in the CQRS pattern. They are responsible for translating single or multiple event streams into denormalized formats that can be queried by user applications. Since all of the data has been validated before it is logged, they free themselves from that requirement and can focus on translating and serving data.
 
 ### Prerequisites
-To use, you'll need a few things:
+To use, you'll need:
 - **Required**
   - [Docker](https://www.docker.com/)
   - [Kafka](https://kafka.apache.org/)
@@ -51,7 +50,7 @@ NODE_ENV              | String  | 'production'              | app runtime enviro
 PORT                  | Number  | 3000                      | app port to listen on
 CLUSTER_SIZE          | Number  | [total CPUs available]    | defaults to the total available CPUs allocated to the container or to the size you specify here
 AGGREGATE_LIST        | String  | 'content,view'            | comma separated list of aggregates to consume
-ACTOR                 | String  | 'PostActor'               | Actor to denormalize the aggregates
+ACTOR                 | String  | 'PostEventActor'          | Actor to denormalize the aggregates
 ACTOR_LIB             | String  | 'hive-io-domain-example'  | library where the PROJECTION resides
 EVENT_STORE_ID        | String  |                           | unique identifier for Kafka client connection
 EVENT_STORE_URL       | String  |                           | URL where Kafka is hosted
@@ -61,9 +60,6 @@ EVENT_STORE_OFFSET    | String  | 'latest'                  | Kafka ConsumerGrou
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-consumer-js/issues)
-
-## Changelog
-TODO
 
 [docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-consumer-js:2.0.0-beta.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-consumer-js/

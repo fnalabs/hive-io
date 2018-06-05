@@ -6,7 +6,7 @@ module.exports = Object.freeze({
   // domain configurations
   AGGREGATE_LIST: (process.env.AGGREGATE_LIST && process.env.AGGREGATE_LIST.split(',')) || ['content', 'view'],
   // actor configurations
-  ACTOR: process.env.ACTOR || 'PostActor',
+  ACTOR: process.env.ACTOR || 'PostEventActor',
   ACTOR_LIB: process.env.ACTOR_LIB || 'hive-io-domain-example',
   // event store configurations
   EVENT_STORE_ID: process.env.EVENT_STORE_ID,
