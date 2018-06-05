@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-The Hive Framework basic REST service in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-rest-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework REST service in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-rest-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -18,7 +18,7 @@ The Hive Framework basic REST service in Node.js with [Micro](https://www.npmjs.
 - [Future](#future)
 
 ## Getting Started
-This is the most basic building block of infrastructure in the Hive Framework. It provides a RESTful interface for your Actors and enforces the JSON API specification Top Level Document payload structure.
+This is the most basic building block of infrastructure in the Hive<sup>io</sup> Framework. It provides a RESTful interface for your Actors and enforces the JSON API specification Top Level Document payload structure.
 
 ### Prerequisites
 To use, you'll need:
@@ -39,7 +39,7 @@ RUN npm install hive-io-rest-example
 ```
 
 ### Environment variables
-Below is a table describing the possible environment variables to run the Hive Framework REST service. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
+Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework REST service. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name               | Type    | Default                 | Description
 ------------------ | ------- | ----------------------- | -------------------------------------------------------
