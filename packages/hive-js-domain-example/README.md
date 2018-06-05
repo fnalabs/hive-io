@@ -96,7 +96,9 @@ To start using:
 
           # producers
           hive-producer-js:
-            build: ./Producer.dockerfile
+            build:
+              context: .
+              dockerfile: Producer.dockerfile
             image: hive-producer-js
             environment:
               CLUSTER_SIZE: 1
@@ -114,7 +116,9 @@ To start using:
 
           # stream processors
           hive-stream-processor-js:
-            build: ./Stream-Processor.dockerfile
+            build:
+              context: .
+              dockerfile: Stream-Processor.dockerfile
             image: hive-stream-processor-js
             environment:
               CLUSTER_SIZE: 1
@@ -159,7 +163,9 @@ To start using:
 
           # consumers
           hive-consumer-js:
-            build: ./Consumer.dockerfile
+            build:
+              context: .
+              dockerfile: Consumer.dockerfile
             image: hive-consumer-js
             environment:
               CLUSTER_SIZE: 1
@@ -185,7 +191,9 @@ To start using:
 
           # rest services
           hive-rest-js:
-            build: ./Rest.dockerfile
+            build:
+              context: .
+              dockerfile: Rest.dockerfile
             image: hive-rest-js
             environment:
               ACTOR: PostQueryActor
