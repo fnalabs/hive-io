@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Producer in Node.js w/ [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-producer-js/) on Docker Hub to support most use cases.
+This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Producer in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-producer-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -16,13 +16,12 @@ This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573
   - [Examples](#examples)
   - [Environment Variables](#environment-variables)
 - [Future](#future)
-- [Changelog](#changelog)
 
 ## Getting Started
 Producers represent a straight forward implementation where domain `Entities|Value Objects` can be passed through to the log directly with minimal validation. Entities can pass through to queue messages for domain validation later in the stream. Value Objects have no unique identity, they are essentially immutable and should be treated as such. Therefore, this type of validation is superficial and can easily be handled by the `Entity's|Value Object's` Schema definition. Examples of this type of implementation would include streams of analytics data for user tracking or geo-location data for real-time position tracking.
 
 ### Prerequisites
-To use, you'll need a few things:
+To use, you'll need:
 - **Required**
   - [Docker](https://www.docker.com/)
   - [Kafka](https://kafka.apache.org/)
@@ -61,9 +60,6 @@ EVENT_STORE_POLL_INTERVAL  | Number  | 1000                      | time (in `ms`
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-producer-js/issues)
-
-## Changelog
-TODO
 
 [docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-producer-js:2.0.0-beta.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-producer-js/

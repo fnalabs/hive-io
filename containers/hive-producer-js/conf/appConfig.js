@@ -4,7 +4,7 @@ module.exports = Object.freeze({
   PORT: process.env.PORT || 3000,
   CLUSTER_SIZE: process.env.CLUSTER_SIZE,
   // domain configurations
-  ACTOR: process.env.ACTOR || 'ViewActor',
+  ACTOR: process.env.ACTOR || 'ViewContentActor',
   ACTOR_LIB: process.env.ACTOR_LIB || 'hive-io-domain-example',
   // storage configurations
   EVENT_STORE_TOPIC: process.env.EVENT_STORE_TOPIC || 'view',
