@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Consumer in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Consumer in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -42,7 +42,7 @@ RUN npm install hive-io-domain-example
 ```
 
 ### Environment variables
-Below is a table describing the possible environment variables to run the Hive Framework Consumer. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
+Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Consumer. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name                  | Type    | Default                   | Description
 --------------------- | ------- | ------------------------- | -------------------------------------------------------
@@ -61,7 +61,7 @@ EVENT_STORE_OFFSET    | String  | 'latest'                  | Kafka ConsumerGrou
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-consumer-js/issues)
 
-[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-consumer-js:2.0.0-beta.svg
+[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-consumer-js.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-consumer-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
