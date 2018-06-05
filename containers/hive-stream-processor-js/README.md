@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Stream Processor in Node.js w/ [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
+This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Stream Processor in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -16,7 +16,6 @@ This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573
   - [Examples](#examples)
   - [Environment Variables](#environment-variables)
 - [Future](#future)
-- [Changelog](#changelog)
 
 ## Getting Started
 Stream Processors are multi-faceted in their responsibilities. By default, they handle the command responsibilities in the CQRS pattern. Therefore, they are integrated with the domain layer to take commands and get existing aggregate data to pass to the domain layer for business-specific logic and validation. Once validated, it passes the returned event to the log and stores the updated snapshot of the aggregate to the caching layer. Depending on the needs of the domain model, the Stream Processor allows for transactional consistency if required. Essentially this makes it a Stream Producer as it is performing more than the Producer above, but for similar tasks.
@@ -28,7 +27,7 @@ The third role of the Stream Processor is the most complex and likely least used
 The Hive Framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency. Riak also seems like a viable solution for this requirement as it is a similar product that also provides strong consistency concepts.
 
 ### Prerequisites
-To use, you'll need a few things:
+To use, you'll need:
 - **Required**
   - [Docker](https://www.docker.com/)
   - [Kafka](https://kafka.apache.org/)
@@ -78,9 +77,6 @@ LOCK_RETRY_JITTER          | Number  | 400                       | Redlock rando
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-stream-processor-js/issues)
-
-## Changelog
-TODO
 
 [docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-stream-processor-js:2.0.0-beta.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-stream-processor-js/

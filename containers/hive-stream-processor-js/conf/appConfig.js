@@ -7,7 +7,7 @@ module.exports = Object.freeze({
   PRODUCER_TOPIC: process.env.PRODUCER_TOPIC || 'content',
   CONSUMER_TOPIC: process.env.CONSUMER_TOPIC,
   // actor configurations
-  ACTOR: process.env.ACTOR || 'ContentActor',
+  ACTOR: process.env.ACTOR || 'PostCommandActor',
   ACTOR_LIB: process.env.ACTOR_LIB || 'hive-io-domain-example',
   // event store configurations
   EVENT_STORE_ID: process.env.EVENT_STORE_ID,
