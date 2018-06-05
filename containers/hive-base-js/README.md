@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-The Hive Framework basic REST service in Node.js w/ [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-rest-js/) on Docker Hub to support most use cases.
+The Hive Framework basic REST service in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-rest-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -16,13 +16,12 @@ The Hive Framework basic REST service in Node.js w/ [Micro](https://www.npmjs.co
   - [Examples](#examples)
   - [Environment Variables](#environment-variables)
 - [Future](#future)
-- [Changelog](#changelog)
 
 ## Getting Started
 This is the most basic building block of infrastructure in the Hive Framework. It provides a RESTful interface for your Actors and enforces the JSON API specification Top Level Document payload structure.
 
 ### Prerequisites
-To use, you'll need a few things:
+To use, you'll need:
 - **Required**
   - [Docker](https://www.docker.com/)
 
@@ -52,9 +51,6 @@ ACTOR_LIB          | String  | 'hive-io-rest-example'  | module where the ACTOR 
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-rest-js/issues)
-
-## Changelog
-TODO
 
 [docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-rest-js.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-rest-js/
