@@ -48,7 +48,7 @@ export default class Repository {
 
   async get (id) {
     const dataString = await this[CACHE].get(id)
-    return dataString ? JSON.parse(dataString) : dataString
+    if (dataString) return JSON.parse(dataString)
   }
 
   async record (id, event, model) {

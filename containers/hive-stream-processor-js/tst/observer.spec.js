@@ -10,24 +10,37 @@ describe('observer', () => {
   let Observer, observer
 
   describe('#constructor', () => {
-    let observableStubs
+    let fromEventPatternStub, fromSpy, concatMapSpy, pipeStub, subscribeStub
 
     after(() => {
       Observer = null
       observer = null
 
-      observableStubs = null
+      fromEventPatternStub = null
+      fromSpy = null
+      concatMapSpy = null
+      pipeStub = null
+      subscribeStub = null
     })
 
     before(() => {
-      observableStubs = {
-        fromEventPattern: sinon.stub().returnsThis(),
-        concatMap: sinon.stub().returnsThis(),
-        subscribe: sinon.stub().returnsThis()
-      }
+      pipeStub = sinon.stub().returnsThis()
+      subscribeStub = sinon.stub().returnsThis()
+      fromEventPatternStub = sinon.stub().returns({
+        pipe: pipeStub,
+        subscribe: subscribeStub
+      })
+      fromSpy = sinon.spy()
+      concatMapSpy = sinon.spy()
 
       Observer = proxyquire('../src/observer', {
-        'rxjs/Rx': { Observable: observableStubs }
+        'rxjs': {
+          fromEventPattern: fromEventPatternStub,
+          from: fromSpy
+        },
+        'rxjs/operators': {
+          concatMap: concatMapSpy
+        }
       })
       observer = new Observer()
     })
@@ -35,9 +48,11 @@ describe('observer', () => {
     it('should create the Store object', () => {
       expect(observer).to.exist()
 
-      expect(observableStubs.fromEventPattern.calledOnce).to.be.true()
-      expect(observableStubs.concatMap.calledOnce).to.be.true()
-      expect(observableStubs.subscribe.calledOnce).to.be.true()
+      expect(fromEventPatternStub.calledOnce).to.be.true()
+      expect(fromSpy.called).to.be.false()
+      expect(concatMapSpy.calledOnce).to.be.true()
+      expect(pipeStub.calledOnce).to.be.true()
+      expect(subscribeStub.calledOnce).to.be.true()
     })
   })
 })

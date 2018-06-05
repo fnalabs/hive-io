@@ -51,9 +51,6 @@ export default class EventStore {
   async log (id, event) {
     return new Promise((resolve, reject) => {
       const message = event.toJSON()
-      message.meta.id = id
-      message.meta.timestamp = Date.now()
-
       const queued = this[PRODUCER].produce(this[TOPIC], null, Buffer.from(JSON.stringify(message)), id)
       return queued ? resolve(queued) : reject(queued)
     })

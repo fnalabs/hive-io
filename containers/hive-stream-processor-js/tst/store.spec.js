@@ -197,6 +197,9 @@ describe('store', () => {
     it('should handle normal log posts', async () => {
       await expect(store.log('id', { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
       expect(toJsonStub.calledOnce).to.be.true()
+
+      await expect(store.log(undefined, { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      expect(toJsonStub.calledTwice).to.be.true()
     })
 
     it('should be rejected', async () => {
