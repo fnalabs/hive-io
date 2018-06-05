@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive Framework](https://gist.github.com/aeilers/30aa0047187e5a5d573a478abc581903) Stream Processor in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Stream Processor in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -24,7 +24,7 @@ The second role of the Stream Processor is to rebuild the caching layer from the
 
 The third role of the Stream Processor is the most complex and likely least used. For more complex domain models, sometimes the need for a saga (or process manager) is required. A saga's job is to manage the complexities of inter-aggregate communication should the need arise. Since a Stream Processor is able to read events from the logs and also write to the logs (defined separately above), it is able to issue commands to the domain layer based on the events from one aggregate to another.
 
-The Hive Framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency. Riak also seems like a viable solution for this requirement as it is a similar product that also provides strong consistency concepts.
+The Hive<sup>io</sup> Framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency. Riak also seems like a viable solution for this requirement as it is a similar product that also provides strong consistency concepts.
 
 ### Prerequisites
 To use, you'll need:
@@ -49,7 +49,7 @@ RUN npm install hive-io-domain-example
 ```
 
 ### Environment variables
-Below is a table describing the possible environment variables to run the Hive Framework Stream Processor. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
+Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Stream Processor. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name                       | Type    | Default                   | Description
 -------------------------- | ------- | ------------------------- | -------------------------------------------------------
@@ -78,7 +78,7 @@ LOCK_RETRY_JITTER          | Number  | 400                       | Redlock rando
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-stream-processor-js/issues)
 
-[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-stream-processor-js:2.0.0-beta.svg
+[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-stream-processor-js.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-stream-processor-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
