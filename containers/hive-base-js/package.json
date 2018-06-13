@@ -1,7 +1,7 @@
 {
   "name": "hive-rest-js",
-  "version": "2.0.0-beta.3",
-  "description": "Starter kit for Hive^io Framework REST services in Node.js w/ Micro implementations in Docker",
+  "version": "2.0.0-rc",
+  "description": "Starter kit for Hive^io framework REST services in Node.js w/ Micro implementations in Docker",
   "main": "./bin/start",
   "scripts": {
     "prebuild": "del dist",
@@ -56,7 +56,7 @@
     "nodemon": "~1.17.5",
     "nyc": "~12.0.2",
     "proxyquire": "~2.0.1",
-    "sinon": "~5.0.10",
+    "sinon": "~6.0.0",
     "standard": "~11.0.1"
   },
   "nyc": {
