@@ -6,7 +6,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-An example REST module to help describe implementation details when leveraging the [Hive<sup>io</sup> framework](https://hiveframework.io).
+An example REST module to help describe implementation details when leveraging the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
 #### Contents
 - [Overview](#overview)

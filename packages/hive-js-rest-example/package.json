@@ -24,7 +24,7 @@
   "bugs": {
     "url": "https://github.com/fnalabs/hive-js-rest-example/issues"
   },
-  "homepage": "https://github.com/fnalabs/hive-js-rest-example#readme",
+  "homepage": "https://hiveframework.io/",
   "author": "Adam Eilers",
   "license": "Apache-2.0",
   "engines": {
@@ -33,8 +33,8 @@
   },
   "dependencies": {
     "fluent-logger": "~2.7.0",
-    "hive-io": "~2.0.0-beta.6",
-    "mongoose": "~5.1.4",
+    "hive-io": "~2.0.0-rc",
+    "mongoose": "~5.1.5",
     "uuid": "~3.2.1"
   },
   "devDependencies": {
@@ -56,7 +56,7 @@
     "nodemon": "~1.17.5",
     "nyc": "~12.0.2",
     "proxyquire": "~2.0.0",
-    "sinon": "~5.0.10",
+    "sinon": "~6.0.0",
     "standard": "~11.0.0",
     "uglify-es": "~3.3.9",
     "validator": "~10.3.0"
