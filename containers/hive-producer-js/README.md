@@ -7,7 +7,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Producer in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-producer-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework Producer in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-producer-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
