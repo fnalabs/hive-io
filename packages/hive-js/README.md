@@ -24,8 +24,7 @@ Install using `npm`:
 $ npm install hive-io
 ```
 
-## [API](https://fnalabs.github.io/hive-js/)
-Click on the link in the header above to go to the API page.
+## [API](https://hiveframework.io/api/)
 
 ## Examples
 More examples can be found in the 2 example npm packages:
@@ -33,10 +32,15 @@ More examples can be found in the 2 example npm packages:
 - [hive-io-domain-example](https://www.npmjs.com/package/hive-io-domain-example)
 
 ## Future
-- website with more info
+- integrate with client-side presentation libraries
 - feature requests via [issues](https://github.com/fnalabs/hive-js/issues)
 
 ## Changelog
+#### v2.0.0-rc
+- level set version for all framework components
+- fix error handling on components
+- update documentation
+
 #### v2.0.0-beta.6
 - bug fix in Actor
 

@@ -315,6 +315,7 @@
 
   
     <p>The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually <code>type</code> and <code>payload</code>.</p>
+<p><strong><em>NOTE:</em></strong> This structure <strong>must</strong> be used whenever you interface with the API. It is the output structure when translating a <code>Model</code> to valid JSON.</p>
 <pre class='hljs'>{
   [type]: <span class="hljs-built_in">String</span>, <span class="hljs-comment">// &lt;associated_JSON_Schema_title&gt;</span>
   [payload]: {
@@ -1939,7 +1940,13 @@
   </h2>
 
   
-    <h4>v2.0.0-beta.6</h4>
+    <h4>v2.0.0-rc</h4>
+<ul>
+<li>level set version for all framework components</li>
+<li>fix error handling on components</li>
+<li>update documentation</li>
+</ul>
+<h4>v2.0.0-beta.6</h4>
 <ul>
 <li>bug fix in Actor</li>
 </ul>

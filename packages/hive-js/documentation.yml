@@ -42,6 +42,9 @@ toc:
   - name: Data interface
     description: |
       The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually `type` and `payload`.
+
+      ***NOTE:*** This structure **must** be used whenever you interface with the API. It is the output structure when translating a `Model` to valid JSON.
+
       ```javascript
       {
         [type]: String, // <associated_JSON_Schema_title>
@@ -68,6 +71,11 @@ toc:
   - parse
   - name: Changelog
     description: |
+      #### v2.0.0-rc
+      - level set version for all framework components
+      - fix error handling on components
+      - update documentation
+
       #### v2.0.0-beta.6
       - bug fix in Actor
 
