@@ -58,7 +58,7 @@ export default async function main (CONFIG, micro) {
 
       return send(res, 200, event)
     } catch (e) {
-      return send(res, e.statusCode || 400, {errors: [e]})
+      return send(res, e.statusCode || 400, {errors: [e.message]})
     }
   }
 
