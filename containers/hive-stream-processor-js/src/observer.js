@@ -6,12 +6,15 @@ import { concatMap } from 'rxjs/operators'
  * EventObserver class
  */
 export default class EventObserver {
-  constructor (actor, repository, store, isConsumer) {
+  constructor (actor, repository, store, isConsumer, isProducer) {
+    const isStreamProcessor = !isConsumer && !isProducer
+
     /* istanbul ignore next */
     async function execute (value) {
       const aggregate = await actor.replay(value)
-      const { id, model } = await actor.perform(aggregate.model, value)
-      if (isConsumer) await repository.update(id, model)
+      const ret = await actor.perform(aggregate.model, value)
+      if (isConsumer) await repository.update(ret.id, ret.model)
+      if (isStreamProcessor && ret) await store.log(ret.id, ret.model)
     }
 
     // bootstrap event observer
