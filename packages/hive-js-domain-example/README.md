@@ -27,12 +27,12 @@ Once you get the app running using the [setup instructions](#getting-started) be
     - CreateContent [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/commands/CreateContent.json)
         - PostId [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/PostId.json)
         - Content [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/Content.json)
-- `http://localhost/posts/<postId>/content (PATCH)`
-    - EditContent [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/EditContent.json)
+- `http://localhost/posts/<postId>/content (PATCH, DELETE)`
+    - `PATCH` EditContent [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/EditContent.json)
         - PostId [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/PostId.json)
         - Content [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/Content.json)
-    - EnableContent Payload = `{ type: 'EnableContent' }`
-    - DisableContent Payload = `{ type: 'DisableContent' }`
+    - `PATCH` EnableContent Payload = `{}`
+    - `DELETE` DisableContent Payload = `{}`
 - `http://localhost/posts/<postId>/viewed (POST)`
     - ViewContent Payload = `{}`
 
