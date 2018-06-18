@@ -36,6 +36,11 @@ More examples can be found in the 2 example npm packages:
 - feature requests via [issues](https://github.com/fnalabs/hive-js/issues)
 
 ## Changelog
+#### v2.0.0-rc.1
+- modified Stream Processor for pessimistic concurrency
+- modified Stream Processor to publish to Log if in `stream-processor` mode and Actors return values from their `perform` method
+- updated routes in `hive-io-domain-example`
+
 #### v2.0.0-rc
 - level set version for all framework components
 - fix error handling on components

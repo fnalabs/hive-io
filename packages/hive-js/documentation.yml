@@ -71,6 +71,11 @@ toc:
   - parse
   - name: Changelog
     description: |
+      #### v2.0.0-rc.1
+      - modified Stream Processor algorithm for pessimistic concurrency
+      - modified Stream Processor to publish to Log if in `stream-processor` mode and Actors return values from their `perform` method
+      - updated routes in `hive-io-domain-example`
+
       #### v2.0.0-rc
       - level set version for all framework components
       - fix error handling on components
