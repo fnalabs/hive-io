@@ -22,7 +22,7 @@ export default async function main (CONFIG, micro) {
 
   // bootstrap event observer
   if (/^(consumer|stream_processor)$/.test(CONFIG.PROCESSOR_TYPE)) {
-    new EventObserver(actor, repository, store, isConsumer) // eslint-disable-line no-new
+    new EventObserver(actor, repository, store, isConsumer, isProducer) // eslint-disable-line no-new
   }
 
   // router for microservice
@@ -53,8 +53,9 @@ export default async function main (CONFIG, micro) {
       }
 
       const aggregate = await actor.replay(data)
+      const cache = JSON.stringify(aggregate.model)
       const { id, event, model } = await actor.perform(aggregate.model, data)
-      await repository.record(id, event, model)
+      await repository.record(id, event, model, cache)
 
       return send(res, 200, event)
     } catch (e) {

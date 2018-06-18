@@ -138,11 +138,17 @@ describe('repository', () => {
   })
 
   describe('#record', () => {
-    let lockStub, logSpy, setSpy, unlockSpy
+    let lockStub, logSpy, unlockSpy
     const testAggregates = [
       { id: 'id' },
+      { id: { id: 'id' } },
       { id: { id: 'id' } }
     ]
+    const setStub = sinon.stub()
+      .onCall(0).returns(true)
+      .onCall(1).returns(true)
+      .onCall(2).throws()
+      .onCall(3).returns(true)
 
     afterEach(() => {
       Repository = null
@@ -150,13 +156,11 @@ describe('repository', () => {
 
       lockStub = null
       logSpy = null
-      setSpy = null
       unlockSpy = null
     })
 
     beforeEach(() => {
       logSpy = sinon.spy()
-      setSpy = sinon.spy()
       unlockSpy = sinon.spy()
 
       lockStub = sinon.stub().returns(Promise.resolve({ unlock: unlockSpy }))
@@ -164,7 +168,7 @@ describe('repository', () => {
       Repository = proxyquire('../src/repository', {
         ioredis: class Redis {
           on () {}
-          set () { setSpy() }
+          set () { setStub() }
         },
         redlock: class Redlock {
           on () {}
@@ -179,7 +183,7 @@ describe('repository', () => {
 
       expect(lockStub.calledOnce).to.be.true()
       expect(logSpy.calledOnce).to.be.true()
-      expect(setSpy.calledOnce).to.be.true()
+      expect(setStub.calledOnce).to.be.true()
       expect(unlockSpy.calledOnce).to.be.true()
     })
 
@@ -188,8 +192,19 @@ describe('repository', () => {
 
       expect(lockStub.calledOnce).to.be.true()
       expect(logSpy.calledOnce).to.be.true()
-      expect(setSpy.calledOnce).to.be.true()
+      expect(setStub.calledTwice).to.be.true()
       expect(unlockSpy.calledOnce).to.be.true()
+    })
+
+    it('should throw an error in the transaction', async () => {
+      try {
+        await repository.record({}, testAggregates.shift())
+      } catch (e) {
+        expect(lockStub.calledOnce).to.be.true()
+        expect(logSpy.called).to.be.false()
+        expect(setStub.callCount).to.equal(4)
+        expect(unlockSpy.calledOnce).to.be.true()
+      }
     })
   })
 

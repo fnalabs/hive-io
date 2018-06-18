@@ -51,10 +51,19 @@ export default class Repository {
     if (dataString) return JSON.parse(dataString)
   }
 
-  async record (id, event, model) {
+  async record (id, event, model, cache) {
     const lock = await this[LOCK].lock(`lock:${id}`, this[TTL])
-    await this[STORE].log(id, event)
-    await this[CACHE].set(id, JSON.stringify(model))
+
+    try {
+      await this[CACHE].set(id, JSON.stringify(model))
+      await this[STORE].log(id, event)
+    } catch (e) {
+      await this[CACHE].set(id, cache)
+      lock.unlock()
+
+      throw new Error(e.message)
+    }
+
     return lock.unlock()
   }
 
