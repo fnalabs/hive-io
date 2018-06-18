@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "fluent-logger": "~2.7.0",
-    "hive-io": "~2.0.0-rc",
+    "hive-io": "~2.0.0-rc.1",
     "mongoose": "~5.1.5",
     "uuid": "~3.2.1"
   },
