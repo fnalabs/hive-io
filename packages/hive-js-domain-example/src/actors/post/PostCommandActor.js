@@ -44,28 +44,30 @@ class PostCommandActor extends Actor {
 
     let results
     switch (true) {
-      case data.type === 'CreateContent':
-        data.payload.postId = { id: uuidV4() }
-      case data.type === 'CreatedContent': // eslint-disable-line no-fallthrough
-        results = await this[ACTORS].createContentActor.perform(model, data)
-        break
-
-      case data.type === 'DisableContent':
-        data.payload = { postId: { id: data.meta.urlParams.postId } }
-      case data.type === 'DisabledContent': // eslint-disable-line no-fallthrough
-        results = await this[ACTORS].disableContentActor.perform(model, data)
-        break
-
-      case data.type === 'EditContent':
+      case data.payload && data.payload.content && data.payload.content.text && data.meta && data.meta.method === 'PATCH':
+        data.type = 'EditContent'
         data.payload.postId = { id: data.meta.urlParams.postId }
       case data.type === 'EditedContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].editContentActor.perform(model, data)
         break
 
-      case data.type === 'EnableContent':
+      case data.meta && data.meta.method === 'PATCH':
         data.payload = { postId: { id: data.meta.urlParams.postId } }
       case data.type === 'EnabledContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].enableContentActor.perform(model, data)
+        break
+
+      case data.meta && data.meta.method === 'POST':
+        data.type = 'CreateContent'
+        data.payload.postId = { id: uuidV4() }
+      case data.type === 'CreatedContent': // eslint-disable-line no-fallthrough
+        results = await this[ACTORS].createContentActor.perform(model, data)
+        break
+
+      case data.meta && data.meta.method === 'DELETE':
+        data.payload = { postId: { id: data.meta.urlParams.postId } }
+      case data.type === 'DisabledContent': // eslint-disable-line no-fallthrough
+        results = await this[ACTORS].disableContentActor.perform(model, data)
         break
 
       default:

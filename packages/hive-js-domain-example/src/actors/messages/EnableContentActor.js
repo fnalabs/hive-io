@@ -22,7 +22,7 @@ class EnableContentActor extends MessageActor {
   }
 
   async perform (modelInst, data) {
-    if (modelInst.content.enabled === true) throw new Error(`#${data.type}: content already enabled`)
+    if (modelInst.content.enabled === true) throw new Error('#EnableContent: content already enabled')
 
     const { command, event, model } = await super.perform(modelInst, data)
 

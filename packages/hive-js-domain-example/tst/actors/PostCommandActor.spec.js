@@ -11,32 +11,30 @@ chai.use(dirtyChai)
 
 // constants
 const createData = {
-  type: 'CreateContent',
   payload: { content: { text: 'something' } },
-  meta: { urlParams: {} }
+  meta: { urlParams: {}, method: 'POST' }
 }
 const createdData = {
   type: 'CreatedContent',
   payload: { content: { text: 'something' }, postId: { id: '1' } }
 }
 const disableData = {
-  type: 'DisableContent', meta: { urlParams: { postId: '1' } }
+  meta: { urlParams: { postId: '1' }, method: 'DELETE' }
 }
 const disabledData = {
   type: 'DisabledContent',
   payload: { postId: { id: '1' } }
 }
 const editData = {
-  type: 'EditContent',
   payload: { content: { text: 'something else' } },
-  meta: { urlParams: { postId: '1' } }
+  meta: { urlParams: { postId: '1' }, method: 'PATCH' }
 }
 const editedData = {
   type: 'EditedContent',
   payload: { content: { text: 'something else' }, postId: { id: '1' } }
 }
 const enableData = {
-  type: 'EnableContent', meta: { urlParams: { postId: '1' } }
+  meta: { urlParams: { postId: '1' }, method: 'PATCH' }
 }
 const enabledData = {
   type: 'EnabledContent',
@@ -99,9 +97,8 @@ describe('PostCommandActor', () => {
         postCommandActor = await new PostCommandActor({ async get () {} })
 
         const data1 = {
-          type: 'CreateContent',
           payload: { content: { text: null } },
-          meta: { urlParams: {} }
+          meta: { urlParams: {}, method: 'POST' }
         }
         try {
           await postCommandActor.perform(undefined, data1)
@@ -110,12 +107,11 @@ describe('PostCommandActor', () => {
         }
 
         const data2 = {
-          type: 'CreateContent',
           payload: {
             postId: { id: 1 },
             content: { text: 'something' }
           },
-          meta: { urlParams: {} }
+          meta: { urlParams: {}, method: 'POST' }
         }
         try {
           await postCommandActor.perform(undefined, data2)
@@ -180,9 +176,8 @@ describe('PostCommandActor', () => {
         postCommandActor = await new PostCommandActor({ async get () { return [createdData, disabledData] } })
 
         const data = {
-          type: 'EditContent',
           payload: { content: { text: null } },
-          meta: { urlParams: { postId: 1 } }
+          meta: { urlParams: { postId: 1 }, method: 'PATCH' }
         }
         const { model } = await postCommandActor.replay(data)
 
