@@ -36,6 +36,7 @@ class PostActor extends Actor {
     if (!urlRegexp.test(data.meta.url.pathname)) throw new Error(`${data.meta.url.pathname} not supported`)
 
     let results
+    data.type = 'Post'
     switch (data.meta.method) {
       case 'GET':
         results = await this[ACTORS].getPostActor.perform(model, data)
