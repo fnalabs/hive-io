@@ -17,6 +17,9 @@ describe('app', () => {
     let logStubs = [
       sinon.stub(),
       sinon.stub(),
+      sinon.stub(),
+      sinon.stub(),
+      sinon.stub(),
       sinon.stub().throws(Error),
       sinon.stub()
     ]
@@ -64,10 +67,60 @@ describe('app', () => {
         })
     })
 
-    it('should respond with 200 from /test on successful POST', done => {
+    it('should respond with 200 from /test on successful POST with payload', done => {
+      chai.request(app)
+        .post('/test')
+        .send({payload: {}})
+        .end((err, res) => {
+          expect(err).to.be.null()
+          expect(res).to.have.status(200)
+
+          expect(logStub.calledOnce).to.be.true()
+          expect(parseStub.calledOnce).to.be.true()
+          expect(performStub.calledOnce).to.be.true()
+          expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 200 from /test on successful POST with meta', done => {
       chai.request(app)
         .post('/test')
         .send({meta: {}})
+        .end((err, res) => {
+          expect(err).to.be.null()
+          expect(res).to.have.status(200)
+
+          expect(logStub.calledOnce).to.be.true()
+          expect(parseStub.calledOnce).to.be.true()
+          expect(performStub.calledOnce).to.be.true()
+          expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 200 from /test on successful POST with short-circuit payload', done => {
+      chai.request(app)
+        .post('/test')
+        .send({some: 'thing'})
+        .end((err, res) => {
+          expect(err).to.be.null()
+          expect(res).to.have.status(200)
+
+          expect(logStub.calledOnce).to.be.true()
+          expect(parseStub.calledOnce).to.be.true()
+          expect(performStub.calledOnce).to.be.true()
+          expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 200 from /test on successful DELETE with no payload', done => {
+      chai.request(app)
+        .delete('/test')
         .end((err, res) => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)

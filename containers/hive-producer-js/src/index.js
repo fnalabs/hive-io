@@ -18,15 +18,24 @@ export default async function main (CONFIG, micro) {
   // router for microservice
   async function route (req, res) {
     if (pingUrlRegexp.test(req.url)) return send(res, 200)
-    if (req.method !== 'POST') {
+    if (req.method === 'GET') {
       return send(res, 405, {errors: [
-        {message: 'Producers only accept POST requests'}
+        {message: 'Producers don\'t accept GET requests'}
       ]})
     }
 
     try {
       // construct data with parsed request data for query processing
-      const data = await json(req)
+      let data = req.headers['content-type'] === 'application/json'
+        ? await json(req)
+        : {}
+
+      // set payload if not previously set
+      if (Object.keys(data).length && !(data.payload || data.meta)) {
+        data = { payload: data }
+      }
+
+      // set meta with request data
       data.meta = {
         ...data.meta,
         headers: { ...req.headers },
