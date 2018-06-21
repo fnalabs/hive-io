@@ -31,7 +31,7 @@ const REFS = {
  */
 class PostCommandActor extends Actor {
   constructor (postSchema, logSchema, logSystem, actors, repository) {
-    super(parse`/posts/${'postId'}/content`, postSchema, repository)
+    super(parse`/posts/${'id'}`, postSchema, repository)
     Object.defineProperties(this, {
       [ACTORS]: { value: actors },
       [LOG_SCHEMA]: { value: logSchema },
@@ -44,28 +44,28 @@ class PostCommandActor extends Actor {
 
     let results
     switch (true) {
-      case data.payload && data.payload.content && data.payload.content.text && data.meta && data.meta.method === 'PATCH':
+      case data.payload && data.payload.text && data.meta && data.meta.method === 'PATCH':
         data.type = 'EditContent'
-        data.payload.postId = { id: data.meta.urlParams.postId }
+        data.payload.id = data.meta.urlParams.id
       case data.type === 'EditedContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].editContentActor.perform(model, data)
         break
 
       case data.meta && data.meta.method === 'PATCH':
-        data.payload = { postId: { id: data.meta.urlParams.postId } }
+        data.payload = { id: data.meta.urlParams.id }
       case data.type === 'EnabledContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].enableContentActor.perform(model, data)
         break
 
       case data.meta && data.meta.method === 'POST':
         data.type = 'CreateContent'
-        data.payload.postId = { id: uuidV4() }
+        data.payload.id = uuidV4()
       case data.type === 'CreatedContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].createContentActor.perform(model, data)
         break
 
       case data.meta && data.meta.method === 'DELETE':
-        data.payload = { postId: { id: data.meta.urlParams.postId } }
+        data.payload = { id: data.meta.urlParams.id }
       case data.type === 'DisabledContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].disableContentActor.perform(model, data)
         break
@@ -82,13 +82,13 @@ class PostCommandActor extends Actor {
 
   async replay (data) {
     let model
-    const isUrlParam = data.meta.urlParams && data.meta.urlParams.postId
-    const isPayload = data.payload && data.payload.postId && data.payload.postId.id
+    const isUrlParam = data.meta.urlParams && data.meta.urlParams.id
+    const isPayload = data.payload && data.payload.id
 
     if (isPayload || isUrlParam) {
       const id = isPayload
-        ? data.payload.postId.id
-        : data.meta.urlParams.postId
+        ? data.payload.id
+        : data.meta.urlParams.id
       const aggregate = await this.repository.get(id)
       return super.replay(aggregate)
     }

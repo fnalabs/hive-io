@@ -4,32 +4,48 @@ import { parse, Actor, Model, Schema } from 'hive-io'
 import mongoConnect from '../../util/mongoConnect'
 import LogSystem from '../../systems/LogSystem'
 
+import PostId from '../../schemas/json/PostId.json'
 import LogSchema from '../../schemas/json/Log.json'
+import ViewSchema from '../../schemas/json/View.json'
 import MongoSchema from '../../schemas/mongoose/Post'
 
 // private properties
 const LOG_SCHEMA = Symbol('Log schema')
 const LOG_SYSTEM = Symbol('Log System')
+const VIEW_SCHEMA = Symbol('View schema')
+
+// constants
+const REFS = {
+  'https://hiveframework.io/api/v1/models/PostId': PostId
+}
 
 /*
  * class PostQueryActor
  */
 class PostQueryActor extends Actor {
-  constructor (logSchema, logSystem, repository) {
-    super(parse`/posts/${'postId'}`, undefined, repository)
+  constructor (logSchema, logSystem, viewSchema, repository) {
+    super(parse`/posts/${'id'}`, undefined, repository)
     Object.defineProperties(this, {
       [LOG_SCHEMA]: { value: logSchema },
-      [LOG_SYSTEM]: { value: logSystem }
+      [LOG_SYSTEM]: { value: logSystem },
+      [VIEW_SCHEMA]: { value: viewSchema }
     })
   }
 
   async perform (modelInst, data) {
     if (data.meta.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
 
-    const model = typeof data.meta.urlParams.postId === 'string'
-      ? await this.repository.findOne({ _id: data.meta.urlParams.postId }).exec()
+    const model = typeof data.meta.urlParams.id === 'string'
+      ? await this.repository.findOne({ _id: data.meta.urlParams.id }).exec()
       : await this.repository.find().exec()
 
+    // emit 'view' to count
+    if (data.meta.urlParams.id) {
+      const view = await new Model({ type: 'View', payload: { id: data.meta.urlParams.id } }, this[VIEW_SCHEMA], { immutable: true })
+      this[LOG_SYSTEM].emit(view)
+    }
+
+    // emit 'log' for metrics
     const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostQueryActor' } }, this[LOG_SCHEMA], { immutable: true })
     this[LOG_SYSTEM].emit(log)
 
@@ -47,7 +63,8 @@ export default new Proxy(PostQueryActor, {
 
     const logSchema = await new Schema(LogSchema)
     const logSystem = await new LogSystem()
+    const viewSchema = await new Schema(ViewSchema, REFS)
 
-    return new PostQueryActor(logSchema, logSystem, model)
+    return new PostQueryActor(logSchema, logSystem, viewSchema, model)
   }
 })

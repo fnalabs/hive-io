@@ -11,34 +11,34 @@ chai.use(dirtyChai)
 
 // constants
 const createData = {
-  payload: { content: { text: 'something' } },
+  payload: { text: 'something' },
   meta: { urlParams: {}, method: 'POST' }
 }
 const createdData = {
   type: 'CreatedContent',
-  payload: { content: { text: 'something' }, postId: { id: '1' } }
+  payload: { text: 'something', id: '1' }
 }
 const disableData = {
-  meta: { urlParams: { postId: '1' }, method: 'DELETE' }
+  meta: { urlParams: { id: '1' }, method: 'DELETE' }
 }
 const disabledData = {
   type: 'DisabledContent',
-  payload: { postId: { id: '1' } }
+  payload: { id: '1' }
 }
 const editData = {
-  payload: { content: { text: 'something else' } },
-  meta: { urlParams: { postId: '1' }, method: 'PATCH' }
+  payload: { text: 'something else' },
+  meta: { urlParams: { id: '1' }, method: 'PATCH' }
 }
 const editedData = {
   type: 'EditedContent',
-  payload: { content: { text: 'something else' }, postId: { id: '1' } }
+  payload: { text: 'something else', id: '1' }
 }
 const enableData = {
-  meta: { urlParams: { postId: '1' }, method: 'PATCH' }
+  meta: { urlParams: { id: '1' }, method: 'PATCH' }
 }
 const enabledData = {
   type: 'EnabledContent',
-  payload: { postId: { id: '1' } }
+  payload: { id: '1' }
 }
 
 // tests
@@ -86,10 +86,10 @@ describe('PostCommandActor', () => {
         const { model } = await postCommandActor.perform(replayed.model, createData)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(isUUID(model.postId.id)).to.be.true()
-        expect(model.content.text).to.equal('something')
-        expect(model.content.edited).to.be.false()
-        expect(model.content.enabled).to.be.true()
+        expect(isUUID(model.id)).to.be.true()
+        expect(model.text).to.equal('something')
+        expect(model.edited).to.be.false()
+        expect(model.enabled).to.be.true()
         expect(emitSpy.calledOnce).to.be.true()
       })
 
@@ -97,7 +97,7 @@ describe('PostCommandActor', () => {
         postCommandActor = await new PostCommandActor({ async get () {} })
 
         const data1 = {
-          payload: { content: { text: null } },
+          payload: { text: null },
           meta: { urlParams: {}, method: 'POST' }
         }
         try {
@@ -107,10 +107,7 @@ describe('PostCommandActor', () => {
         }
 
         const data2 = {
-          payload: {
-            postId: { id: 1 },
-            content: { text: 'something' }
-          },
+          payload: { id: 1, text: 'something' },
           meta: { urlParams: {}, method: 'POST' }
         }
         try {
@@ -124,7 +121,7 @@ describe('PostCommandActor', () => {
         postCommandActor = await new PostCommandActor({ async get () {} })
 
         try {
-          await postCommandActor.perform({ postId: { id: '1' } }, createData)
+          await postCommandActor.perform({ id: '1' }, createData)
         } catch (e) {
           expect(e.message).to.equal('#CreateContent: 1 already exists')
         }
@@ -139,9 +136,9 @@ describe('PostCommandActor', () => {
         const { model } = await postCommandActor.perform(replayed.model, disableData)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(model.content.text).to.equal('something')
-        expect(model.content.edited).to.be.false()
-        expect(model.content.enabled).to.be.false()
+        expect(model.text).to.equal('something')
+        expect(model.edited).to.be.false()
+        expect(model.enabled).to.be.false()
         expect(emitSpy.called).to.be.true()
       })
 
@@ -166,9 +163,9 @@ describe('PostCommandActor', () => {
         const { model } = await postCommandActor.perform(replayed.model, editData)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(model.content.text).to.equal('something else')
-        expect(model.content.edited).to.be.true()
-        expect(model.content.enabled).to.be.false()
+        expect(model.text).to.equal('something else')
+        expect(model.edited).to.be.true()
+        expect(model.enabled).to.be.false()
         expect(emitSpy.called).to.be.true()
       })
 
@@ -176,8 +173,8 @@ describe('PostCommandActor', () => {
         postCommandActor = await new PostCommandActor({ async get () { return [createdData, disabledData] } })
 
         const data = {
-          payload: { content: { text: null } },
-          meta: { urlParams: { postId: 1 }, method: 'PATCH' }
+          payload: { text: null },
+          meta: { urlParams: { id: 1 }, method: 'PATCH' }
         }
         const { model } = await postCommandActor.replay(data)
 
@@ -207,9 +204,9 @@ describe('PostCommandActor', () => {
         const { model } = await postCommandActor.perform(replayed.model, enableData)
 
         expect(model).to.be.an.instanceof(Model)
-        expect(model.content.text).to.equal('something else')
-        expect(model.content.edited).to.be.true()
-        expect(model.content.enabled).to.be.true()
+        expect(model.text).to.equal('something else')
+        expect(model.edited).to.be.true()
+        expect(model.enabled).to.be.true()
         expect(emitSpy.called).to.be.true()
       })
 
@@ -240,7 +237,7 @@ describe('PostCommandActor', () => {
 
   describe('#replay', () => {
     it('should throw an error if passed an event out of sequence', async () => {
-      postCommandActor = await new PostCommandActor({ async get () { return { type: 'Post', payload: { postId: { id: '1' }, content: { text: 'something', enabled: true, edited: false } } } } })
+      postCommandActor = await new PostCommandActor({ async get () { return { type: 'Post', payload: { id: '1', text: 'something', enabled: true, edited: false } } } })
 
       try {
         await postCommandActor.replay(editData)

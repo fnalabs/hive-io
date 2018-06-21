@@ -19,17 +19,17 @@ const REFS = {
  */
 class EditContentActor extends MessageActor {
   constructor (postSchema, editedContentSchema, editContentSchema) {
-    super(parse`/posts/${'postId'}/content`, postSchema, editedContentSchema, editContentSchema)
+    super(parse`/posts/${'id'}/content`, postSchema, editedContentSchema, editContentSchema)
   }
 
   async perform (modelInst, data) {
-    if (typeof modelInst === 'undefined') throw new Error(`#${data.type}: ${data.payload.postId.id} doesn't exist`)
+    if (typeof modelInst === 'undefined') throw new Error(`#${data.type}: ${data.payload.id} doesn't exist`)
 
     const { command, event, model } = await super.perform(modelInst, data)
 
-    model.content.edited = true
+    model.edited = true
 
-    return { id: model.postId.id, command, event, model }
+    return { id: model.id, command, event, model }
   }
 }
 

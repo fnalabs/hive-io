@@ -8,5 +8,7 @@ export default Object.freeze({
     new: true,
     setDefaultsOnInsert: true,
     upsert: true
-  })
+  }),
+  VIEW_HOST: process.env.VIEW_HOST || 'hive-producer-js',
+  VIEW_PORT: process.env.VIEW_PORT || '3000'
 })

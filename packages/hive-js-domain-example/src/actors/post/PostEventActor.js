@@ -26,13 +26,13 @@ class PostEventActor extends Actor {
   }
 
   async perform (model, data) {
-    const id = data.payload.postId.id
+    const id = data.payload.id
     const conditions = { _id: id }
 
     let update
     switch (data.type) {
       case 'CreatedContent':
-        update = { _id: data.payload.postId.id, text: data.payload.content.text }
+        update = { _id: data.payload.id, text: data.payload.text }
         break
 
       case 'DisabledContent':
@@ -40,7 +40,7 @@ class PostEventActor extends Actor {
         break
 
       case 'EditedContent':
-        update = { $set: { text: data.payload.content.text, edited: true } }
+        update = { $set: { text: data.payload.text, edited: true } }
         break
 
       case 'EnabledContent':

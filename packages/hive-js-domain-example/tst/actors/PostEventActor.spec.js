@@ -11,27 +11,27 @@ chai.use(dirtyChai)
 // constants
 const createdData = {
   type: 'CreatedContent',
-  payload: { content: { text: 'something' }, postId: { id: '1' } },
+  payload: { text: 'something', id: '1' },
   meta: { version: 1 }
 }
 const disabledData = {
   type: 'DisabledContent',
-  payload: { postId: { id: '1' } },
+  payload: { id: '1' },
   meta: { version: 2 }
 }
 const editedData = {
   type: 'EditedContent',
-  payload: { content: { text: 'something else' }, postId: { id: '1' } },
+  payload: { text: 'something else', id: '1' },
   meta: { version: 3 }
 }
 const enabledData = {
   type: 'EnabledContent',
-  payload: { postId: { id: '1' } },
+  payload: { id: '1' },
   meta: { version: 4 }
 }
 const viewData = {
   type: 'ViewedContent',
-  payload: { postId: { id: '1' } }
+  payload: { id: '1' }
 }
 
 // tests
@@ -142,7 +142,7 @@ describe('PostEventActor', () => {
     it('should throw an error if passed a message it doesn\'t understand', async () => {
       const data1 = {
         type: 'Something',
-        payload: { postId: { id: 'id' } }
+        payload: { id: 'id' }
       }
       try {
         await postEventActor.perform(model, data1)

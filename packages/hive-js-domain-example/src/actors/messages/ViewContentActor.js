@@ -1,13 +1,8 @@
 // imports
-import { parse, Actor, Model, Schema } from 'hive-io'
-import LogSystem from '../../systems/LogSystem'
+import { parse, Actor, Schema } from 'hive-io'
 
-import LogSchema from '../../schemas/json/Log.json'
 import PostIdSchema from '../../schemas/json/PostId.json'
 import ViewedContentSchema from '../../schemas/json/events/ViewedContent.json'
-
-// private properties
-const LOG_SCHEMA = Symbol('Log schema')
 
 // constants
 const REFS = {
@@ -18,20 +13,16 @@ const REFS = {
  * class ViewContentActor
  */
 class ViewContentActor extends Actor {
-  constructor (viewedContentSchema, logSchema, logSystem) {
-    super(parse`/posts/${'postId'}/viewed`, viewedContentSchema, logSystem)
-    Object.defineProperty(this, LOG_SCHEMA, { value: logSchema })
+  constructor (viewedContentSchema) {
+    super(parse`/posts/${'id'}`, viewedContentSchema)
   }
 
   async perform (modelInst, data) {
     data.type = 'ViewedContent'
-    data.payload = { postId: { id: data.meta.urlParams.postId } }
+    data.payload = { id: data.meta.urlParams.id }
     const { model } = await super.perform(modelInst, data)
 
-    const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostCommandActor' } }, this[LOG_SCHEMA], { immutable: true })
-    this.repository.emit(log)
-
-    return { id: data.meta.urlParams.postId, model }
+    return { id: data.meta.urlParams.id, model }
   }
 }
 
@@ -41,8 +32,6 @@ class ViewContentActor extends Actor {
 export default new Proxy(ViewContentActor, {
   construct: async function (ViewContentActor) {
     const viewedContentSchema = await new Schema(ViewedContentSchema, REFS)
-    const logSchema = await new Schema(LogSchema)
-    const logSystem = await new LogSystem()
-    return new ViewContentActor(viewedContentSchema, logSchema, logSystem)
+    return new ViewContentActor(viewedContentSchema)
   }
 })

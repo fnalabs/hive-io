@@ -10,7 +10,7 @@ chai.use(dirtyChai)
 
 // constants
 const getAll = { meta: { method: 'GET', urlParams: {} } }
-const getOne = { meta: { method: 'GET', urlParams: { postId: '1' } } }
+const getOne = { meta: { method: 'GET', urlParams: { id: '1' } } }
 const postError = { meta: { method: 'POST' } }
 
 // tests
@@ -76,7 +76,7 @@ describe('PostQueryActor', () => {
     expect(modelMock.find.called).to.be.false()
     expect(modelMock.findOne.calledOnce).to.be.true()
     expect(modelMock.exec.calledOnce).to.be.true()
-    expect(emitSpy.calledOnce).to.be.true()
+    expect(emitSpy.calledTwice).to.be.true()
   })
 
   it('should throw an error if HTTP method is anything other than GET', async () => {

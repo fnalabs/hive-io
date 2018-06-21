@@ -18,17 +18,17 @@ const REFS = {
  */
 class EnableContentActor extends MessageActor {
   constructor (postSchema, enabledContentSchema) {
-    super(parse`/posts/${'postId'}/content`, postSchema, enabledContentSchema)
+    super(parse`/posts/${'id'}/content`, postSchema, enabledContentSchema)
   }
 
   async perform (modelInst, data) {
-    if (modelInst.content.enabled === true) throw new Error('#EnableContent: content already enabled')
+    if (modelInst.enabled === true) throw new Error('#EnableContent: content already enabled')
 
     const { command, event, model } = await super.perform(modelInst, data)
 
-    model.content.enabled = true
+    model.enabled = true
 
-    return { id: model.postId.id, command, event, model }
+    return { id: model.id, command, event, model }
   }
 }
 
