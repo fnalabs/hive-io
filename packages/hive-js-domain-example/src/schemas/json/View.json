@@ -1,6 +1,6 @@
 {
-  "title": "ViewedContent",
-  "description": "event used to capture log data for Post Content views",
+  "title": "View",
+  "description": "value object that defines view logs",
   "$id": "https://hiveframework.io/api/v1/models/View",
   "type": "object",
   "properties": {

@@ -4,15 +4,15 @@
   "$id": "https://hiveframework.io/api/v1/events/EditedContent",
   "type": "object",
   "properties": {
-    "postId": {
+    "id": {
       "description": "Post Id Value Object",
-      "$ref": "https://hiveframework.io/api/v1/models/PostId"
+      "$id": "https://hiveframework.io/api/v1/models/PostId#/properties/id"
     },
-    "content": {
+    "text": {
       "description": "main Post Content",
-      "$ref": "https://hiveframework.io/api/v1/models/Content"
+      "$id": "https://hiveframework.io/api/v1/models/Content#/properties/text"
     }
   },
   "additionalProperties": false,
-  "required": ["postId", "content"]
+  "required": ["id", "text"]
 }

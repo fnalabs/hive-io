@@ -5,7 +5,8 @@
   "type": "object",
   "properties": {
     "actor": {
-      "description": "Microservice Actor"
+      "description": "Microservice Actor",
+      "type": "string"
     },
     "headers": {
       "description": "HTTP headers",
@@ -23,6 +24,10 @@
       "description": "Hive^io url params",
       "type": "object"
     },
-    "additionalProperties": false
-  }
+    "version": {
+      "description": "version sent with request",
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
 }

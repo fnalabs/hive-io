@@ -4,11 +4,11 @@
   "$id": "https://hiveframework.io/api/v1/events/EnabledContent",
   "type": "object",
   "properties": {
-    "postId": {
+    "id": {
       "description": "Post Id Value Object",
-      "$ref": "https://hiveframework.io/api/v1/models/PostId"
+      "$id": "https://hiveframework.io/api/v1/models/PostId#/properties/id"
     }
   },
   "additionalProperties": false,
-  "required": ["postId"]
+  "required": ["id"]
 }
