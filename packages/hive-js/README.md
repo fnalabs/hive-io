@@ -3,6 +3,7 @@
 [![NPM Version][npm-image]][npm-url]
 [![License][license-image]][license-url]
 [![Build Status][circle-image]][circle-url]
+[![BrowserStack Status][browserstack-image]][browserstack-url]
 [![Code Coverage][codecov-image]][codecov-url]
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
@@ -16,6 +17,7 @@ This is where the business logic exists in your codebase. The [Actor Model](http
 - [API](#api)
 - [Examples](#examples)
 - [Future](#future)
+- [Contributing](#contributing)
 - [Changelog](#changelog)
 
 ## Installing
@@ -35,7 +37,20 @@ More examples can be found in the 2 example npm packages:
 - integrate with client-side presentation libraries
 - feature requests via [issues](https://github.com/fnalabs/hive-js/issues)
 
+## Contributing
+We are currently drafting our contributing guide!
+
+*Browser compatibility testing provided by:*
+
+<a href="https://browserstack.com"><img height="48" src="https://fnalabs.github.io/fnalabs-assets/assets/Browserstack-logo.svg" alt="BrowserStack logo"></a>
+
 ## Changelog
+#### v2.0.0-rc.2
+- added browser unit test coverage for `hive-io` classes in all evergreen browsers, desktop and mobile
+- improved how data in ingested in Rest, Producer, and Stream Processor
+- modified examples
+- updated dependencies
+
 #### v2.0.0-rc.1
 - modified Stream Processor for pessimistic concurrency
 - modified Stream Processor to publish to Log if in `stream-processor` mode and Actors return values from their `perform` method
@@ -91,6 +106,9 @@ More examples can be found in the 2 example npm packages:
 
 [circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js.svg
 [circle-url]: https://circleci.com/gh/fnalabs/hive-js
+
+[browserstack-image]: https://www.browserstack.com/automate/badge.svg?badge_key=aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e
+[browserstack-url]: https://www.browserstack.com/automate/public-build/aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e
 
 [codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js/v2.0.0.svg
 [codecov-url]: https://codecov.io/gh/fnalabs/hive-js

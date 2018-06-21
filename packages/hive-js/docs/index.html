@@ -274,6 +274,7 @@
     <p><a href="https://www.npmjs.com/package/hive-io"><img src="https://img.shields.io/npm/v/hive-io.svg" alt="NPM Version"></a>
 <a href="https://github.com/fnalabs/hive-js/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
 <a href="https://circleci.com/gh/fnalabs/hive-js"><img src="https://img.shields.io/circleci/project/github/fnalabs/hive-js.svg" alt="Build Status"></a>
+<a href="https://www.browserstack.com/automate/public-build/aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e"><img src="https://www.browserstack.com/automate/badge.svg?badge_key=aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e" alt="BrowserStack Status"></a>
 <a href="https://codecov.io/gh/fnalabs/hive-js"><img src="https://img.shields.io/codecov/c/github/fnalabs/hive-js/v2.0.0.svg" alt="Code Coverage"></a>
 <a href="https://david-dm.org/fnalabs/hive-js"><img src="https://img.shields.io/david/fnalabs/hive-js.svg" alt="Dependency Status"></a>
 <a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a></p>
@@ -315,21 +316,25 @@
 
   
     <p>The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually <code>type</code> and <code>payload</code>.</p>
-<p><strong><em>NOTE:</em></strong> This structure <strong>must</strong> be used whenever you interface with the API. It is the output structure when translating a <code>Model</code> to valid JSON.</p>
+<p><strong><em>NOTE:</em></strong> These structures <strong>must</strong> be used whenever you interface with the API and specify <code>application/json</code> as the <code>Content-Type</code>. It is the output structure when translating a <code>Model</code> to valid JSON.</p>
+<pre class='hljs'><span class="hljs-comment">// <span class="hljs-doctag">NOTE:</span> this is a short-circuit for the `payload` key in the next example when sending data to one of the container types</span>
+{
+  ...modelData,
+}</pre>
 <pre class='hljs'>{
-  [type]: <span class="hljs-built_in">String</span>, <span class="hljs-comment">// &lt;associated_JSON_Schema_title&gt;</span>
+  [type]: <span class="hljs-built_in">String</span>, <span class="hljs-comment">// associated JSON Schema {title:"top level title"}</span>
   [payload]: {
     ...modelData,
   },
   [meta]: {
     [headers]: { ...request.headers }, <span class="hljs-comment">// All request headers defined</span>
-    [method]: request.method, <span class="hljs-comment">// HTTP verb (GET, POST, PATCH, PUT, DELETE, etc.)</span>
+    [method]: request.method, <span class="hljs-comment">// HTTP verb (GET, POST, PATCH, DELETE, etc.)</span>
     [url]: parse(request.url, <span class="hljs-literal">true</span>), <span class="hljs-comment">// Node.js Legacy URL Object</span>
     [urlParams]: actor.parse(request.url), <span class="hljs-comment">// Hive^io URL params defined in Actor constructor</span>
     [version]: <span class="hljs-built_in">Number</span>, <span class="hljs-comment">// Optional verion to help manage concurrency</span>
   },
-  [errors]: [<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">list_of_Errors</span>&gt;</span>],
-}</span></pre>
+  [errors]: [<span class="hljs-string">"list of error strings"</span>],
+}</pre>
 
   
 </section>
@@ -1940,7 +1945,14 @@
   </h2>
 
   
-    <h4>v2.0.0-rc.1</h4>
+    <h4>v2.0.0-rc.2</h4>
+<ul>
+<li>added browser unit test coverage for <code>hive-io</code> classes in all evergreen browsers, desktop and mobile</li>
+<li>improved how data in ingested in Rest, Producer, and Stream Processor</li>
+<li>modified examples</li>
+<li>updated dependencies</li>
+</ul>
+<h4>v2.0.0-rc.1</h4>
 <ul>
 <li>modified Stream Processor algorithm for pessimistic concurrency</li>
 <li>modified Stream Processor to publish to Log if in <code>stream-processor</code> mode and Actors return values from their <code>perform</code> method</li>

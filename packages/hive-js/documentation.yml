@@ -4,6 +4,7 @@ toc:
       [![NPM Version][npm-image]][npm-url]
       [![License][license-image]][license-url]
       [![Build Status][circle-image]][circle-url]
+      [![BrowserStack Status][browserstack-image]][browserstack-url]
       [![Code Coverage][codecov-image]][codecov-url]
       [![Dependency Status][depstat-image]][depstat-url]
       [![JavaScript Style Guide][style-image]][style-url]
@@ -25,6 +26,9 @@ toc:
       [circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js.svg
       [circle-url]: https://circleci.com/gh/fnalabs/hive-js
 
+      [browserstack-image]: https://www.browserstack.com/automate/badge.svg?badge_key=aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e
+      [browserstack-url]: https://www.browserstack.com/automate/public-build/aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e
+
       [codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js/v2.0.0.svg
       [codecov-url]: https://codecov.io/gh/fnalabs/hive-js
 
@@ -43,22 +47,29 @@ toc:
     description: |
       The network data interface structure follows the Flux Standard Action specification. This means you can expect at least one of the following keys, usually `type` and `payload`.
 
-      ***NOTE:*** This structure **must** be used whenever you interface with the API. It is the output structure when translating a `Model` to valid JSON.
+      ***NOTE:*** These structures **must** be used whenever you interface with the API and specify `application/json` as the `Content-Type`. It is the output structure when translating a `Model` to valid JSON.
+
+      ```javascript
+      // NOTE: this is a short-circuit for the `payload` key in the next example when sending data to one of the container types
+      {
+        ...modelData,
+      }
+      ```
 
       ```javascript
       {
-        [type]: String, // <associated_JSON_Schema_title>
+        [type]: String, // associated JSON Schema {title:"top level title"}
         [payload]: {
           ...modelData,
         },
         [meta]: {
           [headers]: { ...request.headers }, // All request headers defined
-          [method]: request.method, // HTTP verb (GET, POST, PATCH, PUT, DELETE, etc.)
+          [method]: request.method, // HTTP verb (GET, POST, PATCH, DELETE, etc.)
           [url]: parse(request.url, true), // Node.js Legacy URL Object
           [urlParams]: actor.parse(request.url), // Hive^io URL params defined in Actor constructor
           [version]: Number, // Optional verion to help manage concurrency
         },
-        [errors]: [<list_of_Errors>],
+        [errors]: ["list of error strings"],
       }
       ```
   - name: Schema
@@ -71,6 +82,12 @@ toc:
   - parse
   - name: Changelog
     description: |
+      #### v2.0.0-rc.2
+      - added browser unit test coverage for `hive-io` classes in all evergreen browsers, desktop and mobile
+      - improved how data in ingested in Rest, Producer, and Stream Processor
+      - modified examples
+      - updated dependencies
+
       #### v2.0.0-rc.1
       - modified Stream Processor algorithm for pessimistic concurrency
       - modified Stream Processor to publish to Log if in `stream-processor` mode and Actors return values from their `perform` method
