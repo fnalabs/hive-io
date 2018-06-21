@@ -25,7 +25,7 @@ baseInstall () {
   #   - bash-completion coreutils grep tree
   ###
   printLine "Installing environment dependencies"
-  apk add --update --no-cache \
+  apk --no-cache add \
     coreutils \
     dumb-init \
     grep \
