@@ -30,7 +30,7 @@ export default async function main (CONFIG, micro) {
     if (pingUrlRegexp.test(req.url)) return send(res, 200)
 
     // if Stream Processor type is consumer, return 400
-    if (!isProducer) {
+    if (isConsumer) {
       return send(res, 400, {errors: [
         {message: 'This Stream Processor is deployed as a Consumer only'}
       ]})
@@ -43,7 +43,16 @@ export default async function main (CONFIG, micro) {
 
     try {
       // construct data with parsed request data for query processing
-      const data = await json(req)
+      let data = req.headers['content-type'] === 'application/json'
+        ? await json(req)
+        : {}
+
+      // set payload if not previously set
+      if (Object.keys(data).length && !(data.payload || data.meta)) {
+        data = { payload: data }
+      }
+
+      // set meta with request data
       data.meta = {
         ...data.meta,
         headers: { ...req.headers },
@@ -57,7 +66,7 @@ export default async function main (CONFIG, micro) {
       const { id, event, model } = await actor.perform(aggregate.model, data)
       await repository.record(id, event, model, cache)
 
-      return send(res, 200, event)
+      return send(res, 200, model)
     } catch (e) {
       return send(res, e.statusCode || 400, {errors: [e.message]})
     }
