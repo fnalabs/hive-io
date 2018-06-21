@@ -21,7 +21,7 @@ ADD ${APP_SOURCE} ${APP_PATH}
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
-RUN apk add --update --no-cache bash-completion && bash ./bin/install
+RUN apk --no-cache add bash-completion && bash ./bin/install
 
 # expose standard Node.js port of 3000
 EXPOSE ${PORT}
