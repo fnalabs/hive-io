@@ -18,7 +18,16 @@ export default async function main (CONFIG, micro) {
 
     try {
       // construct data with parsed request data for query processing
-      const data = req.method === 'GET' ? {} : await json(req)
+      let data = req.headers['content-type'] === 'application/json'
+        ? await json(req)
+        : {}
+
+      // set payload if not previously set
+      if (Object.keys(data).length && !(data.payload || data.meta)) {
+        data = { payload: data }
+      }
+
+      // set meta with request data
       data.meta = {
         ...data.meta || {},
         headers: { ...req.headers },

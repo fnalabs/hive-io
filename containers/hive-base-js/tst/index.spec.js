@@ -18,6 +18,8 @@ describe('app', () => {
       sinon.stub().returns({}),
       sinon.stub().returns({}),
       sinon.stub().returns({}),
+      sinon.stub().returns({}),
+      sinon.stub().returns({}),
       sinon.stub().throws(Error)
     ]
 
@@ -75,10 +77,42 @@ describe('app', () => {
         })
     })
 
-    it('should respond with 200 from /test on successful post', done => {
+    it('should respond with 200 from /test on successful post with payload', done => {
+      chai.request(app)
+        .post('/test')
+        .send({payload: {}})
+        .end((err, res) => {
+          expect(err).to.be.null()
+          expect(res).to.have.status(200)
+
+          expect(parseStub.calledOnce).to.be.true()
+          expect(performStub.calledOnce).to.be.true()
+          expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 200 from /test on successful post with meta', done => {
       chai.request(app)
         .post('/test')
         .send({meta: {}})
+        .end((err, res) => {
+          expect(err).to.be.null()
+          expect(res).to.have.status(200)
+
+          expect(parseStub.calledOnce).to.be.true()
+          expect(performStub.calledOnce).to.be.true()
+          expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 200 from /test on successful post with short-circuit data payload', done => {
+      chai.request(app)
+        .post('/test')
+        .send({some: 'thing'})
         .end((err, res) => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
