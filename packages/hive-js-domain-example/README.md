@@ -22,21 +22,23 @@ This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/p
 
 ### Endpoints
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
-- `http://localhost/posts/<postId> (GET)`
 - `http://localhost/posts (GET, POST)`
-    - CreateContent [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/commands/CreateContent.json)
-        - PostId [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/PostId.json)
-        - Content [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/Content.json)
-- `http://localhost/posts/<postId>/content (PATCH, DELETE)`
-    - `PATCH` EditContent [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/EditContent.json)
-        - PostId [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/PostId.json)
-        - Content [API JSON Schema ref](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/Content.json)
-    - `PATCH` EnableContent Payload = `{}`
-    - `DELETE` DisableContent Payload = `{}`
-- `http://localhost/posts/<postId>/viewed (POST)`
-    - ViewContent Payload = `{}`
+    - POST [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
+        ```
+        {
+          "text": "something"
+        }
+        ```
+- `http://localhost/posts/<postId> (GET, PATCH, DELETE)`
+    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
+        ```
+        {
+          "text": "something different"
+        }
+        ```
+    - DELETE
 
-***NOTE:*** Network [data payloads](https://fnalabs.github.io/hive-js/#data-interface) follow the Flux Standard Action specification for network transport.
+***NOTE:*** Network [data payloads](https://fnalabs.github.io/hive-js/#data-interface) follow the Flux Standard Action specification for network transport. `type` and `payload` are derived from the routes and data sent respectively in this example.
 
 ### [Source Code](https://github.com/fnalabs/hive-js-domain-example)
 
