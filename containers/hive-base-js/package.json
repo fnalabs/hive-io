@@ -1,6 +1,6 @@
 {
   "name": "hive-rest-js",
-  "version": "2.0.0-rc.1",
+  "version": "2.0.0-rc.2",
   "description": "Starter kit for Hive^io framework REST services in Node.js w/ Micro implementations in Docker",
   "main": "./bin/start",
   "scripts": {
