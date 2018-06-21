@@ -24,11 +24,21 @@ This example contains a single resource to handle CRUD functionality of a `Post`
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
 - `http://localhost/posts (GET, POST)`
     - POST [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
+        ```
+        {
+          "text": "something"
+        }
+        ```
 - `http://localhost/posts/<postId> (GET, PATCH, DELETE)`
     - PATCH [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
-    - DELETE Payload = `{}`
+        ```
+        {
+          "text": "something different"
+        }
+        ```
+    - DELETE
 
-***NOTE:*** Network [data payloads](https://fnalabs.github.io/hive-js/#data-interface) follow the Flux Standard Action specification for network transport.
+***NOTE:*** Network [data payloads](https://fnalabs.github.io/hive-js/#data-interface) follow the Flux Standard Action specification for network transport. `type` and `payload` are derived from the routes and data sent respectively in this example.
 
 ### [Source Code](https://github.com/fnalabs/hive-js-rest-example)
 
