@@ -22,12 +22,15 @@ if (BROWSER_ENV) {
     const FRAGMENT = Symbol('DocumentFragment')
     EventSystem = class EventTargetAdapter {
       constructor () { this[FRAGMENT] = document.createDocumentFragment() }
+
       addEventListener (type, listener, options) {
         return this[FRAGMENT].addEventListener(type, listener, options)
       }
+
       removeEventListener (type, listener, options) {
         return this[FRAGMENT].removeEventListener(type, listener, options)
       }
+
       dispatchEvent (event) { return this[FRAGMENT].dispatchEvent(event) }
     }
   }
