@@ -1,10 +1,13 @@
 // expose library
-const actors = require('./dist/Actor')
-exports.Actor = actors.Actor
-exports.MessageActor = actors.MessageActor
-exports.System = require('./dist/System')
+const { Actor, MessageActor } = require('./dist/Actor')
+exports.Actor = Actor
+exports.MessageActor = MessageActor
 
-exports.Model = require('./dist/Model')
-exports.Schema = require('schema-json-js')
+const { VERSION, Model, Schema } = require('model-json-js')
+exports.VERSION = VERSION
+exports.Model = Model
+exports.Schema = Schema
+
+exports.System = require('./dist/System')
 
 exports.parse = require('./dist/util').parse

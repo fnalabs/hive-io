@@ -2,10 +2,8 @@
 // imports
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
-import Schema from 'schema-json-js'
 
-import Model from '../src/Model'
-import { VERSION } from '../src/Model/BaseModel'
+import { Model, Schema } from 'model-json-js'
 
 import { Actor, MessageActor } from '../src/Actor'
 import { parse } from '../src/util'
@@ -164,11 +162,12 @@ describe('class MessageActor', () => {
   })
 
   describe('#assign', () => {
-    it('should assign versioned data to a model', () => {
-      const model = createTestActor.assign({[VERSION]: 1}, { view: 1 }, { ...createData.meta, version: 2 })
+    it('should assign versioned data to a model', async () => {
+      const initModel = await new Model({ type: 'CreateTest', payload: { id: 'id' }, meta: { version: 1 } }, createTestSchema)
+      const model = createTestActor.assign(initModel, { view: 1 }, { version: 2 })
 
-      expect(model).to.deep.equal({ view: 1 })
-      expect(model[VERSION]).to.equal(2)
+      expect(model).to.deep.equal({ id: 'id', view: 1 })
+      expect(Model.version(model)).to.equal(2)
     })
 
     it('should ignore the empty meta and assign the data as usual', () => {
@@ -177,9 +176,11 @@ describe('class MessageActor', () => {
       expect(model).to.deep.equal({ view: 1 })
     })
 
-    it('should throw and error for trying to assign out-of-sequence versioned data to a model', () => {
+    it('should throw and error for trying to assign out-of-sequence versioned data to a model', async () => {
       try {
-        viewTestActor.assign({[VERSION]: 2}, { view: 1 }, { ...viewData.meta, version: 2 })
+        const model = await new Model({ type: 'ViewTest', meta: { version: 2 } }, viewTestSchema)
+        viewTestActor.assign(model, undefined, { version: 2 })
+        throw new Error('we shouldn\'t make it here')
       } catch (e) {
         expect(e.message).to.equal('data out of sequence')
       }

@@ -6,8 +6,7 @@ tmp*
 tst
 .*
 package.tar.gz
-documentation.yml
-karma.conf.js
+karma.*
 
 # Logs
 logs

@@ -50,81 +50,161 @@ module.exports = function (config) {
 
     // define browsers
     customLaunchers: {
-      bs_android: {
+      bs_android_latest: {
+        base: 'BrowserStack',
+        browser: 'Android',
+        device: 'Google Pixel 2',
+        os: 'Android',
+        os_version: '9.0',
+        realMobile: true
+      },
+      'bs_android_latest-1': {
         base: 'BrowserStack',
         browser: 'Android',
         device: 'Google Pixel 2',
         os: 'Android',
         os_version: '8.0',
-        real_mobile: true
+        realMobile: true
       },
-      bs_chrome_mac: {
+      bs_chrome_mac_latest: {
         base: 'BrowserStack',
         browser: 'Chrome',
-        browser_version: '67.0',
+        browser_version: '75.0',
         os: 'OS X',
-        os_version: 'High Sierra'
+        os_version: 'Mojave'
       },
-      bs_chrome_win: {
+      'bs_chrome_mac_latest-1': {
         base: 'BrowserStack',
         browser: 'Chrome',
-        browser_version: '67.0',
+        browser_version: '74.0',
+        os: 'OS X',
+        os_version: 'Mojave'
+      },
+      'bs_chrome_mac_latest-2': {
+        base: 'BrowserStack',
+        browser: 'Chrome',
+        browser_version: '73.0',
+        os: 'OS X',
+        os_version: 'Mojave'
+      },
+      bs_chrome_win_latest: {
+        base: 'BrowserStack',
+        browser: 'Chrome',
+        browser_version: '75.0',
         os: 'Windows',
         os_version: '10'
       },
-      bs_edge_win: {
+      'bs_chrome_win_latest-1': {
+        base: 'BrowserStack',
+        browser: 'Chrome',
+        browser_version: '74.0',
+        os: 'Windows',
+        os_version: '10'
+      },
+      'bs_chrome_win_latest-2': {
+        base: 'BrowserStack',
+        browser: 'Chrome',
+        browser_version: '73.0',
+        os: 'Windows',
+        os_version: '10'
+      },
+      bs_edge_win_latest: {
+        base: 'BrowserStack',
+        browser: 'Edge',
+        browser_version: '18.0',
+        os: 'Windows',
+        os_version: '10'
+      },
+      'bs_edge_win_latest-1': {
         base: 'BrowserStack',
         browser: 'Edge',
         browser_version: '17.0',
         os: 'Windows',
         os_version: '10'
       },
-      bs_firefox_mac: {
+      bs_firefox_mac_latest: {
         base: 'BrowserStack',
         browser: 'Firefox',
-        browser_version: '60.0',
+        browser_version: '66.0',
         os: 'OS X',
-        os_version: 'High Sierra'
+        os_version: 'Mojave'
       },
-      bs_firefox_win: {
+      'bs_firefox_mac_latest-1': {
         base: 'BrowserStack',
         browser: 'Firefox',
-        browser_version: '60.0',
+        browser_version: '65.0',
+        os: 'OS X',
+        os_version: 'Mojave'
+      },
+      'bs_firefox_mac_latest-2': {
+        base: 'BrowserStack',
+        browser: 'Firefox',
+        browser_version: '64.0',
+        os: 'OS X',
+        os_version: 'Mojave'
+      },
+      bs_firefox_win_latest: {
+        base: 'BrowserStack',
+        browser: 'Firefox',
+        browser_version: '66.0',
+        os: 'Windows',
+        os_version: '10'
+      },
+      'bs_firefox_win_latest-1': {
+        base: 'BrowserStack',
+        browser: 'Firefox',
+        browser_version: '65.0',
+        os: 'Windows',
+        os_version: '10'
+      },
+      'bs_firefox_win_latest-2': {
+        base: 'BrowserStack',
+        browser: 'Firefox',
+        browser_version: '64.0',
         os: 'Windows',
         os_version: '10'
       },
       bs_iphone: {
         base: 'BrowserStack',
         browser: 'iPhone',
-        device: 'iPhone 8',
-        os: 'ios',
-        os_version: '11.0'
+        device: 'iPhone XS',
+        os_version: '12',
+        realMobile: true
       },
       bs_opera_mac: {
         base: 'BrowserStack',
         browser: 'Opera',
-        browser_version: '12.15',
+        browser_version: '60',
         os: 'OS X',
-        os_version: 'High Sierra'
+        os_version: 'Mojave'
+      },
+      bs_opera_win: {
+        base: 'BrowserStack',
+        browser: 'Opera',
+        browser_version: '60',
+        os: 'Windows',
+        os_version: '10'
       },
       bs_safari_mac: {
         base: 'BrowserStack',
         browser: 'Safari',
-        browser_version: '11.1',
+        browser_version: '12',
         os: 'OS X',
-        os_version: 'High Sierra'
+        os_version: 'Mojave'
       }
     },
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: [
-      'bs_android',
-      'bs_chrome_mac', 'bs_chrome_win',
-      'bs_edge_win',
-      'bs_firefox_mac', 'bs_firefox_win',
-      'bs_iphone',
-      'bs_opera_mac',
+      'bs_android_latest', 'bs_android_latest-1',
+      'bs_chrome_mac_latest', 'bs_chrome_mac_latest-1', 'bs_chrome_mac_latest-2',
+      'bs_chrome_win_latest', 'bs_chrome_win_latest-1', 'bs_chrome_win_latest-2',
+      'bs_edge_win_latest', 'bs_edge_win_latest-1',
+      'bs_firefox_mac_latest', 'bs_firefox_mac_latest-1', 'bs_firefox_mac_latest-2',
+      'bs_firefox_win_latest', 'bs_firefox_win_latest-1', 'bs_firefox_win_latest-2',
+      // 'bs_iphone',
+      'bs_opera_mac', 'bs_opera_win',
       'bs_safari_mac'
     ],
 
@@ -134,7 +214,7 @@ module.exports = function (config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity,
+    concurrency: 5,
 
     browserify: {
       transform: ['babelify'],

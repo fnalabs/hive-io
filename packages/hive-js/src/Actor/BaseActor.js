@@ -1,22 +1,22 @@
 // imports
+import { Model } from 'model-json-js'
+
 import { parse } from '../util'
-import Model from '../Model'
 
 // "private" properties
 const URL = Symbol('Actor URL template')
 export const MODEL = Symbol('Model schema')
 
 /**
- * Class that implements a basic Actor instance in the <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> pattern. It takes 2 parameters, a parsed template literal representing the Actor's URL and an instance of the associated Model's JSON Schema definition.
+ * <p>Class that implements a basic Actor instance in the <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> pattern. It takes 2 parameters, a parsed template literal representing the Actor's URL and an instance of the associated Model's JSON Schema definition.</p>
  *
- * Primary use case(s) are:
- * - local, atomic business logic in `perform` method
- * - pass messages to other actors via internal (System) or external (Kafka) message buses
- * - simple routing via `switch`/`if` conditions for microservices
+ * <p>Primary use case(s) are:
+ * <ul><li>local, atomic business logic in <code>perform</code> method</li>
+ * <li>pass messages to other actors via internal (System) or external (Kafka) message buses</li>
+ * <li>simple routing via <code>switch</code>/<code>if</code> conditions for microservices</li></ul></p>
  *
- * ***NOTE:*** The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.
- * @class
- * @property {any} repository - A reference to a storage layer client of your choosing or `undefined`.
+ * <p><strong><em>NOTE:</em></strong> The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.</p>
+ * @property {any} repository - A reference to a storage layer client of your choosing or <code>undefined</code>.
  * @param {Object} [url=parse`/empty`] - The parsed template literal for the Actor's URL.
  * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
  * @param {any} [repository] - An optional reference to a storage layer client of your choosing.
@@ -37,7 +37,7 @@ export const MODEL = Symbol('Model schema')
  *   }
  * })
  */
-export default class Actor {
+class Actor {
   constructor (url = parse`/empty`, modelSchema, repository) {
     if (!(typeof url === 'object' && !Array.isArray(url))) {
       throw new TypeError('#Actor: url must be an object of parsed values')
@@ -51,10 +51,11 @@ export default class Actor {
   }
 
   /**
-   * [`async`] Method that carries out the actions specified in the `data` to the specified `model`.
-   * @param {Object} model - An instance of the model associated with the received data generated from `replay`.
-   * @param {Object} [data] - An optional FSA Object literal containing the Model's `type` and optional `meta` and `payload`.
+   * Method that carries out the actions specified in the <code>data</code> to the specified <code>model</code>.
+   * @param {Object} model - An instance of the model associated with the received data generated from <code>replay</code>.
+   * @param {Object} [data] - An optional FSA Object literal containing the Model's <code>type</code> and optional <code>meta</code> and <code>payload</code>.
    * @returns {Object} An Object literal containing the latest materialized view of the model.
+   * @async
    */
   async perform (model, data) {
     if (typeof model === 'undefined') model = await new Model(data, this[MODEL])
@@ -66,15 +67,16 @@ export default class Actor {
   }
 
   /**
-   * [`async`] Method that carries out the historical actions or model snapshot specified in the `aggregate`.
-   * @param {Object|Array<Object>} aggregate - The historical actions or model snapshot specified.
+   * Method that carries out the historical events or model snapshot specified in the <code>aggregate</code>.
+   * @param {Object|Array<Object>} aggregate - The historical events or model snapshot specified.
    * @returns {Object} An Object literal containing the latest materialized view of the model.
+   * @async
    */
   async replay (aggregate) {
     let model
     if (Array.isArray(aggregate)) {
-      for (const data of aggregate) {
-        const temp = await this.perform(model, data)
+      for (let i = 0, len = aggregate.length; i < len; i++) {
+        const temp = await this.perform(model, aggregate[i])
         model = temp.model
       }
       return { model }
@@ -84,7 +86,7 @@ export default class Actor {
   }
 
   /**
-   * Method used to generate the materialized view of a specified `model` from specified `payload`. Arrays on the `model` are completely replaced by the provided `payload` currently.
+   * Method used to generate the materialized view of a specified <code>model</code> from specified <code>payload</code>. Arrays on the <code>model</code> are completely replaced by the provided <code>payload</code> currently.
    * @param {Object} model - The instance of a model to receive new data.
    * @param {Object} [payload={}] - The payload to apply to the model.
    * @param {Object} [meta] - The metadata associated with the payload being assigned.
@@ -92,18 +94,18 @@ export default class Actor {
    */
   assign (model, payload = {}) {
     const keys = Object.keys(payload)
-    for (const key of keys) {
-      const value = payload[key] && typeof payload[key] === 'object' && !Array.isArray(payload[key])
-        ? this.assign(model[key] || {}, payload[key])
-        : payload[key]
-      model[key] = value
+    for (let i = 0, len = keys.length; i < len; i++) {
+      const value = payload[keys[i]] && typeof payload[keys[i]] === 'object' && !Array.isArray(payload[keys[i]])
+        ? this.assign(model[keys[i]] || {}, payload[keys[i]])
+        : payload[keys[i]]
+      model[keys[i]] = value
     }
     return model
   }
 
   /**
-   * Method used to parse the specified URL string sent in the HTTP request against the parsed URL object passed in the `constructor` to return an Object literal of URL parameter keys with their associated values.
-   * @param {string} url - The URL string sent in the HTTP request.
+   * Method used to parse the specified URL string sent in the HTTP request against the parsed URL object passed in the <code>constructor</code> to return an Object literal of URL parameter keys with their associated values.
+   * @param {String} url - The URL string sent in the HTTP request.
    * @returns {Object} The Object literal of URL parameter keys with their associated values.
    */
   parse (url) {
@@ -120,3 +122,5 @@ export default class Actor {
       }, {})
   }
 }
+
+export default Actor

@@ -2,9 +2,8 @@
 // imports
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
-import Schema from 'schema-json-js'
 
-import Model from '../src/Model'
+import { Model, Schema } from 'model-json-js'
 
 import { Actor } from '../src/Actor'
 import { parse } from '../src/util'

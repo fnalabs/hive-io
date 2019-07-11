@@ -5,7 +5,8 @@ import dirtyChai from 'dirty-chai'
 import sinon from 'sinon'
 import Schema from 'schema-json-js'
 
-import Model from '../src/Model'
+import { Model } from 'model-json-js'
+
 import { Actor } from '../src/Actor'
 import { parse } from '../src/util'
 
@@ -89,7 +90,7 @@ describe('class System', () => {
       }
 
       try {
-        testSystem.on({title: false})
+        testSystem.on({ title: false })
       } catch (e) {
         expect(e.message).to.equal('#on: schema.title must be a string')
       }
@@ -97,7 +98,7 @@ describe('class System', () => {
 
     it('should throw an error on invalid Actor type', () => {
       try {
-        testSystem.on({title: 'true'}, {perform: () => {}})
+        testSystem.on({ title: 'true' }, { perform: () => {} })
       } catch (e) {
         expect(e.message).to.equal('#on: actor is not an Actor')
       }
@@ -113,7 +114,7 @@ describe('class System', () => {
       }
 
       try {
-        testSystem.emit({type: 'Test'})
+        testSystem.emit({ type: 'Test' })
       } catch (e) {
         expect(e.message).to.equal('#emit: model is not a Model')
       }

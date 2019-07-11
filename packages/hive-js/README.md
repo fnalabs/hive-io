@@ -10,7 +10,7 @@
 
 A reactive, universal JavaScript library for the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
-This is where the business logic exists in your codebase. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
+This is where the business logic for your domain model is implemented. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
 
 #### Contents
 - [Installing](#installing)
@@ -23,7 +23,7 @@ This is where the business logic exists in your codebase. The [Actor Model](http
 ## Installing
 Install using `npm`:
 ```sh
-$ npm install hive-io
+$ npm install --save hive-io
 ```
 
 ## [API](https://hiveframework.io/api/)
@@ -42,7 +42,7 @@ We are currently drafting our contributing guide!
 
 *Browser compatibility testing provided by:*
 
-<a href="https://browserstack.com"><img height="48" src="https://fnalabs.github.io/fnalabs-assets/assets/Browserstack-logo.svg" alt="BrowserStack logo"></a>
+<a href="https://browserstack.com"><img height="48" src="https://fnalabs.github.io/fnalabs-assets/assets/Browserstack-logo.svg" alt="BrowserStack"></a>
 
 ## Changelog
 #### v2.0.0-rc.2
