@@ -41,13 +41,17 @@ RUN npm install hive-io-rest-example
 ### Environment variables
 Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework REST service. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
-Name               | Type    | Default                 | Description
------------------- | ------- | ----------------------- | -------------------------------------------------------
-NODE_ENV           | String  | 'production'            | app runtime environment
-PORT               | Number  | 3000                    | app port to listen on
-CLUSTER_SIZE       | Number  | [total CPUs available]  | defaults to the total available CPUs allocated to the container or to the size you specify here
-ACTOR              | String  | 'PostActor'             | Actor (Model) the microservice is responsible for
-ACTOR_LIB          | String  | 'hive-io-rest-example'  | module where the ACTOR resides
+Name               | Type     | Default                 | Description
+------------------ | -------  | ----------------------- | -------------------------------------------------------
+NODE_ENV           | String   | 'production'            | app runtime environment
+PORT               | Number   | 3000                    | app port to listen on
+HTTP_VER           | Number   | 2                       | HTTP version for backward compatibility
+SECURE             | Boolean  | false                   | whether to run server as a secure server or not. defaults to false for certifications
+CLUSTER_SIZE       | Number   | [total CPUs available]  | defaults to the total available CPUs allocated to the container or to the size you specify here
+CONTENT_TYPE       | String   | 'application/json'      | HTTP Content Type header to check
+PING_URL           | String   | '/ping'                 | URL to use for shallow health checks for the service
+ACTOR              | String   |                         | Actor (Model) the microservice is responsible for
+ACTOR_LIB          | String   |                         | module where the ACTOR resides
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-rest-js/issues)

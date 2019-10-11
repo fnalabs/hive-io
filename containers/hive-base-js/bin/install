@@ -29,7 +29,12 @@ baseInstall () {
     coreutils \
     dumb-init \
     grep \
+    openssl \
     tree
+
+  mkdir cert
+  openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
+    -keyout cert/ssl-key.pem -out cert/ssl-cert.pem
 }
 
 ###
@@ -38,19 +43,13 @@ baseInstall () {
 #       - example: re-running "npm install" to update versions
 ###
 projectInstall () {
-  npm install -g npm
-
   if [[ "${NODE_ENV}" == "production" ]]; then
     printLine "Installing (Production) Node.js Dependencies"
     npm install --quiet --no-optional --production
     npm prune --production
   else
-
-    if [[ -f ./package.json ]]; then
-      printLine "Installing (All) Node.js Dependencies"
-      npm install --quiet --no-optional
-    fi
-
+    printLine "Installing (All) Node.js Dependencies"
+    npm install --quiet --no-optional
   fi
 
   if [ -v APP_MODULE ]; then
