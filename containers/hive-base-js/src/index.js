@@ -85,19 +85,36 @@ export default async function main () {
 
   // router for microservice
   return async function route (req, res) {
-    if (pingUrlRegExp.test(req.url)) return send(res, 200)
+    console.log(req.httpVersion, req.method, req.url)
+
+    if (pingUrlRegExp.test(req.url)) return send(res)
 
     try {
       // construct data with parsed request data for query processing
-      let data = req.method !== 'GET' && contentTypeRegExp.test(req.headers['content-type'])
+      let data = req.method !== 'GET' && req.headers['content-type'] && contentTypeRegExp.test(req.headers['content-type'])
         ? await json(req)
         : {}
 
       // set payload/meta if not previously set
-      if (Object.keys(data).length && !(data.payload || data.meta)) {
-        data = { payload: data, meta: { req } }
-      } else {
-        data.meta.req = req
+      if (Object.keys(data).length && typeof data.payload !== 'object') {
+        data = { payload: data }
+      }
+      if (typeof data.meta !== 'object') {
+        data.meta = {}
+      }
+
+      // copy common req public properties to meta
+      data.meta.req = {
+        headers: {},
+        method: req.method,
+        url: req.url,
+        urlParams: actor.parse(req.url)
+      }
+      const keys = Object.keys(req.headers)
+      for (let i = 0, len = keys.length; i < len; i++) {
+        data.meta.req.headers[keys[i]] = Array.isArray(req.headers[keys[i]])
+          ? Array.from(req.headers[keys[i]])
+          : req.headers[keys[i]]
       }
 
       // call Actor to perform on request

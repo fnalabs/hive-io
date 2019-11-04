@@ -11,41 +11,56 @@ chai.use(chaiHttp)
 chai.use(dirtyChai)
 
 describe('app', () => {
-  let app, route, parseStub, performStub, urlStub
+  let app, route, parseStub, performStub, logStub
 
   describe('#routes', () => {
     const performStubs = [
-      sinon.stub().returns({}),
-      sinon.stub().returns({}),
-      sinon.stub().returns({}),
-      sinon.stub().returns({}),
-      sinon.stub().returns({}),
+      sinon.stub().returns({ model: {} }),
+      sinon.stub().returns({ model: {} }),
+      sinon.stub().returns({ model: {} }),
+      sinon.stub().returns({ model: {} }),
+      sinon.stub().returns({ model: {} }),
+      sinon.stub().returns({ model: {} }),
+      sinon.stub().returns({ model: {} }),
       sinon.stub().throws(Error)
     ]
 
+    after(() => {
+      logStub.restore()
+    })
+
     afterEach(() => {
+      logStub.reset()
+
       app = null
       route = null
+
       parseStub = null
       performStub = null
-      urlStub = null
+    })
+
+    before(() => {
+      logStub = sinon.stub(console, 'log')
     })
 
     beforeEach(async () => {
       performStub = performStubs.shift()
       parseStub = sinon.stub().returns({})
-      urlStub = sinon.stub().returns({})
 
       const main = proxyquire('../src/', {
-        '../conf/appConfig': { ACTOR_LIB: 'archiver', ACTOR: 'PostActor' },
-        archiver: {
+        '../conf/appConfig': {
+          ACTOR_LIB: 'codecov',
+          ACTOR: 'PostActor',
+          PING_URL: '/ping',
+          CONTENT_TYPE: 'application/json'
+        },
+        codecov: {
           PostActor: class Actor {
             perform () { return performStub() }
 
             parse () { return parseStub() }
           }
-        },
-        url: { URL: class URL { constructor () { urlStub() } } }
+        }
       }).default
       route = await main()
       app = http.createServer(route)
@@ -58,9 +73,9 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
+          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.called).to.be.false()
           expect(performStub.called).to.be.false()
-          expect(urlStub.called).to.be.false()
 
           done()
         })
@@ -73,9 +88,9 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
+          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
-          expect(urlStub.calledOnce).to.be.true()
 
           done()
         })
@@ -89,9 +104,9 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
+          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
-          expect(urlStub.calledOnce).to.be.true()
 
           done()
         })
@@ -105,9 +120,9 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
+          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
-          expect(urlStub.calledOnce).to.be.true()
 
           done()
         })
@@ -121,9 +136,43 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
+          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
-          expect(urlStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 200 from /test on successful post with serialized model payload', done => {
+      chai.request(app)
+        .post('/test')
+        .send({ type: 'Test', payload: {}, meta: {} })
+        .end((err, res) => {
+          expect(err).to.be.null()
+          expect(res).to.have.status(200)
+
+          expect(logStub.calledOnce).to.be.true()
+          expect(parseStub.calledOnce).to.be.true()
+          expect(performStub.calledOnce).to.be.true()
+
+          done()
+        })
+    })
+
+    it('should respond with 200 from /test on successful post with duplicate headers as an Array', done => {
+      chai.request(app)
+        .post('/test')
+        .set('set-cookie', 'test1')
+        .set('set-cookie', 'test2')
+        .send({ type: 'Test', payload: {}, meta: {} })
+        .end((err, res) => {
+          expect(err).to.be.null()
+          expect(res).to.have.status(200)
+
+          expect(logStub.calledOnce).to.be.true()
+          expect(parseStub.calledOnce).to.be.true()
+          expect(performStub.calledOnce).to.be.true()
 
           done()
         })
@@ -137,9 +186,9 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(400)
 
+          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
-          expect(urlStub.calledOnce).to.be.true()
 
           done()
         })
