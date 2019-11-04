@@ -5,13 +5,13 @@
   "main": "./bin/start",
   "scripts": {
     "prebuild": "del dist",
-    "build": "babel src --out-dir dist",
+    "build": "cross-env NODE_ENV=production babel src --out-dir dist",
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "dev": "nodemon -e js,json -w src -w conf -x \"npm run start:dev\" & nodemon -e js -w tst -x \"npm test\"",
     "fix": "standard --fix",
-    "release": "cross-env NODE_ENV=production npm test && npm run build",
+    "release": "npm test && npm run build",
     "start": "cross-env NODE_ENV=production node ./bin/start",
-    "start:dev": "cross-env NODE_ENV=development npm run build && node ./bin/start",
+    "start:dev": "npm run build && node ./bin/start",
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
     "posttest": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
@@ -29,13 +29,15 @@
   "author": "Adam Eilers",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=8",
-    "npm": ">=5"
+    "node": ">=10",
+    "npm": ">=6"
   },
   "dependencies": {},
   "devDependencies": {
     "@babel/cli": "~7.6.4",
     "@babel/core": "~7.6.4",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "~7.4.4",
+    "@babel/plugin-proposal-optional-chaining": "~7.6.0",
     "@babel/plugin-syntax-object-rest-spread": "~7.2.0",
     "@babel/plugin-transform-modules-commonjs": "~7.6.0",
     "@babel/register": "~7.6.2",
@@ -49,8 +51,8 @@
     "cross-env": "~6.0.3",
     "del-cli": "~3.0.0",
     "dirty-chai": "~2.0.1",
-    "mocha": "~6.2.1",
-    "nodemon": "~1.19.3",
+    "mocha": "~6.2.2",
+    "nodemon": "~1.19.4",
     "nyc": "~14.1.1",
     "proxyquire": "~2.1.3",
     "sinon": "~7.5.0",
@@ -59,10 +61,17 @@
   "nyc": {
     "check-coverage": true,
     "per-file": true,
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "conf/**/*.js",
+      "tst/**/*.js"
+    ],
     "lines": 80,
     "statements": 80,
     "functions": 80,
-    "branches": 80,
+    "branches": 75,
     "watermarks": {
       "lines": [
         80,
@@ -73,7 +82,7 @@
         90
       ],
       "branches": [
-        80,
+        75,
         90
       ],
       "statements": [
