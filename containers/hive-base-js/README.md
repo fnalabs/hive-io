@@ -45,7 +45,7 @@ Name               | Type     | Default                 | Description
 ------------------ | -------  | ----------------------- | -------------------------------------------------------
 NODE_ENV           | String   | 'production'            | app runtime environment
 PORT               | Number   | 3000                    | app port to listen on
-HTTP_VER           | Number   | 2                       | HTTP version for backward compatibility
+HTTP_VERSION       | Number   | 2                       | HTTP version for backward compatibility
 SECURE             | Boolean  | false                   | whether to run server as a secure server or not. defaults to false for certifications
 CLUSTER_SIZE       | Number   | [total CPUs available]  | defaults to the total available CPUs allocated to the container or to the size you specify here
 CONTENT_TYPE       | String   | 'application/json'      | HTTP Content Type header to check
