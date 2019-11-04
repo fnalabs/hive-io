@@ -29,11 +29,10 @@ ENV APP_PATH="/opt/app" \
     NODE_ENV="production" \
     PORT="3000"
 
-COPY --from=development ${APP_PATH}/bin ${APP_PATH}/bin/
-COPY --from=development ${APP_PATH}/conf ${APP_PATH}/conf/
 COPY --from=development ${APP_PATH}/dist ${APP_PATH}/dist/
-COPY --from=development ${APP_PATH}/package.json ${APP_PATH}/
-COPY --from=development ${APP_PATH}/package-lock.json ${APP_PATH}/
+COPY bin ${APP_PATH}/bin/
+COPY conf ${APP_PATH}/conf/
+COPY package.json package-lock.json README.md LICENSE ${APP_PATH}/
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
