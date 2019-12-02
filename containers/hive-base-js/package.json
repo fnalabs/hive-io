@@ -1,7 +1,7 @@
 {
   "name": "hive-rest-js",
   "version": "2.0.0-rc.2",
-  "description": "Starter kit for Hive^io framework REST services in Node.js w/ Micro implementations in Docker",
+  "description": "Starter kit for Hive^io framework REST services in Node.js implementations in Docker",
   "main": "./bin/start",
   "scripts": {
     "prebuild": "del dist",
@@ -10,8 +10,8 @@
     "dev": "nodemon -e js,json -w src -w conf -x \"npm run start:dev\" & nodemon -e js -w tst -x \"npm test\"",
     "fix": "standard --fix",
     "release": "npm test && npm run build",
-    "start": "cross-env NODE_ENV=production node ./bin/start",
-    "start:dev": "npm run build && node ./bin/start",
+    "start": "NODE_ENV=production node ./bin/start",
+    "start:dev": "npm run build && cross-env NODE_ENV=development node ./bin/start",
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
     "posttest": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
@@ -38,7 +38,6 @@
     "@babel/core": "~7.6.4",
     "@babel/plugin-proposal-nullish-coalescing-operator": "~7.4.4",
     "@babel/plugin-proposal-optional-chaining": "~7.6.0",
-    "@babel/plugin-syntax-object-rest-spread": "~7.2.0",
     "@babel/plugin-transform-modules-commonjs": "~7.6.0",
     "@babel/register": "~7.6.2",
     "babel-eslint": "~10.0.3",

@@ -77,4 +77,4 @@ runInstall () {
   chmod -R g+w .
 }
 
-runInstall
+runInstall && exit 0
