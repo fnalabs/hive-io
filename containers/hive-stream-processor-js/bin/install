@@ -4,7 +4,6 @@
 # utility functions
 ###
 clearApkCache () {
-  apk del .build-deps
   rm -rf \
     /tmp/* \
     /var/cache/apk/*
@@ -30,21 +29,12 @@ baseInstall () {
     coreutils \
     dumb-init \
     grep \
-    lz4-libs \
+    openssl \
     tree
 
-  apk --no-cache --virtual .build-deps add \
-    bsd-compat-headers \
-    ca-certificates \
-    g++ \
-    gcc \
-    libc-dev \
-    lz4-dev \
-    make \
-    musl-dev \
-    py-setuptools \
-    python \
-    zlib-dev
+  mkdir cert
+  openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
+    -keyout cert/ssl-key.pem -out cert/ssl-cert.pem
 }
 
 ###
@@ -53,19 +43,13 @@ baseInstall () {
 #       - example: re-running "npm install" to update versions
 ###
 projectInstall () {
-  npm install -g npm
-
   if [[ "${NODE_ENV}" == "production" ]]; then
     printLine "Installing (Production) Node.js Dependencies"
     npm install --quiet --no-optional --production
     npm prune --production
   else
-
-    if [[ -f ./package.json ]]; then
-      printLine "Installing (All) Node.js Dependencies"
-      npm install --quiet --no-optional
-    fi
-
+    printLine "Installing (All) Node.js Dependencies"
+    npm install --quiet --no-optional
   fi
 
   if [[ -n "${APP_MODULE}" ]]; then
@@ -93,4 +77,4 @@ runInstall () {
   chmod -R g+w .
 }
 
-runInstall
+runInstall && exit 0

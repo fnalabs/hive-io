@@ -12,199 +12,338 @@ describe('store', () => {
   let Store, store
 
   describe('#constructor', () => {
-    let consumerSpy, consumerConnectSpy, consumerOnSpy, consumerSubscribeSpy, consumerConsumeSpy
-    let producerSpy, producerConnectSpy, producerOnSpy, producerSetPollIntervalSpy
+    let constructorSpy, consoleStub, consumerStub, disconnectSpy, processStub, producerStub
 
     afterEach(() => {
       Store = null
       store = null
 
-      consumerSpy = null
-      consumerConnectSpy = null
-      consumerOnSpy = null
-      consumerSubscribeSpy = null
-      consumerConsumeSpy = null
+      constructorSpy = null
+      consumerStub = null
+      producerStub = null
 
-      producerSpy = null
-      producerConnectSpy = null
-      producerOnSpy = null
-      producerSetPollIntervalSpy = null
+      consoleStub.restore()
+      disconnectSpy = null
+      processStub.restore()
     })
 
     beforeEach(() => {
-      consumerSpy = sinon.spy()
-      consumerConnectSpy = sinon.spy()
-      consumerOnSpy = sinon.spy()
-      consumerSubscribeSpy = sinon.spy()
-      consumerConsumeSpy = sinon.spy()
+      consoleStub = sinon.stub(console, 'error')
+      disconnectSpy = sinon.spy()
+      processStub = sinon.stub(process, 'once').value((_type, cb) => cb())
 
-      producerSpy = sinon.spy()
-      producerConnectSpy = sinon.spy()
-      producerOnSpy = sinon.spy()
-      producerSetPollIntervalSpy = sinon.spy()
+      constructorSpy = sinon.spy()
+      consumerStub = sinon.stub().returns({ disconnect () { disconnectSpy() } })
+      producerStub = sinon.stub().returns({ disconnect () { disconnectSpy() } })
+    })
 
+    it('should create the Store object with the default processor type', async () => {
       Store = proxyquire('../src/store', {
-        'node-rdkafka': {
-          KafkaConsumer: class KafkaConsumer {
-            constructor () { consumerSpy() }
-            connect () { consumerConnectSpy() }
-            on (id, cb) { consumerOnSpy(); cb() }
-            subscribe () { consumerSubscribeSpy() }
-            consume () { consumerConsumeSpy() }
+        '../conf/appConfig': {
+          PROCESSOR_TYPE: 'producer',
+          EVENT_STORE_PRODUCER_TOPIC: '',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_GROUP_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_FROM_START: false,
+          EVENT_STORE_PARTITIONS: 1,
+          EVENT_STORE_BUFFER: 2,
+          EVENT_STORE_TIMEOUT: 100
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            constructor (config) { constructorSpy(config) }
+            consumer () { return consumerStub() }
+            producer () { return producerStub() }
           },
-          Producer: class Producer {
-            constructor () { producerSpy() }
-            connect () { producerConnectSpy() }
-            on () { producerOnSpy() }
-            setPollInterval () { producerSetPollIntervalSpy() }
+          CompressionTypes: {
+            GZIP: true
           }
         }
       })
-    })
-
-    it('should create the Store object with the default processor type', () => {
-      store = new Store({
-        PROCESSOR_TYPE: 'producer',
-        PRODUCER_TOPIC: '',
-        EVENT_STORE_URL: '',
-        EVENT_STORE_ID: '',
-        EVENT_STORE_TYPE: '',
-        EVENT_STORE_BUFFER: '',
-        EVENT_STORE_POLL_INTERVAL: '',
-        EVENT_STORE_PROTOCOL: '',
-        EVENT_STORE_OFFSET: ''
-      })
+      store = await new Store()
 
       expect(store).to.exist()
 
-      expect(store.consumer).to.be.undefined()
-      expect(store.log).to.be.a('function')
+      expect(store.consume).to.be.a('function')
+      expect(store.produce).to.be.a('function')
+      expect(store.record).to.be.a('function')
 
-      expect(consumerSpy.called).to.be.false()
-      expect(consumerConnectSpy.called).to.be.false()
-      expect(consumerOnSpy.called).to.be.false()
-      expect(consumerSubscribeSpy.called).to.be.false()
-      expect(consumerConsumeSpy.called).to.be.false()
+      expect(constructorSpy.calledOnce).to.be.true()
+      expect(consumerStub.called).to.be.false()
+      expect(producerStub.calledOnce).to.be.true()
 
-      expect(producerSpy.calledOnce).to.be.true()
-      expect(producerConnectSpy.calledOnce).to.be.true()
-      expect(producerOnSpy.calledOnce).to.be.true()
-      expect(producerSetPollIntervalSpy.calledOnce).to.be.true()
+      expect(disconnectSpy.callCount).to.equal(5)
     })
 
-    it('should create the Store object with the consumer processor type', () => {
-      store = new Store({
-        PROCESSOR_TYPE: 'consumer',
-        CONSUMER_TOPIC: '',
-        EVENT_STORE_URL: '',
-        EVENT_STORE_ID: '',
-        EVENT_STORE_TYPE: '',
-        EVENT_STORE_BUFFER: '',
-        EVENT_STORE_POLL_INTERVAL: '',
-        EVENT_STORE_PROTOCOL: '',
-        EVENT_STORE_OFFSET: ''
+    it('should create the Store object with the consumer processor type', async () => {
+      Store = proxyquire('../src/store', {
+        '../conf/appConfig': {
+          PROCESSOR_TYPE: 'consumer',
+          EVENT_STORE_CONSUMER_TOPIC: 'test',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_GROUP_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_FROM_START: false,
+          EVENT_STORE_PARTITIONS: 1,
+          EVENT_STORE_BUFFER: 2,
+          EVENT_STORE_TIMEOUT: 100
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            constructor (config) { constructorSpy(config) }
+            consumer () { return consumerStub() }
+            producer () { return producerStub() }
+          },
+          CompressionTypes: {
+            GZIP: true
+          }
+        }
       })
+      store = await new Store()
 
       expect(store).to.exist()
 
-      expect(store.consumer).to.be.an('object')
+      expect(store.consume).to.be.a('function')
+      expect(store.produce).to.be.a('function')
+      expect(store.record).to.be.a('function')
 
-      expect(consumerSpy.calledOnce).to.be.true()
-      expect(consumerConnectSpy.calledOnce).to.be.true()
-      expect(consumerOnSpy.calledOnce).to.be.true()
-      expect(consumerSubscribeSpy.calledOnce).to.be.true()
-      expect(consumerConsumeSpy.calledOnce).to.be.true()
+      expect(constructorSpy.calledOnce).to.be.true()
+      expect(consumerStub.calledOnce).to.be.true()
+      expect(producerStub.called).to.be.false()
 
-      expect(producerSpy.called).to.be.false()
-      expect(producerConnectSpy.called).to.be.false()
-      expect(producerOnSpy.called).to.be.false()
-      expect(producerSetPollIntervalSpy.called).to.be.false()
+      expect(disconnectSpy.callCount).to.equal(5)
     })
 
-    it('should create the Store object with the stream_processor processor type', () => {
-      store = new Store({
-        PROCESSOR_TYPE: 'stream_processor',
-        PRODUCER_TOPIC: '',
-        CONSUMER_TOPIC: '',
-        EVENT_STORE_URL: '',
-        EVENT_STORE_ID: '',
-        EVENT_STORE_TYPE: '',
-        EVENT_STORE_TIMEOUT: '',
-        EVENT_STORE_PROTOCOL: '',
-        EVENT_STORE_OFFSET: ''
+    it('should create the Store object with the stream_processor processor type', async () => {
+      Store = proxyquire('../src/store', {
+        '../conf/appConfig': {
+          PROCESSOR_TYPE: 'stream_processor',
+          EVENT_STORE_PRODUCER_TOPIC: '',
+          EVENT_STORE_CONSUMER_TOPIC: 'test',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_GROUP_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_FROM_START: false,
+          EVENT_STORE_PARTITIONS: 1,
+          EVENT_STORE_BUFFER: 2,
+          EVENT_STORE_TIMEOUT: 100
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            constructor (config) { constructorSpy(config) }
+            consumer () { return consumerStub() }
+            producer () { return producerStub() }
+          },
+          CompressionTypes: {
+            GZIP: true
+          }
+        }
       })
+      store = await new Store()
 
       expect(store).to.exist()
 
-      expect(store.consumer).to.be.an('object')
+      expect(store.consume).to.be.a('function')
+      expect(store.produce).to.be.a('function')
+      expect(store.record).to.be.a('function')
 
-      expect(consumerSpy.calledOnce).to.be.true()
-      expect(consumerConnectSpy.calledOnce).to.be.true()
-      expect(consumerOnSpy.calledOnce).to.be.true()
-      expect(consumerSubscribeSpy.calledOnce).to.be.true()
-      expect(consumerConsumeSpy.calledOnce).to.be.true()
+      expect(constructorSpy.calledOnce).to.be.true()
+      expect(consumerStub.calledOnce).to.be.true()
+      expect(producerStub.calledOnce).to.be.true()
 
-      expect(producerSpy.calledOnce).to.be.true()
-      expect(producerConnectSpy.calledOnce).to.be.true()
-      expect(producerOnSpy.calledOnce).to.be.true()
-      expect(producerSetPollIntervalSpy.calledOnce).to.be.true()
+      expect(disconnectSpy.callCount).to.equal(10)
     })
   })
 
-  describe('#log', () => {
-    let produceStub, toJsonStub
-    const produceStubs = [
-      sinon.stub().returns(true),
-      sinon.stub().returns(false)
+  describe('#consume', () => {
+    let connectSpy, consoleStub, processStub, subscribeSpy, runSpy
+
+    after(() => {
+      Store = null
+      store = null
+
+      connectSpy = null
+      consoleStub.restore()
+      processStub.restore()
+      subscribeSpy = null
+      runSpy = null
+    })
+
+    before(() => {
+      connectSpy = sinon.spy()
+      consoleStub = sinon.stub(console, 'error')
+      processStub = sinon.stub(process, 'once')
+      subscribeSpy = sinon.spy()
+      runSpy = sinon.spy()
+
+      Store = proxyquire('../src/store', {
+        '../conf/appConfig': {
+          PROCESSOR_TYPE: 'consumer',
+          EVENT_STORE_CONSUMER_TOPIC: 'test',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_GROUP_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_FROM_START: false,
+          EVENT_STORE_PARTITIONS: 1,
+          EVENT_STORE_BUFFER: null,
+          EVENT_STORE_TIMEOUT: null
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            consumer () {
+              return {
+                connect () { connectSpy() },
+                disconnect () {},
+                subscribe () { subscribeSpy() },
+                run () { runSpy() }
+              }
+            }
+          },
+          CompressionTypes: {
+            GZIP: true
+          }
+        }
+      })
+      store = new Store()
+    })
+
+    it('should start consuming events successfully', async () => {
+      await expect(store.consume()).to.eventually.be.fulfilled()
+      expect(connectSpy.calledOnce).to.be.true()
+      expect(subscribeSpy.calledOnce).to.be.true()
+      expect(runSpy.calledOnce).to.be.true()
+    })
+  })
+
+  describe('#produce', () => {
+    let connectSpy, consoleStub, processStub
+
+    after(() => {
+      Store = null
+      store = null
+
+      connectSpy = null
+      consoleStub.restore()
+      processStub.restore()
+    })
+
+    before(async () => {
+      connectSpy = sinon.spy()
+      consoleStub = sinon.stub(console, 'error')
+      processStub = sinon.stub(process, 'once')
+
+      Store = proxyquire('../src/store', {
+        '../conf/appConfig': {
+          PROCESSOR_TYPE: 'producer',
+          EVENT_STORE__PRODUCER_TOPIC: '',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_BUFFER: 2,
+          EVENT_STORE_TIMEOUT: 100
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            producer () {
+              return {
+                connect () { connectSpy() },
+                disconnect () {}
+              }
+            }
+          },
+          CompressionTypes: {
+            GZIP: true
+          }
+        }
+      })
+      store = new Store()
+      await store.produce()
+    })
+
+    it('should call connect once successfully', () => {
+      expect(connectSpy.calledOnce).to.be.true()
+    })
+  })
+
+  describe('#record', () => {
+    let clearTimeoutStub, consoleStub, processStub, sendStub, setTimeoutStub, toJsonStub
+    const sendStubs = [
+      sinon.stub(),
+      sinon.stub().throws(Error)
     ]
 
     afterEach(() => {
       Store = null
       store = null
 
-      produceStub = null
+      clearTimeoutStub.restore()
+      consoleStub.restore()
+      processStub.restore()
+      sendStub = null
+      setTimeoutStub.restore()
       toJsonStub = null
     })
 
     beforeEach(() => {
-      produceStub = produceStubs.shift()
-      toJsonStub = sinon.stub().returns({meta: {}})
+      clearTimeoutStub = sinon.stub(global, 'clearTimeout')
+      consoleStub = sinon.stub(console, 'error')
+      processStub = sinon.stub(process, 'once')
+      sendStub = sendStubs.shift()
+      setTimeoutStub = sinon.stub(global, 'setTimeout').returns(1)
+      toJsonStub = sinon.stub().returns({})
 
       Store = proxyquire('../src/store', {
-        'node-rdkafka': {
-          KafkaConsumer: class KafkaConsumer {},
-          Producer: class Producer {
-            connect () {}
-            on () {}
-            produce () { return produceStub() }
-            setPollInterval () {}
+        '../conf/appConfig': {
+          PROCESSOR_TYPE: 'producer',
+          EVENT_STORE_PRODUCER_TOPIC: '',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_BUFFER: 2,
+          EVENT_STORE_TIMEOUT: 100
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            producer () {
+              return {
+                disconnect () {},
+                send () { sendStub() }
+              }
+            }
+          },
+          CompressionTypes: {
+            GZIP: true
           }
         }
       })
-      store = new Store({
-        PROCESSOR_TYPE: 'producer',
-        PRODUCER_TOPIC: '',
-        EVENT_STORE_URL: '',
-        EVENT_STORE_ID: '',
-        EVENT_STORE_TYPE: '',
-        EVENT_STORE_BUFFER: '',
-        EVENT_STORE_POLL_INTERVAL: '',
-        EVENT_STORE_PROTOCOL: '',
-        EVENT_STORE_OFFSET: ''
-      })
+      store = new Store()
     })
 
-    it('should handle normal log posts', async () => {
-      await expect(store.log('id', { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+    it('should handle normal event record posts', async () => {
+      await expect(store.record({ key: 'id' }, { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      expect(clearTimeoutStub.called).to.be.false()
+      expect(sendStub.called).to.be.false()
+      expect(setTimeoutStub.calledOnce).to.be.true()
       expect(toJsonStub.calledOnce).to.be.true()
 
-      await expect(store.log(undefined, { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      await expect(store.record(undefined, { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      expect(clearTimeoutStub.calledOnce).to.be.true()
+      expect(sendStub.calledOnce).to.be.true()
+      expect(setTimeoutStub.calledOnce).to.be.true()
       expect(toJsonStub.calledTwice).to.be.true()
     })
 
-    it('should be rejected', async () => {
-      await expect(store.log('id', { toJSON () { return toJsonStub() } })).to.eventually.be.rejected()
+    it('should handle errors on commit', async () => {
+      await expect(store.record({ key: 'id' }, { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      expect(clearTimeoutStub.called).to.be.false()
+      expect(sendStub.called).to.be.false()
+      expect(setTimeoutStub.calledOnce).to.be.true()
       expect(toJsonStub.calledOnce).to.be.true()
+
+      await expect(store.record(undefined, { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      expect(clearTimeoutStub.calledOnce).to.be.true()
+      expect(sendStub.calledOnce).to.be.true()
+      expect(setTimeoutStub.calledOnce).to.be.true()
+      expect(toJsonStub.calledTwice).to.be.true()
     })
   })
 })

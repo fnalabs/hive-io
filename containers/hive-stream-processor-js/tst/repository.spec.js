@@ -1,19 +1,12 @@
 /* eslint-env mocha */
 import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import dirtyChai from 'dirty-chai'
 import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 
-const CONFIG = {
-  CACHE_URL: '',
-  LOCK_TTL: 1000,
-  LOCK_DRIFT_FACTOR: 0.01,
-  LOCK_RETRY_COUNT: 0,
-  LOCK_RETRY_DELAY: 400,
-  LOCK_RETRY_JITTER: 400
-}
-
 chai.use(chaiAsPromised)
+chai.use(dirtyChai)
 
 describe('repository', () => {
   let Repository, repository
@@ -36,6 +29,14 @@ describe('repository', () => {
       redlockOnSpy = sinon.spy()
 
       Repository = proxyquire('../src/repository', {
+        '../conf/appConfig': {
+          CACHE_URL: '',
+          LOCK_TTL: 1000,
+          LOCK_DRIFT_FACTOR: 0.01,
+          LOCK_RETRY_COUNT: 0,
+          LOCK_RETRY_DELAY: 400,
+          LOCK_RETRY_JITTER: 400
+        },
         ioredis: class Redis {
           constructor () { redisSpy() }
           on () { redisOnSpy() }
@@ -45,7 +46,7 @@ describe('repository', () => {
           on () { redlockOnSpy() }
         }
       })
-      repository = new Repository(CONFIG)
+      repository = new Repository()
     })
 
     it('should create the Repository object', () => {
@@ -77,6 +78,14 @@ describe('repository', () => {
       deleteSpy = sinon.spy()
 
       Repository = proxyquire('../src/repository', {
+        '../conf/appConfig': {
+          CACHE_URL: '',
+          LOCK_TTL: 1000,
+          LOCK_DRIFT_FACTOR: 0.01,
+          LOCK_RETRY_COUNT: 0,
+          LOCK_RETRY_DELAY: 400,
+          LOCK_RETRY_JITTER: 400
+        },
         ioredis: class Redis {
           on () {}
           del () { deleteSpy() }
@@ -85,7 +94,7 @@ describe('repository', () => {
           on () {}
         }
       })
-      repository = new Repository(CONFIG)
+      repository = new Repository()
     })
 
     it('should call delete from redis instance', async () => {
@@ -113,6 +122,14 @@ describe('repository', () => {
       getStub = getStubs.shift()
 
       Repository = proxyquire('../src/repository', {
+        '../conf/appConfig': {
+          CACHE_URL: '',
+          LOCK_TTL: 1000,
+          LOCK_DRIFT_FACTOR: 0.01,
+          LOCK_RETRY_COUNT: 0,
+          LOCK_RETRY_DELAY: 400,
+          LOCK_RETRY_JITTER: 400
+        },
         ioredis: class Redis {
           on () {}
           get () { return getStub() }
@@ -121,7 +138,7 @@ describe('repository', () => {
           on () {}
         }
       })
-      repository = new Repository(CONFIG)
+      repository = new Repository()
     })
 
     it('should call get from redis instance and return a new aggregate', async () => {
@@ -138,9 +155,10 @@ describe('repository', () => {
   })
 
   describe('#record', () => {
-    let lockStub, logSpy, unlockSpy
+    let lockStub, delSpy, recordSpy, unlockSpy
     const testAggregates = [
       { id: 'id' },
+      { id: { id: 'id' } },
       { id: { id: 'id' } },
       { id: { id: 'id' } }
     ]
@@ -148,61 +166,87 @@ describe('repository', () => {
       .onCall(0).returns(true)
       .onCall(1).returns(true)
       .onCall(2).throws()
-      .onCall(3).returns(true)
+      .onCall(3).throws()
+      .onCall(4).returns(true)
 
     afterEach(() => {
       Repository = null
       repository = null
 
       lockStub = null
-      logSpy = null
+      delSpy = null
+      recordSpy = null
       unlockSpy = null
     })
 
     beforeEach(() => {
-      logSpy = sinon.spy()
+      delSpy = sinon.spy()
+      recordSpy = sinon.spy()
       unlockSpy = sinon.spy()
 
       lockStub = sinon.stub().returns(Promise.resolve({ unlock: unlockSpy }))
 
       Repository = proxyquire('../src/repository', {
+        '../conf/appConfig': {
+          CACHE_URL: '',
+          LOCK_TTL: 1000,
+          LOCK_DRIFT_FACTOR: 0.01,
+          LOCK_RETRY_COUNT: 0,
+          LOCK_RETRY_DELAY: 400,
+          LOCK_RETRY_JITTER: 400
+        },
         ioredis: class Redis {
           on () {}
           set () { setStub() }
+          del () { delSpy() }
         },
         redlock: class Redlock {
           on () {}
           lock () { return lockStub() }
         }
       })
-      repository = new Repository(CONFIG, { log: logSpy })
+      repository = new Repository({ record: recordSpy })
     })
 
     it('should record the event in the store and cache the aggregate in redis', async () => {
-      await repository.record({}, testAggregates.shift())
+      await repository.record({}, {}, testAggregates.shift())
 
       expect(lockStub.calledOnce).to.be.true()
-      expect(logSpy.calledOnce).to.be.true()
+      expect(delSpy.called).to.be.false()
+      expect(recordSpy.calledOnce).to.be.true()
       expect(setStub.calledOnce).to.be.true()
       expect(unlockSpy.calledOnce).to.be.true()
     })
 
     it('should record the event in the store and cache the aggregate (id is Value Object) in redis', async () => {
-      await repository.record({}, testAggregates.shift())
+      await repository.record({}, {}, testAggregates.shift())
 
       expect(lockStub.calledOnce).to.be.true()
-      expect(logSpy.calledOnce).to.be.true()
+      expect(recordSpy.calledOnce).to.be.true()
       expect(setStub.calledTwice).to.be.true()
       expect(unlockSpy.calledOnce).to.be.true()
     })
 
-    it('should throw an error in the transaction', async () => {
+    it('should throw an error in the transaction with undefined cache', async () => {
       try {
-        await repository.record({}, testAggregates.shift())
+        await repository.record({}, {}, testAggregates.shift())
       } catch (e) {
         expect(lockStub.calledOnce).to.be.true()
-        expect(logSpy.called).to.be.false()
-        expect(setStub.callCount).to.equal(4)
+        expect(delSpy.calledOnce).to.be.true()
+        expect(recordSpy.called).to.be.false()
+        expect(setStub.callCount).to.equal(3)
+        expect(unlockSpy.calledOnce).to.be.true()
+      }
+    })
+
+    it('should throw an error in the transaction with defined cache', async () => {
+      try {
+        await repository.record({}, {}, testAggregates.shift(), 'true')
+      } catch (e) {
+        expect(lockStub.calledOnce).to.be.true()
+        expect(delSpy.called).to.be.false()
+        expect(recordSpy.called).to.be.false()
+        expect(setStub.callCount).to.equal(5)
         expect(unlockSpy.calledOnce).to.be.true()
       }
     })
@@ -231,6 +275,14 @@ describe('repository', () => {
       lockStub = sinon.stub().returns(Promise.resolve({ unlock: unlockSpy }))
 
       Repository = proxyquire('../src/repository', {
+        '../conf/appConfig': {
+          CACHE_URL: '',
+          LOCK_TTL: 1000,
+          LOCK_DRIFT_FACTOR: 0.01,
+          LOCK_RETRY_COUNT: 0,
+          LOCK_RETRY_DELAY: 400,
+          LOCK_RETRY_JITTER: 400
+        },
         ioredis: class Redis {
           on () {}
           set () { setSpy() }
@@ -240,7 +292,7 @@ describe('repository', () => {
           lock () { return lockStub() }
         }
       })
-      repository = new Repository(CONFIG)
+      repository = new Repository()
     })
 
     it('should update the aggregate in the redis cache', async () => {

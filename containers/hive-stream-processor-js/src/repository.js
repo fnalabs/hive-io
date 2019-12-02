@@ -1,4 +1,6 @@
 // imports
+import CONFIG from '../conf/appConfig'
+
 import Redis from 'ioredis'
 import Redlock from 'redlock'
 
@@ -12,7 +14,7 @@ const TTL = Symbol('Redlock TTL')
  * Repository class
  */
 export default class Repository {
-  constructor (CONFIG, store) {
+  constructor (store) {
     this[TTL] = CONFIG.LOCK_TTL
     this[CACHE] = new Redis(CONFIG.CACHE_URL)
     this[LOCK] = new Redlock([this[CACHE]], {
@@ -48,17 +50,19 @@ export default class Repository {
 
   async get (id) {
     const dataString = await this[CACHE].get(id)
-    if (dataString) return JSON.parse(dataString)
+    if (dataString) return dataString
   }
 
-  async record (id, event, model, cache) {
-    const lock = await this[LOCK].lock(`lock:${id}`, this[TTL])
+  async record (meta, event, model, cache) {
+    const lock = await this[LOCK].lock(`lock:${model.id}`, this[TTL])
 
     try {
-      await this[CACHE].set(id, JSON.stringify(model))
-      await this[STORE].log(id, event)
+      await this[CACHE].set(model.id, JSON.stringify(model))
+      await this[STORE].record(meta, event)
     } catch (e) {
-      await this[CACHE].set(id, cache)
+      cache
+        ? await this[CACHE].set(model.id, cache)
+        : await this[CACHE].del(model.id)
       lock.unlock()
 
       throw new Error(e.message)
@@ -67,9 +71,9 @@ export default class Repository {
     return lock.unlock()
   }
 
-  async update (id, model) {
-    const lock = await this[LOCK].lock(`lock:${id}`, this[TTL])
-    await this[CACHE].set(id, JSON.stringify(model))
+  async update (model) {
+    const lock = await this[LOCK].lock(`lock:${model.id}`, this[TTL])
+    await this[CACHE].set(model.id, JSON.stringify(model))
     return lock.unlock()
   }
 }
