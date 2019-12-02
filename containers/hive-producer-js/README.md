@@ -44,19 +44,22 @@ RUN npm install hive-io-domain-example
 ### Environment Variables
 Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Producer. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
-Name                       | Type    | Default                   | Description
--------------------------- | ------- | ------------------------- | -------------------------------------------------------
-NODE_ENV                   | String  | 'production'              | app runtime environment
-PORT                       | Number  | 3000                      | app port to listen on
-CLUSTER_SIZE               | Number  | [total CPUs available]    | defaults to the total available CPUs allocated to the container or to the size you specify here
-ACTOR                      | String  | 'ViewActor'               | Actor (Model) the microservice is responsible for
-ACTOR_LIB                  | String  | 'hive-io-domain-example'  | module where the ACTOR resides
-EVENT_STORE_TOPIC          | String  | 'view'                    | Kafka topic the models will be stored under
-EVENT_STORE_ID             | String  |                           | unique identifier for Kafka client connection
-EVENT_STORE_URL            | String  |                           | URL where Kafka is hosted
-EVENT_STORE_TYPE           | String  | 'gzip'                    | compression codec type: `none`, `gzip`, `snappy`, `lz4`
-EVENT_STORE_BUFFER         | Number  | 500                       | time (in `ms`) to buffer incoming messages to batch
-EVENT_STORE_POLL_INTERVAL  | Number  | 1000                      | time (in `ms`) to poll Kafka for delivery reports
+Name                 | Type     | Default                 | Description
+-------------------- | -------- | ----------------------- | -------------------------------------------------------
+NODE_ENV             | String   | 'production'            | app runtime environment
+PORT                 | Number   | 3000                    | app port to listen on
+HTTP_VERSION         | Number   | 2                       | HTTP version for backward compatibility
+SECURE               | Boolean  | false                   | whether to run server as a secure server or not. defaults to false for certifications
+CLUSTER_SIZE         | Number   | [total CPUs available]  | defaults to the total available CPUs allocated to the container or to the size you specify here
+CONTENT_TYPE         | String   | 'application/json'      | HTTP Content Type header to check
+PING_URL             | String   | '/ping'                 | URL to use for shallow health checks for the service
+ACTOR                | String   |                         | Actor (Model) the microservice is responsible for
+ACTOR_LIB            | String   |                         | module where the ACTOR resides
+EVENT_STORE_TOPIC    | String   |                         | Kafka topic the models will be stored under
+EVENT_STORE_ID       | String   |                         | unique identifier for Kafka client connection
+EVENT_STORE_BROKERS  | String   |                         | comma separated URLs where Kafka is hosted
+EVENT_STORE_BUFFER   | Number   | 100                     | maximum number of incoming messages to batch
+EVENT_STORE_TIMEOUT  | Number   | 1000                    | time (in `ms`) to poll Kafka for delivery reports
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-producer-js/issues)
