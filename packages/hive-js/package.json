@@ -27,8 +27,7 @@
     "document": "jsdoc --configure .jsdoc.json --verbose",
     "postdocument": "sed -i 's/Documentation/hive-io/g' docs/index.html docs/Actor.html docs/MessageActor.html docs/Model.html docs/Schema.html docs/System.html docs/global.html",
     "fix": "standard --fix",
-    "prerelease": "del package.tar.gz",
-    "release": "cross-env NODE_ENV=production npm run test:all && npm test && npm run build && node ./bin/compress",
+    "release": "npm run test:all && npm test && npm run build",
     "postrelease": "npm run document",
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
@@ -48,44 +47,43 @@
   "author": "Adam Eilers",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=8",
-    "npm": ">=5"
+    "node": ">=10",
+    "npm": ">=6"
   },
   "dependencies": {
-    "model-json-js": "~0.3.0"
+    "model-json-js": "~0.3.1"
   },
   "devDependencies": {
-    "@babel/cli": "~7.5.0",
-    "@babel/core": "~7.5.4",
+    "@babel/cli": "~7.6.4",
+    "@babel/core": "~7.6.4",
     "@babel/plugin-syntax-object-rest-spread": "~7.2.0",
-    "@babel/plugin-transform-modules-commonjs": "~7.5.0",
-    "@babel/register": "~7.4.4",
-    "archiver": "~3.0.0",
-    "babel-eslint": "~10.0.2",
+    "@babel/plugin-transform-modules-commonjs": "~7.6.0",
+    "@babel/register": "~7.6.2",
+    "babel-eslint": "~10.0.3",
     "babel-plugin-add-module-exports": "~1.0.2",
-    "babel-plugin-istanbul": "~5.1.4",
+    "babel-plugin-istanbul": "~5.2.0",
     "babelify": "~10.0.0",
-    "browserify": "~16.3.0",
+    "browserify": "~16.5.0",
     "chai": "~4.2.0",
     "chai-as-promised": "~7.1.1",
-    "codecov": "~3.5.0",
-    "cross-env": "~5.2.0",
-    "del-cli": "~2.0.0",
+    "codecov": "~3.6.1",
+    "cross-env": "~6.0.3",
+    "del-cli": "~3.0.0",
     "dirty-chai": "~2.0.1",
-    "jsdoc": "~3.6.2",
-    "karma": "~4.1.0",
-    "karma-browserify": "~6.0.0",
+    "jsdoc": "~3.6.3",
+    "karma": "~4.4.1",
+    "karma-browserify": "~6.1.0",
     "karma-browserstack-launcher": "~1.5.1",
-    "karma-chrome-launcher": "~2.2.0",
-    "karma-firefox-launcher": "~1.1.0",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-firefox-launcher": "~1.2.0",
     "karma-mocha": "~1.3.0",
     "minami": "~1.2.3",
-    "mocha": "~6.1.4",
-    "nodemon": "~1.19.1",
+    "mocha": "~6.2.2",
+    "nodemon": "~1.19.4",
     "nyc": "~14.1.1",
-    "sinon": "~7.3.2",
-    "standard": "~13.0.0",
-    "terser": "~4.1.2",
+    "sinon": "~7.5.0",
+    "standard": "~14.3.1",
+    "terser": "~4.3.9",
     "watchify": "~3.11.1"
   },
   "nyc": {
@@ -93,19 +91,19 @@
     "per-file": true,
     "lines": 80,
     "statements": 80,
-    "functions": 75,
-    "branches": 80,
+    "functions": 80,
+    "branches": 75,
     "watermarks": {
       "lines": [
         80,
         90
       ],
       "functions": [
-        75,
+        80,
         90
       ],
       "branches": [
-        80,
+        75,
         90
       ],
       "statements": [

@@ -3,7 +3,6 @@
 [![NPM Version][npm-image]][npm-url]
 [![License][license-image]][license-url]
 [![Build Status][circle-image]][circle-url]
-[![BrowserStack Status][browserstack-image]][browserstack-url]
 [![Code Coverage][codecov-image]][codecov-url]
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
@@ -39,10 +38,6 @@ More examples can be found in the 2 example npm packages:
 
 ## Contributing
 We are currently drafting our contributing guide!
-
-*Browser compatibility testing provided by:*
-
-<a href="https://browserstack.com"><img height="48" src="https://fnalabs.github.io/fnalabs-assets/assets/Browserstack-logo.svg" alt="BrowserStack"></a>
 
 ## Changelog
 #### v2.0.0-rc.2
@@ -106,9 +101,6 @@ We are currently drafting our contributing guide!
 
 [circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js.svg
 [circle-url]: https://circleci.com/gh/fnalabs/hive-js
-
-[browserstack-image]: https://www.browserstack.com/automate/badge.svg?badge_key=aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e
-[browserstack-url]: https://www.browserstack.com/automate/public-build/aWwzemdqdFZaV3E0QXlXTjF4RXdmZ1k2Ni9EMWI1SnRZV2QvNXVtbllBMD0tLVJkQTkzVXdSS0xVRm04TjZ1OGFPVFE9PQ==--8d7a26586a9a27cc4ebb69405c1e3a41f690c56e
 
 [codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js/v2.0.0.svg
 [codecov-url]: https://codecov.io/gh/fnalabs/hive-js

@@ -1,5 +1,5 @@
 // imports
-import { Model } from 'model-json-js'
+import { Model, Schema } from 'model-json-js'
 
 import { parse } from '../util'
 
@@ -8,14 +8,15 @@ const URL = Symbol('Actor URL template')
 export const MODEL = Symbol('Model schema')
 
 /**
- * <p>Class that implements a basic Actor instance in the <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> pattern. It takes 2 parameters, a parsed template literal representing the Actor's URL and an instance of the associated Model's JSON Schema definition.</p>
+ * <p>Class that implements a basic Actor instance in the <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> pattern. It is essentially a combination of a Controller and Model class from the MVC pattern. It takes 3 optional parameters: a parsed template literal representing the Actor's URL, an instance of the associated Model's JSON Schema definition, and a reference to a downstream repository.</p>
  *
  * <p>Primary use case(s) are:
- * <ul><li>local, atomic business logic in <code>perform</code> method</li>
+ * <ul><li>local, atomic business logic in the <code>perform</code> method</li>
  * <li>pass messages to other actors via internal (System) or external (Kafka) message buses</li>
- * <li>simple routing via <code>switch</code>/<code>if</code> conditions for microservices</li></ul></p>
+ * <li>straight forward routing via <code>switch</code>/<code>if</code> conditions for microservices</li></ul></p>
  *
- * <p><strong><em>NOTE:</em></strong> The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.</p>
+ * <p><strong><em>NOTE:</em></strong> The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model as convention.</p>
+ * <p><strong><em>NOTE:</em></strong> If no parameters are defined, be careful <strong>not</strong> to call inherited methods as they expect the Schema to be defined.</p>
  * @property {any} repository - A reference to a storage layer client of your choosing or <code>undefined</code>.
  * @param {Object} [url=parse`/empty`] - The parsed template literal for the Actor's URL.
  * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
@@ -38,16 +39,20 @@ export const MODEL = Symbol('Model schema')
  * })
  */
 class Actor {
-  constructor (url = parse`/empty`, modelSchema, repository) {
-    if (!(typeof url === 'object' && !Array.isArray(url))) {
-      throw new TypeError('#Actor: url must be an object of parsed values')
+  constructor (url, modelSchema, repository) {
+    if (url && url instanceof Schema) {
+      Object.defineProperties(this, {
+        [URL]: { value: parse`/empty` },
+        [MODEL]: { value: url },
+        repository: { value: modelSchema }
+      })
+    } else {
+      Object.defineProperties(this, {
+        [URL]: { value: url },
+        [MODEL]: { value: modelSchema },
+        repository: { value: repository }
+      })
     }
-
-    Object.defineProperties(this, {
-      [URL]: { value: url },
-      [MODEL]: { value: modelSchema },
-      repository: { value: repository }
-    })
   }
 
   /**
@@ -60,7 +65,7 @@ class Actor {
   async perform (model, data) {
     if (typeof model === 'undefined') model = await new Model(data, this[MODEL])
     else if (data && data.payload) {
-      model = this.assign(model, data.payload, data.meta)
+      model = this.assign(model, data.payload)
       if (!(await Model.validate(model))) throw new Error(Model.errors(model)[0])
     }
     return { model }
@@ -74,6 +79,10 @@ class Actor {
    */
   async replay (aggregate) {
     let model
+
+    // if no historical events or snapshots exist, return empty model
+    if (!aggregate) return { model }
+    // handle list of historical events replayed on the model
     if (Array.isArray(aggregate)) {
       for (let i = 0, len = aggregate.length; i < len; i++) {
         const temp = await this.perform(model, aggregate[i])
@@ -81,7 +90,7 @@ class Actor {
       }
       return { model }
     }
-
+    // handle snapshot model instantiation
     return this.perform(model, aggregate)
   }
 
@@ -89,7 +98,6 @@ class Actor {
    * Method used to generate the materialized view of a specified <code>model</code> from specified <code>payload</code>. Arrays on the <code>model</code> are completely replaced by the provided <code>payload</code> currently.
    * @param {Object} model - The instance of a model to receive new data.
    * @param {Object} [payload={}] - The payload to apply to the model.
-   * @param {Object} [meta] - The metadata associated with the payload being assigned.
    * @returns {Object} The updated instance of the model.
    */
   assign (model, payload = {}) {

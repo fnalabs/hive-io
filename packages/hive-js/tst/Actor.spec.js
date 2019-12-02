@@ -46,7 +46,7 @@ describe('class Actor', () => {
     })
 
     it('should create a basic Model Actor with the default url', () => {
-      const testDefaultActor = new Actor(undefined)
+      const testDefaultActor = new Actor(testSchema)
 
       expect(testDefaultActor).to.be.an.instanceof(Actor)
     })

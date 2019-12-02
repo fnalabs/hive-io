@@ -97,8 +97,7 @@ class MessageActor extends Actor {
 
     // call parent perform to init or apply data to model and validate
     if (this[MODEL] && this[MODEL].title) {
-      const type = this[MODEL].title
-      const performed = await super.perform(model, { ...data, type })
+      const performed = await super.perform(model, { ...data, type: this[MODEL].title })
       return { ...performed, command, event }
     }
 
