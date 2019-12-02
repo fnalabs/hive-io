@@ -1,90 +1,124 @@
 /* eslint-env mocha */
 import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import dirtyChai from 'dirty-chai'
 import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 
 chai.use(chaiAsPromised)
+chai.use(dirtyChai)
 
 describe('store', () => {
-  let Store, store
+  let Store, store, consoleStub, disconnectSpy, processStub
+
+  after(() => {
+    consoleStub.restore()
+    disconnectSpy = null
+    processStub.restore()
+  })
+
+  before(() => {
+    consoleStub = sinon.stub(console, 'error')
+    disconnectSpy = sinon.spy()
+    processStub = sinon.stub(process, 'once').value((_type, cb) => cb())
+  })
 
   describe('#constructor', () => {
-    let consumerSpy, connectSpy, onSpy, subscribeSpy, consumeSpy, fromEventPatternStub, fromSpy, concatMapSpy, pipeStub, subscribeStub
+    let constructorSpy, consumerStub
 
     after(() => {
       Store = null
       store = null
 
-      consumerSpy = null
-      connectSpy = null
-      onSpy = null
-      subscribeSpy = null
-      consumeSpy = null
-
-      fromEventPatternStub = null
-      fromSpy = null
-      concatMapSpy = null
-      pipeStub = null
-      subscribeStub = null
+      constructorSpy = null
+      consumerStub = null
     })
 
     before(() => {
-      consumerSpy = sinon.spy()
-      connectSpy = sinon.spy()
-      onSpy = sinon.spy()
-      subscribeSpy = sinon.spy()
-      consumeSpy = sinon.spy()
-
-      pipeStub = sinon.stub().returnsThis()
-      subscribeStub = sinon.stub().returnsThis()
-      fromEventPatternStub = sinon.stub().returns({
-        pipe: pipeStub,
-        subscribe: subscribeStub
-      })
-      fromSpy = sinon.spy()
-      concatMapSpy = sinon.spy()
+      constructorSpy = sinon.spy()
+      consumerStub = sinon.stub().returns({ disconnect () { disconnectSpy() } })
 
       Store = proxyquire('../src/store', {
-        'node-rdkafka': {
-          KafkaConsumer: class KafkaConsumer {
-            constructor () { consumerSpy() }
-            connect () { connectSpy() }
-            on (id, cb) { onSpy(); cb() }
-            subscribe () { subscribeSpy() }
-            consume () { consumeSpy() }
+        '../conf/appConfig': {
+          EVENT_STORE_TOPIC: '',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_GROUP_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_FROM_START: false,
+          EVENT_STORE_PARTITIONS: 1,
+          EVENT_STORE_BUFFER: null,
+          EVENT_STORE_TIMEOUT: null
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            constructor () { constructorSpy() }
+            consumer () { return consumerStub() }
           }
-        },
-        'rxjs': {
-          fromEventPattern: fromEventPatternStub,
-          from: fromSpy
-        },
-        'rxjs/operators': { concatMap: concatMapSpy }
+        }
       })
-      store = new Store({
-        EVENT_STORE_URL: '',
-        EVENT_STORE_ID: '',
-        EVENT_STORE_TIMEOUT: '',
-        EVENT_STORE_PROTOCOL: '',
-        EVENT_STORE_OFFSET: '',
-        AGGREGATE_LIST: ''
-      })
+      store = new Store()
     })
 
     it('should create the Store object', () => {
       expect(store).to.exist()
 
-      expect(consumerSpy.calledOnce).to.be.true()
-      expect(connectSpy.calledOnce).to.be.true()
-      expect(onSpy.calledOnce).to.be.true()
-      expect(subscribeSpy.calledOnce).to.be.true()
-      expect(consumeSpy.calledOnce).to.be.true()
+      expect(store.consume).to.be.a('function')
 
-      expect(fromEventPatternStub.calledOnce).to.be.true()
-      expect(fromSpy.called).to.be.false()
-      expect(concatMapSpy.calledOnce).to.be.true()
-      expect(pipeStub.calledOnce).to.be.true()
-      expect(subscribeStub.calledOnce).to.be.true()
+      expect(constructorSpy.calledOnce).to.be.true()
+      expect(consumerStub.calledOnce).to.be.true()
+
+      expect(disconnectSpy.callCount).to.equal(5)
+    })
+  })
+
+  describe('#consume', () => {
+    let connectSpy, subscribeSpy, runSpy
+
+    after(() => {
+      Store = null
+      store = null
+
+      connectSpy = null
+      subscribeSpy = null
+      runSpy = null
+    })
+
+    before(() => {
+      connectSpy = sinon.spy()
+      subscribeSpy = sinon.spy()
+      runSpy = sinon.spy()
+
+      Store = proxyquire('../src/store', {
+        '../conf/appConfig': {
+          EVENT_STORE_TOPIC: '',
+          EVENT_STORE_ID: '',
+          EVENT_STORE_GROUP_ID: '',
+          EVENT_STORE_BROKERS: '',
+          EVENT_STORE_FROM_START: false,
+          EVENT_STORE_PARTITIONS: 1,
+          EVENT_STORE_BUFFER: null,
+          EVENT_STORE_TIMEOUT: null
+        },
+        kafkajs: {
+          Kafka: class Kafka {
+            consumer () {
+              return {
+                connect () { connectSpy() },
+                subscribe () { subscribeSpy() },
+                run () { runSpy() }
+              }
+            }
+          }
+        }
+      })
+      store = new Store()
+    })
+
+    it('should start consuming events successfully', async () => {
+      await expect(store.consume()).to.eventually.be.fulfilled()
+      expect(connectSpy.calledOnce).to.be.true()
+      expect(subscribeSpy.calledOnce).to.be.true()
+      expect(runSpy.calledOnce).to.be.true()
     })
   })
 })

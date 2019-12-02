@@ -1,16 +1,22 @@
 module.exports = Object.freeze({
-  // application configurations
+  // server configurations
   NODE_ENV: process.env.NODE_ENV || 'production',
-  PORT: process.env.PORT || 3000,
+  PORT: Number.parseInt(process.env.PORT, 10) || 3000,
+  HTTP_VERSION: Number.parseInt(process.env.HTTP_VERSION, 10) || 2,
+  SECURE: process.env.SECURE === 'true',
   CLUSTER_SIZE: process.env.CLUSTER_SIZE,
-  // domain configurations
-  AGGREGATE_LIST: (process.env.AGGREGATE_LIST && process.env.AGGREGATE_LIST.split(',')) || ['content', 'view'],
+  // service configurations
+  PING_URL: process.env.PING_URL || '/ping',
   // actor configurations
-  ACTOR: process.env.ACTOR || 'PostEventActor',
-  ACTOR_LIB: process.env.ACTOR_LIB || 'hive-io-domain-example',
+  ACTOR: process.env.ACTOR,
+  ACTOR_LIB: process.env.ACTOR_LIB,
   // event store configurations
+  EVENT_STORE_TOPIC: process.env.EVENT_STORE_TOPIC,
   EVENT_STORE_ID: process.env.EVENT_STORE_ID,
-  EVENT_STORE_URL: process.env.EVENT_STORE_URL,
-  EVENT_STORE_PROTOCOL: process.env.EVENT_STORE_PROTOCOL || 'roundrobin',
-  EVENT_STORE_OFFSET: process.env.EVENT_STORE_OFFSET || 'latest'
+  EVENT_STORE_GROUP_ID: process.env.EVENT_STORE_GROUP_ID,
+  EVENT_STORE_BROKERS: process.env.EVENT_STORE_BROKERS,
+  EVENT_STORE_FROM_START: process.env.EVENT_STORE_FROM_START === 'true',
+  EVENT_STORE_PARTITIONS: Number.parseInt(process.env.EVENT_STORE_PARTITIONS, 10) || 1,
+  EVENT_STORE_BUFFER: Number.parseInt(process.env.EVENT_STORE_BUFFER, 10) || null,
+  EVENT_STORE_TIMEOUT: Number.parseInt(process.env.EVENT_STORE_TIMEOUT, 10) || null
 })

@@ -1,39 +1,70 @@
 // imports
-import { parse } from 'url'
+import CONFIG from '../conf/appConfig'
 
 import EventStore from './store'
 
+let actor
+
 // constants
-const pingUrlRegexp = new RegExp('^/ping$')
+const pingUrlRegExp = new RegExp(`^${CONFIG.PING_URL}$`)
+
+// helper functions
+export function handleConsume ({ message }) {
+  actor.perform(undefined, JSON.parse(message.value))
+}
+
+export function send (res, status = 200, model = null) {
+  if (model === null) {
+    res.writeHead(status, { 'Content-Type': 'text/plain' })
+    res.end()
+  } else {
+    const str = JSON.stringify(model)
+
+    res.writeHead(status, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Length': Buffer.byteLength(str)
+    })
+    res.end(str)
+  }
+}
 
 // export main
-export default async function main (CONFIG, micro) {
-  const { send } = micro
-
+export default async function main () {
   // init dependencies
   const Actor = await require(CONFIG.ACTOR_LIB)[CONFIG.ACTOR]
-  const actor = await new Actor()
+  actor = await new Actor()
 
   // init event store to start consuming data
-  new EventStore(CONFIG, actor) // eslint-disable-line no-new
+  const store = new EventStore()
+  await store.consume(handleConsume)
 
   // router for microservice
-  async function route (req, res) {
-    if (pingUrlRegexp.test(req.url)) return send(res, 200)
+  return async function route (req, res) {
+    if (pingUrlRegExp.test(req.url)) return send(res)
     if (req.method !== 'GET') {
-      return send(res, 405, {errors: [
-        {message: 'Consumers only receive GET requests'}
-      ]})
+      return send(res, 405, {
+        errors: [
+          { message: 'Consumers only receive GET requests' }
+        ]
+      })
     }
 
-    // construct data with parsed request data for query processing
+    // copy common req public properties to data.meta for query processing
     const data = {
       meta: {
-        headers: { ...req.headers },
-        method: req.method,
-        url: parse(req.url, true),
-        urlParams: actor.parse(req.url)
+        req: {
+          headers: {},
+          method: req.method,
+          url: req.url,
+          urlParams: actor.parse(req.url)
+        }
       }
+    }
+    const keys = Object.keys(req.headers)
+    for (let i = 0, len = keys.length; i < len; i++) {
+      data.meta.req.headers[keys[i]] = Array.isArray(req.headers[keys[i]])
+        ? Array.from(req.headers[keys[i]])
+        : req.headers[keys[i]]
     }
 
     try {
@@ -41,9 +72,7 @@ export default async function main (CONFIG, micro) {
 
       return send(res, 200, model)
     } catch (e) {
-      return send(res, e.statusCode || 400, {errors: [e.message]})
+      return send(res, e.statusCode || 400, { errors: [e.message] })
     }
   }
-
-  return micro(route)
 }

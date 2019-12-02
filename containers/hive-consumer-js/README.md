@@ -44,19 +44,24 @@ RUN npm install hive-io-domain-example
 ### Environment variables
 Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Consumer. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
-Name                  | Type    | Default                   | Description
---------------------- | ------- | ------------------------- | -------------------------------------------------------
-NODE_ENV              | String  | 'production'              | app runtime environment
-PORT                  | Number  | 3000                      | app port to listen on
-CLUSTER_SIZE          | Number  | [total CPUs available]    | defaults to the total available CPUs allocated to the container or to the size you specify here
-AGGREGATE_LIST        | String  | 'content,view'            | comma separated list of aggregates to consume
-ACTOR                 | String  | 'PostEventActor'          | Actor to denormalize the aggregates
-ACTOR_LIB             | String  | 'hive-io-domain-example'  | library where the PROJECTION resides
-EVENT_STORE_ID        | String  |                           | unique identifier for Kafka client connection
-EVENT_STORE_URL       | String  |                           | URL where Kafka is hosted
-EVENT_STORE_TIMEOUT   | Number  | 15000                     | Kafka ConsumerGroup connection timeout in milliseconds
-EVENT_STORE_PROTOCOL  | String  | 'roundrobin'              | Kafka ConsumerGroup load balancing protocol
-EVENT_STORE_OFFSET    | String  | 'latest'                  | Kafka ConsumerGroup read log starting point
+Name                    | Type     | Default                 | Description
+----------------------- | -------- | ----------------------- | -------------------------------------------------------
+NODE_ENV                | String   | 'production'            | app runtime environment
+PORT                    | Number   | 3000                    | app port to listen on
+HTTP_VERSION            | Number   | 2                       | HTTP version for backward compatibility
+SECURE                  | Boolean  | false                   | whether to run server as a secure server or not. defaults to false for certifications
+CLUSTER_SIZE            | Number   | [total CPUs available]  | defaults to the total available CPUs allocated to the container or to the size you specify here
+PING_URL                | String   | '/ping'                 | URL to use for shallow health checks for the service
+ACTOR                   | String   |                         | Actor to denormalize the aggregates
+ACTOR_LIB               | String   |                         | library where the PROJECTION resides
+EVENT_STORE_TOPIC       | String   |                         | Kafka topic the models will be stored under
+EVENT_STORE_ID          | String   |                         | unique identifier for Kafka client connection
+EVENT_STORE_GROUP_ID    | String   |                         | defines Kafka Consumer group id
+EVENT_STORE_BROKERS     | String   |                         | comma separated URLs where Kafka is hosted
+EVENT_STORE_FROM_START  | Boolean  | false                   | tells Consumer whether or not to start at the beginning of the topic
+EVENT_STORE_PARTITIONS  | Number   | 1                       | tells Consumer how many partitions to consume
+EVENT_STORE_BUFFER      | Number   | null                    | maximum number of incoming messages to batch
+EVENT_STORE_TIMEOUT     | Number   | null                    | time (in `ms`) to poll Kafka for delivery reports
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-consumer-js/issues)
