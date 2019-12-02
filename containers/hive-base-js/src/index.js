@@ -85,8 +85,6 @@ export default async function main () {
 
   // router for microservice
   return async function route (req, res) {
-    console.log(req.httpVersion, req.method, req.url)
-
     if (pingUrlRegExp.test(req.url)) return send(res)
 
     try {

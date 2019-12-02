@@ -1,8 +1,8 @@
 module.exports = Object.freeze({
   // server configurations
   NODE_ENV: process.env.NODE_ENV || 'production',
-  PORT: Number(process.env.PORT) || 3000,
-  HTTP_VERSION: Number(process.env.HTTP_VERSION) || 2,
+  PORT: Number.parseInt(process.env.PORT, 10) || 3000,
+  HTTP_VERSION: Number.parseInt(process.env.HTTP_VERSION, 10) || 2,
   SECURE: process.env.SECURE === 'true',
   CLUSTER_SIZE: process.env.CLUSTER_SIZE,
   // service configurations

@@ -11,7 +11,7 @@ chai.use(chaiHttp)
 chai.use(dirtyChai)
 
 describe('app', () => {
-  let app, route, parseStub, performStub, logStub
+  let app, route, parseStub, performStub
 
   describe('#routes', () => {
     const performStubs = [
@@ -25,22 +25,12 @@ describe('app', () => {
       sinon.stub().throws(Error)
     ]
 
-    after(() => {
-      logStub.restore()
-    })
-
     afterEach(() => {
-      logStub.reset()
-
       app = null
       route = null
 
       parseStub = null
       performStub = null
-    })
-
-    before(() => {
-      logStub = sinon.stub(console, 'log')
     })
 
     beforeEach(async () => {
@@ -73,7 +63,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.called).to.be.false()
           expect(performStub.called).to.be.false()
 
@@ -88,7 +77,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
 
@@ -104,7 +92,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
 
@@ -120,7 +107,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
 
@@ -136,7 +122,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
 
@@ -152,7 +137,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
 
@@ -170,7 +154,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(200)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
 
@@ -186,7 +169,6 @@ describe('app', () => {
           expect(err).to.be.null()
           expect(res).to.have.status(400)
 
-          expect(logStub.calledOnce).to.be.true()
           expect(parseStub.calledOnce).to.be.true()
           expect(performStub.calledOnce).to.be.true()
 
