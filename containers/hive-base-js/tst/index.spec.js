@@ -38,7 +38,7 @@ describe('app', () => {
       parseStub = sinon.stub().returns({})
 
       const main = proxyquire('../src/', {
-        '../conf/appConfig': {
+        '../conf': {
           ACTOR_LIB: 'codecov',
           ACTOR: 'PostActor',
           PING_URL: '/ping',

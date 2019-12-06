@@ -3,36 +3,33 @@ version: 2.0
 jobs:
   checkout_code:
     docker:
-      - image: circleci/node:10.16.3
-    working_directory: ~/hive-rest-js
+      - image: circleci/node:12.13.1
+    working_directory: ~/hive-base-js
     steps:
       - checkout
       - save_cache:
           key: repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - ~/hive-rest-js
+            - ~/hive-base-js
 
   install_dependencies:
     docker:
-      - image: circleci/node:10.16.3
-    working_directory: ~/hive-rest-js
+      - image: circleci/node:12.13.1
+    working_directory: ~/hive-base-js
     steps:
       - restore_cache:
           keys:
             - repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-      - restore_cache:
-          keys:
-            - dependencies-{{ .Branch }}-{{ checksum "package.json" }}
       - run: npm install --no-optional
       - save_cache:
           key: dependencies-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
-            - ~/hive-rest-js/node_modules
+            - ~/hive-base-js/node_modules
 
   test:
     docker:
-      - image: circleci/node:10.16.3
-    working_directory: ~/hive-rest-js
+      - image: circleci/node:12.13.1
+    working_directory: ~/hive-base-js
     steps:
       - restore_cache:
           keys:
@@ -47,14 +44,14 @@ jobs:
           name: Run coverage report
           command: npm run coverage
       - store_test_results:
-          path: ~/hive-rest-js/coverage.lcov
+          path: ~/hive-base-js/coverage.lcov
       - store_artifacts:
-          path: ~/hive-rest-js/coverage.lcov
+          path: ~/hive-base-js/coverage.lcov
 
   build:
     docker:
-      - image: circleci/node:10.16.3
-    working_directory: ~/hive-rest-js
+      - image: circleci/node:12.13.1
+    working_directory: ~/hive-base-js
     steps:
       - restore_cache:
           keys:

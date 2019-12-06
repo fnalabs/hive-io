@@ -1,13 +1,12 @@
-# hive-rest-js
+# hive-base-js
 
 [![Docker Image][docker-image]][docker-url]
 [![License][license-image]][license-url]
-[![Build Status][circle-image]][circle-url]
 [![Code Coverage][codecov-image]][codecov-url]
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework REST service in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-rest-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework REST service in Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-base-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -28,13 +27,13 @@ To use, you'll need:
 ### Installing
 To start using in your own infrastructure, pull the base image:
 ```sh
-$ docker pull fnalabs/hive-rest-js:<[release]|latest>
+$ docker pull fnalabs/hive-base-js:<[release]|latest>
 ```
 
 ### Examples
 To use, write your own Dockerfile and add any additional dependencies, including the package with your RESTful Actors.
 ```
-FROM fnalabs/hive-rest-js:latest
+FROM fnalabs/hive-base-js:latest
 RUN npm install hive-io-rest-example
 ```
 
@@ -54,22 +53,19 @@ ACTOR              | String   |                         | Actor (Model) the micr
 ACTOR_LIB          | String   |                         | module where the ACTOR resides
 
 ## Future
-- feature requests via [issues](https://github.com/fnalabs/hive-rest-js/issues)
+- feature requests via [issues](https://github.com/fnalabs/hive-base-js/issues)
 
-[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-rest-js.svg
-[docker-url]: https://hub.docker.com/r/fnalabs/hive-rest-js/
+[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-base-js.svg
+[docker-url]: https://hub.docker.com/r/fnalabs/hive-base-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
-[license-url]: https://github.com/fnalabs/hive-rest-js/blob/master/LICENSE
+[license-url]: https://github.com/fnalabs/hive-base-js/blob/master/LICENSE
 
-[circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-rest-js.svg
-[circle-url]: https://circleci.com/gh/fnalabs/hive-rest-js
+[codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-base-js.svg
+[codecov-url]: https://codecov.io/gh/fnalabs/hive-base-js
 
-[codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-rest-js.svg
-[codecov-url]: https://codecov.io/gh/fnalabs/hive-rest-js
-
-[depstat-image]: https://img.shields.io/david/fnalabs/hive-rest-js.svg
-[depstat-url]: https://david-dm.org/fnalabs/hive-rest-js
+[depstat-image]: https://img.shields.io/david/fnalabs/hive-base-js.svg
+[depstat-url]: https://david-dm.org/fnalabs/hive-base-js
 
 [style-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
 [style-url]: https://standardjs.com

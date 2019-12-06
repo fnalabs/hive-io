@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const CONFIG = require('../conf/appConfig')
+const CONFIG = require('../conf')
 const CPU_COUNT = (CONFIG.CLUSTER_SIZE && Number.parseInt(CONFIG.CLUSTER_SIZE)) || require('os').cpus().length
 const isHTTP2 = CONFIG.HTTP_VERSION === 2
 

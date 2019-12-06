@@ -1,5 +1,5 @@
 // imports
-import CONFIG from '../conf/appConfig'
+import CONFIG from '../conf'
 
 // constants
 const pingUrlRegExp = new RegExp(`^${CONFIG.PING_URL}$`)
