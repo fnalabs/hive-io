@@ -2,7 +2,6 @@
 
 [![NPM Version][npm-image]][npm-url]
 [![License][license-image]][license-url]
-[![Build Status][circle-image]][circle-url]
 [![Code Coverage][codecov-image]][codecov-url]
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
@@ -98,9 +97,6 @@ We are currently drafting our contributing guide!
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license-url]: https://github.com/fnalabs/hive-js/blob/master/LICENSE
-
-[circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js.svg
-[circle-url]: https://circleci.com/gh/fnalabs/hive-js
 
 [codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js/v2.0.0.svg
 [codecov-url]: https://codecov.io/gh/fnalabs/hive-js

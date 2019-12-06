@@ -103,6 +103,11 @@ describe('class Actor', () => {
   })
 
   describe('#replay', () => {
+    it('should replay undefined data successfully', async () => {
+      const { model } = await testActor.replay()
+      expect(model).to.be.undefined()
+    })
+
     it('should replay a single data payload successfully', async () => {
       const { model } = await testActor.replay(data)
       expect(model).to.deep.equal({ view: 1 })

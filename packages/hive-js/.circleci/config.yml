@@ -3,7 +3,7 @@ version: 2.0
 jobs:
   checkout_code:
     docker:
-      - image: circleci/node:10.16.3
+      - image: circleci/node:12.13.1
     working_directory: ~/hive-io
     steps:
       - checkout
@@ -14,15 +14,12 @@ jobs:
 
   install_dependencies:
     docker:
-      - image: circleci/node:10.16.3
+      - image: circleci/node:12.13.1
     working_directory: ~/hive-io
     steps:
       - restore_cache:
           keys:
             - repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
-      - restore_cache:
-          keys:
-            - dependencies-{{ .Branch }}-{{ checksum "package.json" }}
       - run: npm install --no-optional
       - save_cache:
           key: dependencies-{{ .Branch }}-{{ checksum "package.json" }}
@@ -31,7 +28,7 @@ jobs:
 
   test:
     docker:
-      - image: circleci/node:10.16.3
+      - image: circleci/node:12.13.1
     working_directory: ~/hive-io
     steps:
       - restore_cache:
@@ -53,7 +50,7 @@ jobs:
 
   browserstack:
     docker:
-      - image: circleci/node:10.16.3
+      - image: circleci/node:12.13.1
     working_directory: ~/schema-json-js
     steps:
       - restore_cache:
@@ -68,7 +65,7 @@ jobs:
 
   build:
     docker:
-      - image: circleci/node:10.16.3
+      - image: circleci/node:12.13.1
     working_directory: ~/hive-io
     steps:
       - restore_cache:
