@@ -1,5 +1,5 @@
 // imports
-import CONFIG from '../conf/appConfig'
+import CONFIG from '../conf'
 
 import { Kafka, CompressionTypes } from 'kafkajs'
 

@@ -39,7 +39,7 @@ describe('store', () => {
 
     it('should create the Store object with the default processor type', async () => {
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           PROCESSOR_TYPE: 'producer',
           EVENT_STORE_PRODUCER_TOPIC: '',
           EVENT_STORE_ID: '',
@@ -78,7 +78,7 @@ describe('store', () => {
 
     it('should create the Store object with the consumer processor type', async () => {
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           PROCESSOR_TYPE: 'consumer',
           EVENT_STORE_CONSUMER_TOPIC: 'test',
           EVENT_STORE_ID: '',
@@ -117,7 +117,7 @@ describe('store', () => {
 
     it('should create the Store object with the stream_processor processor type', async () => {
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           PROCESSOR_TYPE: 'stream_processor',
           EVENT_STORE_PRODUCER_TOPIC: '',
           EVENT_STORE_CONSUMER_TOPIC: 'test',
@@ -178,7 +178,7 @@ describe('store', () => {
       runSpy = sinon.spy()
 
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           PROCESSOR_TYPE: 'consumer',
           EVENT_STORE_CONSUMER_TOPIC: 'test',
           EVENT_STORE_ID: '',
@@ -234,7 +234,7 @@ describe('store', () => {
       processStub = sinon.stub(process, 'once')
 
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           PROCESSOR_TYPE: 'producer',
           EVENT_STORE__PRODUCER_TOPIC: '',
           EVENT_STORE_ID: '',
@@ -293,7 +293,7 @@ describe('store', () => {
       toJsonStub = sinon.stub().returns({})
 
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           PROCESSOR_TYPE: 'producer',
           EVENT_STORE_PRODUCER_TOPIC: '',
           EVENT_STORE_ID: '',

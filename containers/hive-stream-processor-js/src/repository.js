@@ -1,5 +1,5 @@
 // imports
-import CONFIG from '../conf/appConfig'
+import CONFIG from '../conf'
 
 import Redis from 'ioredis'
 import Redlock from 'redlock'

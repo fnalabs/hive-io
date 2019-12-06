@@ -29,7 +29,7 @@ describe('repository', () => {
       redlockOnSpy = sinon.spy()
 
       Repository = proxyquire('../src/repository', {
-        '../conf/appConfig': {
+        '../conf': {
           CACHE_URL: '',
           LOCK_TTL: 1000,
           LOCK_DRIFT_FACTOR: 0.01,
@@ -78,7 +78,7 @@ describe('repository', () => {
       deleteSpy = sinon.spy()
 
       Repository = proxyquire('../src/repository', {
-        '../conf/appConfig': {
+        '../conf': {
           CACHE_URL: '',
           LOCK_TTL: 1000,
           LOCK_DRIFT_FACTOR: 0.01,
@@ -122,7 +122,7 @@ describe('repository', () => {
       getStub = getStubs.shift()
 
       Repository = proxyquire('../src/repository', {
-        '../conf/appConfig': {
+        '../conf': {
           CACHE_URL: '',
           LOCK_TTL: 1000,
           LOCK_DRIFT_FACTOR: 0.01,
@@ -187,7 +187,7 @@ describe('repository', () => {
       lockStub = sinon.stub().returns(Promise.resolve({ unlock: unlockSpy }))
 
       Repository = proxyquire('../src/repository', {
-        '../conf/appConfig': {
+        '../conf': {
           CACHE_URL: '',
           LOCK_TTL: 1000,
           LOCK_DRIFT_FACTOR: 0.01,
@@ -275,7 +275,7 @@ describe('repository', () => {
       lockStub = sinon.stub().returns(Promise.resolve({ unlock: unlockSpy }))
 
       Repository = proxyquire('../src/repository', {
-        '../conf/appConfig': {
+        '../conf': {
           CACHE_URL: '',
           LOCK_TTL: 1000,
           LOCK_DRIFT_FACTOR: 0.01,
