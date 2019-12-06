@@ -43,7 +43,7 @@ describe('app', () => {
       produceSpy = sinon.spy()
 
       const main = proxyquire('../src/', {
-        '../conf/appConfig': {
+        '../conf': {
           ACTOR_LIB: 'kafkajs',
           ACTOR: 'ViewActor',
           PING_URL: '/ping',
