@@ -2,12 +2,11 @@
 
 [![Docker Image][docker-image]][docker-url]
 [![License][license-image]][license-url]
-[![Build Status][circle-image]][circle-url]
 [![Code Coverage][codecov-image]][codecov-url]
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework Consumer in Node.js with [Micro](https://www.npmjs.com/package/micro) in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework Consumer in Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -71,9 +70,6 @@ EVENT_STORE_TIMEOUT     | Number   | null                    | time (in `ms`) to
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license-url]: https://github.com/fnalabs/hive-consumer-js/blob/master/LICENSE
-
-[circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-consumer-js.svg
-[circle-url]: https://circleci.com/gh/fnalabs/hive-consumer-js
 
 [codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-consumer-js.svg
 [codecov-url]: https://codecov.io/gh/fnalabs/hive-consumer-js

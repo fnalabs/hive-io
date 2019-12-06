@@ -39,7 +39,7 @@ describe('store', () => {
       consumerStub = sinon.stub().returns({ disconnect () { disconnectSpy() } })
 
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           EVENT_STORE_TOPIC: '',
           EVENT_STORE_ID: '',
           EVENT_STORE_GROUP_ID: '',
@@ -89,7 +89,7 @@ describe('store', () => {
       runSpy = sinon.spy()
 
       Store = proxyquire('../src/store', {
-        '../conf/appConfig': {
+        '../conf': {
           EVENT_STORE_TOPIC: '',
           EVENT_STORE_ID: '',
           EVENT_STORE_GROUP_ID: '',
