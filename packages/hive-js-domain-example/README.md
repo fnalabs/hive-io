@@ -42,7 +42,7 @@ Once you get the app running using the [setup instructions](#getting-started) be
 ### [Source Code](https://github.com/fnalabs/hive-js-domain-example)
 
 ## Getting Started
-This is a straight forward CQRS/ES example of a `Post` Entity that contains text, a couple boolean flags, and a count of how many views it has. It is a highly distributed application with the expectation that `viewed` traffic will be much larger than `content` management traffic. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
+This is a straight forward CQRS/ES example of a `Post` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It is a highly distributed application with the expectation that `viewed` traffic will be much larger than `content` management traffic. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
 
 ### Prerequisites
 To use, you'll need:
