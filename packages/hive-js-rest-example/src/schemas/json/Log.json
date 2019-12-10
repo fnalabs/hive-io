@@ -13,8 +13,8 @@
       "type": "string"
     },
     "url": {
-      "description": "Node.js legacy URL object",
-      "type": "object"
+      "description": "HTTP request url",
+      "type": "string"
     },
     "urlParams": {
       "description": "Hive^io url params",

@@ -1,6 +1,6 @@
 // imports
 import uuidV4 from 'uuid/v4'
-import { parse, Actor, Schema } from 'hive-io'
+import { Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
 
@@ -8,10 +8,6 @@ import PostSchema from '../../schemas/json/Post.json'
  * class PostPostActor
  */
 class PostPostActor extends Actor {
-  constructor (postSchema, repository) {
-    super(parse`/post/${'postId'}`, postSchema, repository)
-  }
-
   async perform (model, data) {
     const Model = this.repository
 

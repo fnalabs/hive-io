@@ -19,25 +19,28 @@ const urlRegexp = new RegExp('^/posts')
 // private properties
 const ACTORS = Symbol('Actors')
 const LOG_SCHEMA = Symbol('Log schema')
+const LOG_SYSTEM = Symbol('Log system')
 
 /*
  * class PostActor
  */
 class PostActor extends Actor {
   constructor (logSchema, logSystem, actors) {
-    super(parse`/posts/${'postId'}`, undefined, logSystem)
+    super(parse`/posts/${'postId'}`)
+
     Object.defineProperties(this, {
       [ACTORS]: { value: actors },
-      [LOG_SCHEMA]: { value: logSchema }
+      [LOG_SCHEMA]: { value: logSchema },
+      [LOG_SYSTEM]: { value: logSystem }
     })
   }
 
   async perform (model, data) {
-    if (!urlRegexp.test(data.meta.url.pathname)) throw new Error(`${data.meta.url.pathname} not supported`)
+    if (!urlRegexp.test(data.meta.req.url)) throw new Error(`${data.meta.req.url} not supported`)
 
     let results
     data.type = 'Post'
-    switch (data.meta.method) {
+    switch (data.meta.req.method) {
       case 'GET':
         results = await this[ACTORS].getPostActor.perform(model, data)
         break
@@ -58,8 +61,8 @@ class PostActor extends Actor {
         throw new Error('HTTP verb not supported')
     }
 
-    const log = await new Model({ type: 'Log', payload: data.meta }, this[LOG_SCHEMA], { immutable: true })
-    this.repository.emit(log)
+    const log = await new Model({ type: 'Log', payload: data.meta.req }, this[LOG_SCHEMA], { immutable: true })
+    this[LOG_SYSTEM].emit(log)
 
     return results
   }

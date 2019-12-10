@@ -49,7 +49,7 @@ export default class PostSchema extends Schema {
           delete ret._id
           return {
             type: 'Post',
-            data: ret
+            payload: ret
           }
         }
       },

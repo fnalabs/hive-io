@@ -1,5 +1,5 @@
 // imports
-import { parse, Actor, Schema } from 'hive-io'
+import { Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
 
@@ -7,12 +7,8 @@ import PostSchema from '../../schemas/json/Post.json'
  * class GetPostActor
  */
 class GetPostActor extends Actor {
-  constructor (postSchema, repository) {
-    super(parse`/post/${'postId'}`, postSchema, repository)
-  }
-
   async perform (model, data) {
-    const _id = data.meta.urlParams.postId
+    const _id = data.meta.req.urlParams.postId
     const conditions = { _id }
     const update = { $inc: { viewed: 1 } }
 

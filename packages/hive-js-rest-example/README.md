@@ -1,7 +1,6 @@
 # hive-io-rest-example
 
 [![NPM Version][npm-image]][npm-url]
-[![Build Status][circle-image]][circle-url]
 [![Code Coverage][codecov-image]][codecov-url]
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
@@ -43,7 +42,7 @@ Once you get the app running using the [setup instructions](#getting-started) be
 ### [Source Code](https://github.com/fnalabs/hive-js-rest-example)
 
 ## Getting Started
-This is a straight forward CRUD example of a `Post` Entity that contains text, a couple boolean flags, and a count of how many views it has. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
+This is a straight forward CRUD example of a `Post` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
 
 ### Prerequisites
 To use, you'll need:
@@ -56,7 +55,7 @@ To start using:
 1. Create the following files:
     - `Dockerfile`
         ```
-        FROM fnalabs/hive-rest-js:latest
+        FROM fnalabs/hive-base-js:latest
         RUN npm install hive-io-rest-example
         ```
     - `docker-compose.yml`
@@ -65,7 +64,7 @@ To start using:
         services:
           hive-rest-js:
             build: .
-            image: hive-rest-js
+            image: hive-base-js
             environment:
               CLUSTER_SIZE: 1
               MONGO_URL: "mongodb://mongo:27017/post"
@@ -114,9 +113,6 @@ FLUENTD_RECONNECT  | Number  | 600000                        | Reconnect Interva
 
 [npm-image]: https://img.shields.io/npm/v/hive-io-rest-example.svg
 [npm-url]: https://www.npmjs.com/package/hive-io-rest-example
-
-[circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js-rest-example.svg
-[circle-url]: https://circleci.com/gh/fnalabs/hive-js-rest-example
 
 [codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js-rest-example/master.svg
 [codecov-url]: https://codecov.io/gh/fnalabs/hive-js-rest-example

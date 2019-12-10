@@ -11,7 +11,7 @@ import LogSchema from '../../src/schemas/json/Log.json'
 chai.use(dirtyChai)
 
 // constants
-const logData = { type: 'Log', payload: { url: { pathname: '/posts' }, urlParams: { postId: '1' }, method: 'GET' } }
+const logData = { type: 'Log', payload: { url: '/posts', urlParams: { postId: '1' }, method: 'GET' } }
 
 describe('LogSystem', () => {
   let LogSystem, logSystem, logSchema, logModel, performSpy
