@@ -1,6 +1,6 @@
 // imports
 import http from 'http'
-import { parse, Actor } from 'hive-io'
+import { Actor } from 'hive-io'
 
 import CONSTANTS from '../constants'
 
@@ -15,20 +15,9 @@ const OPTIONS = {
 /*
  * class ViewActor
  */
-class ViewActor extends Actor {
-  constructor () {
-    super(parse`/views`)
-  }
-
+export default class ViewActor extends Actor {
   async perform (model) {
     OPTIONS.path = `/posts/${model.id}`
     http.request(OPTIONS).end()
   }
 }
-
-/*
- * Proxy<ViewActor>
- */
-export default new Proxy(ViewActor, {
-  construct: async function (ViewActor) { return new ViewActor() }
-})

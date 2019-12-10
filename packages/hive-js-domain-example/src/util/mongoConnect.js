@@ -8,6 +8,6 @@ export default async function mongoConnect () {
       .on('close', () => console.log('Database connection closed.')) // eslint-disable-line no-console
       .once('open', () => resolve(mongoose))
 
-    mongoose.connect(CONSTANTS.MONGO_URL)
+    mongoose.connect(CONSTANTS.MONGO_URL, { useFindAndModify: false })
   })
 }

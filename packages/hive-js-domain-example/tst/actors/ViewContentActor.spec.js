@@ -29,10 +29,10 @@ describe('ViewContentActor', () => {
   })
 
   it('should process a View data successfully', async () => {
-    const data = { meta: { urlParams: { id: '1' } } }
-    const { model } = await viewContentActor.perform(undefined, data)
+    const data = { meta: { req: { urlParams: { id: '1' } } } }
+    const { event } = await viewContentActor.perform(undefined, data)
 
-    expect(model).to.be.an.instanceof(Model)
-    expect(model).to.deep.equal({ id: '1' })
+    expect(event).to.be.an.instanceof(Model)
+    expect(event).to.deep.equal({ id: '1' })
   })
 })

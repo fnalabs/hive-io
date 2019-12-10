@@ -1,7 +1,7 @@
 // imports
 import CONSTANTS from '../../constants'
 
-import { parse, Actor, Model, Schema } from 'hive-io'
+import { Actor, Model, Schema } from 'hive-io'
 
 import mongoConnect from '../../util/mongoConnect'
 import LogSystem from '../../systems/LogSystem'
@@ -18,14 +18,15 @@ const LOG_SYSTEM = Symbol('Log System')
  */
 class PostEventActor extends Actor {
   constructor (logSchema, logSystem, repository) {
-    super(parse`/posts`, undefined, repository)
+    super(undefined, undefined, repository)
+
     Object.defineProperties(this, {
       [LOG_SCHEMA]: { value: logSchema },
       [LOG_SYSTEM]: { value: logSystem }
     })
   }
 
-  async perform (model, data) {
+  async perform (_model, data) {
     const id = data.payload.id
     const conditions = { _id: id }
 

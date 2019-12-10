@@ -1,12 +1,12 @@
 {
   "title": "EnabledContent",
   "description": "event used to log enabled Post Content",
-  "$id": "https://hiveframework.io/api/v1/events/EnabledContent",
+  "$id": "https://hiveframework.io/api/v2/events/EnabledContent",
   "type": "object",
   "properties": {
     "id": {
       "description": "Post Id Value Object",
-      "$id": "https://hiveframework.io/api/v1/models/PostId#/properties/id"
+      "$id": "https://hiveframework.io/api/v2/models/PostId#/properties/id"
     }
   },
   "additionalProperties": false,

@@ -1,5 +1,5 @@
 // imports
-import { parse, MessageActor, Schema } from 'hive-io'
+import { MessageActor, Schema } from 'hive-io'
 
 import ContentSchema from '../../schemas/json/Content.json'
 import PostIdSchema from '../../schemas/json/PostId.json'
@@ -10,18 +10,14 @@ import EditedContentSchema from '../../schemas/json/events/EditedContent.json'
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/Content': ContentSchema,
-  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
+  'https://hiveframework.io/api/v2/models/Content': ContentSchema,
+  'https://hiveframework.io/api/v2/models/PostId': PostIdSchema
 }
 
 /*
  * class EditContentActor
  */
 class EditContentActor extends MessageActor {
-  constructor (postSchema, editedContentSchema, editContentSchema) {
-    super(parse`/posts/${'id'}/content`, postSchema, editedContentSchema, editContentSchema)
-  }
-
   async perform (modelInst, data) {
     if (typeof modelInst === 'undefined') throw new Error(`#${data.type}: ${data.payload.id} doesn't exist`)
 
@@ -29,7 +25,7 @@ class EditContentActor extends MessageActor {
 
     model.edited = true
 
-    return { id: model.id, command, event, model }
+    return { meta: { key: model.id }, command, event, model }
   }
 }
 
@@ -42,6 +38,6 @@ export default new Proxy(EditContentActor, {
     const editedContentSchema = await new Schema(EditedContentSchema, REFS)
     const editContentSchema = await new Schema(EditContentSchema, REFS)
 
-    return new EditContentActor(postSchema, editedContentSchema, editContentSchema)
+    return new EditContentActor(undefined, postSchema, editedContentSchema, editContentSchema)
   }
 })

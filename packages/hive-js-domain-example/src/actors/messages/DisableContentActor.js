@@ -1,5 +1,5 @@
 // imports
-import { parse, MessageActor, Schema } from 'hive-io'
+import { MessageActor, Schema } from 'hive-io'
 
 import ContentSchema from '../../schemas/json/Content.json'
 import PostIdSchema from '../../schemas/json/PostId.json'
@@ -9,18 +9,14 @@ import DisabledContentSchema from '../../schemas/json/events/DisabledContent.jso
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/Content': ContentSchema,
-  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
+  'https://hiveframework.io/api/v2/models/Content': ContentSchema,
+  'https://hiveframework.io/api/v2/models/PostId': PostIdSchema
 }
 
 /*
  * class DisableContentActor
  */
 class DisableContentActor extends MessageActor {
-  constructor (postSchema, disabledContentSchema) {
-    super(parse`/posts/${'id'}/content`, postSchema, disabledContentSchema)
-  }
-
   async perform (modelInst, data) {
     if (modelInst.enabled === false) throw new Error('#DisableContent: content already disabled')
 
@@ -28,7 +24,7 @@ class DisableContentActor extends MessageActor {
 
     model.enabled = false
 
-    return { id: model.id, command, event, model }
+    return { meta: { key: model.id }, command, event, model }
   }
 }
 
@@ -40,6 +36,6 @@ export default new Proxy(DisableContentActor, {
     const postSchema = await new Schema(PostSchema, REFS)
     const disabledContentSchema = await new Schema(DisabledContentSchema, REFS)
 
-    return new DisableContentActor(postSchema, disabledContentSchema)
+    return new DisableContentActor(undefined, postSchema, disabledContentSchema)
   }
 })

@@ -6,7 +6,7 @@ import ViewedContentSchema from '../../schemas/json/events/ViewedContent.json'
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
+  'https://hiveframework.io/api/v2/models/PostId': PostIdSchema
 }
 
 /*
@@ -17,12 +17,13 @@ class ViewContentActor extends Actor {
     super(parse`/posts/${'id'}`, viewedContentSchema)
   }
 
-  async perform (modelInst, data) {
+  async perform (_model, data) {
     data.type = 'ViewedContent'
-    data.payload = { id: data.meta.urlParams.id }
-    const { model } = await super.perform(modelInst, data)
+    data.payload = { id: data.meta.req.urlParams.id }
+    const { model } = await super.perform(_model, data)
 
-    return { id: data.meta.urlParams.id, model }
+    // NOTE: return model as event since this Producer isn't exposed publicly
+    return { meta: { key: model.id }, event: model }
   }
 }
 

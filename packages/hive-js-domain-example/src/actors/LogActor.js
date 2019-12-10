@@ -1,5 +1,5 @@
 // imports
-import { parse, Actor, Schema } from 'hive-io'
+import { Actor, Schema } from 'hive-io'
 
 import fluentConnect from '../util/fluentConnect'
 
@@ -9,10 +9,6 @@ import LogSchema from '../schemas/json/Log.json'
  * class LogActor
  */
 class LogActor extends Actor {
-  constructor (logSchema, logger) {
-    super(parse`/logs`, logSchema, logger)
-  }
-
   async perform (model) {
     this.repository.emit(LogSchema.title, { message: JSON.stringify(model) })
   }

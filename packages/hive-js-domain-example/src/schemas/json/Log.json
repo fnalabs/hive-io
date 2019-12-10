@@ -1,7 +1,7 @@
 {
   "title": "Log",
   "description": "value object that defines log format",
-  "$id": "https://hiveframework.io/api/v1/models/Log",
+  "$id": "https://hiveframework.io/api/v2/models/Log",
   "type": "object",
   "properties": {
     "actor": {
@@ -17,8 +17,8 @@
       "type": "string"
     },
     "url": {
-      "description": "Node.js legacy URL object",
-      "type": "object"
+      "description": "HTTP request url",
+      "type": "string"
     },
     "urlParams": {
       "description": "Hive^io url params",

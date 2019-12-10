@@ -11,7 +11,7 @@ import ViewSchema from '../../src/schemas/json/View.json'
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/PostId': PostId
+  'https://hiveframework.io/api/v2/models/PostId': PostId
 }
 
 chai.use(dirtyChai)
@@ -38,7 +38,7 @@ describe('ViewActor', () => {
     viewSchema = await new Schema(ViewSchema, REFS)
 
     ViewActor = proxyquire('../../src/actors/ViewActor', {
-      'http': { request () { requestSpy(); return this }, end () { endSpy() } }
+      http: { request () { requestSpy(); return this }, end () { endSpy() } }
     })
     viewActor = await new ViewActor()
   })

@@ -22,8 +22,8 @@ const LOG_SYSTEM = Symbol('Log System')
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/Content': ContentSchema,
-  'https://hiveframework.io/api/v1/models/PostId': PostIdSchema
+  'https://hiveframework.io/api/v2/models/Content': ContentSchema,
+  'https://hiveframework.io/api/v2/models/PostId': PostIdSchema
 }
 
 /*
@@ -44,28 +44,29 @@ class PostCommandActor extends Actor {
 
     let results
     switch (true) {
-      case data.payload && data.payload.text && data.meta && data.meta.method === 'PATCH':
+      case data.payload?.text && data.meta?.req?.method === 'PATCH':
         data.type = 'EditContent'
-        data.payload.id = data.meta.urlParams.id
+        data.payload.id = data.meta.req.urlParams.id
       case data.type === 'EditedContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].editContentActor.perform(model, data)
         break
 
-      case data.meta && data.meta.method === 'PATCH':
-        data.payload = { id: data.meta.urlParams.id }
+      case data.meta?.req?.method === 'PATCH':
+        data.payload = { id: data.meta.req.urlParams.id }
       case data.type === 'EnabledContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].enableContentActor.perform(model, data)
         break
 
-      case data.meta && data.meta.method === 'POST':
+      case data.meta?.req?.method === 'POST':
         data.type = 'CreateContent'
         data.payload.id = uuidV4()
       case data.type === 'CreatedContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].createContentActor.perform(model, data)
         break
 
-      case data.meta && data.meta.method === 'DELETE':
-        data.payload = { id: data.meta.urlParams.id }
+      case data.meta?.req?.method === 'DELETE':
+        data.type = 'CreateContent'
+        data.payload = { id: data.meta.req.urlParams.id }
       case data.type === 'DisabledContent': // eslint-disable-line no-fallthrough
         results = await this[ACTORS].disableContentActor.perform(model, data)
         break
@@ -74,25 +75,12 @@ class PostCommandActor extends Actor {
         throw new Error('Command|Event not recognized')
     }
 
-    const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostCommandActor' } }, this[LOG_SCHEMA], { immutable: true })
-    this[LOG_SYSTEM].emit(log)
+    if (data.meta?.req) {
+      const log = await new Model({ type: 'Log', payload: { ...data.meta.req, actor: 'PostCommandActor' } }, this[LOG_SCHEMA], { immutable: true })
+      this[LOG_SYSTEM].emit(log)
+    }
 
     return results
-  }
-
-  async replay (data) {
-    let model
-    const isUrlParam = data.meta.urlParams && data.meta.urlParams.id
-    const isPayload = data.payload && data.payload.id
-
-    if (isPayload || isUrlParam) {
-      const id = isPayload
-        ? data.payload.id
-        : data.meta.urlParams.id
-      const aggregate = await this.repository.get(id)
-      return super.replay(aggregate)
-    }
-    return { model }
   }
 }
 

@@ -1,7 +1,6 @@
 # hive-io-domain-example
 
 [![NPM Version][npm-image]][npm-url]
-[![Build Status][circle-image]][circle-url]
 [![Code Coverage][codecov-image]][codecov-url]
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
@@ -18,19 +17,19 @@ An example CQRS/ES domain module to help describe implementation details when le
     - [Environment Variables](#environment-variables)
 
 ## Overview
-This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example) into a highly distributed architecture in order to handle different magnitudes of network traffic for `viewed` metrics and `content` management. It is a contrived but robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup> framework](https://hiveframework.io).
+This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example) into a highly distributed architecture in order to handle different magnitudes of network traffic for `viewed` metrics and `content` management. It is a contrived but more robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup> framework](https://hiveframework.io).
 
 ### Endpoints
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
 - `http://localhost/posts (GET, POST)`
-    - POST [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
+    - POST [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/commands/CreateContent.json)
         ```
         {
           "text": "something"
         }
         ```
 - `http://localhost/posts/<postId> (GET, PATCH, DELETE)`
-    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-js-rest-example/blob/master/src/schemas/json/Post.json)
+    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/commands/EditContent.json)
         ```
         {
           "text": "something different"
@@ -50,6 +49,7 @@ To use, you'll need:
 - **Required**
     - [Docker](https://www.docker.com/)
     - [Docker Compose](https://docs.docker.com/compose/)
+    - Proxy/Load Balancer ([HAProxy](https://hub.docker.com/_/haproxy))
 
 ### Installing
 To start using:
@@ -71,7 +71,7 @@ To start using:
         ```
     - `Rest.dockerfile`
         ```
-        FROM fnalabs/hive-rest-js:latest
+        FROM fnalabs/hive-base-js:latest
         RUN npm install hive-io-domain-example
         ```
     - `docker-compose.yml`
@@ -79,11 +79,13 @@ To start using:
         version: '3.5'
         services:
           # proxy for layer 7 routing
-          hive-io-proxy:
-            image: fnalabs/hive-io-proxy:latest
+          # NOTE: this is an example, you will need to define your own
+          #       ex. https://github.com/fnalabs/hive-io-proxy
+          proxy:
+            image: haproxy:1.8.23-alpine
             depends_on:
               - hive-producer-js
-              - hive-rest-js
+              - hive-base-js
               - hive-stream-processor-js
             ports:
               - 80:80
@@ -91,7 +93,7 @@ To start using:
               - hive-io
             restart: on-failure
           fluentd:
-            image: fluent/fluentd:v1.2.1
+            image: fluent/fluentd:v1.7.4-1.0
             networks:
               - hive-io
             restart: on-failure
@@ -101,11 +103,15 @@ To start using:
             build:
               context: .
               dockerfile: Producer.dockerfile
-            image: hive-producer-js
             environment:
+              ACTOR: ViewContentActor
+              ACTOR_LIB: hive-io-domain-example
               CLUSTER_SIZE: 1
-              EVENT_STORE_URL: "kafka:9092"
-              EVENT_STORE_ID: "producer-client"
+              HTTP_VERSION: 1
+              SECURE: "false"
+              EVENT_STORE_TOPIC: view
+              EVENT_STORE_BROKERS: "kafka:29092"
+              EVENT_STORE_ID: producer-client
               FLUENTD_HOST: fluentd
               FLUENTD_PORT: 24224
               FLUENTD_TIMEOUT: 3.0
@@ -121,11 +127,15 @@ To start using:
             build:
               context: .
               dockerfile: Stream-Processor.dockerfile
-            image: hive-stream-processor-js
             environment:
+              ACTOR: PostCommandActor
+              ACTOR_LIB: hive-io-domain-example
               CLUSTER_SIZE: 1
+              HTTP_VERSION: 1
+              SECURE: "false"
               CACHE_URL: "redis://redis:6379"
-              EVENT_STORE_URL: "kafka:9092"
+              EVENT_STORE_PRODUCER_TOPIC: content
+              EVENT_STORE_BROKERS: "kafka:29092"
               EVENT_STORE_ID: stream-processor-client
               FLUENTD_HOST: fluentd
               FLUENTD_PORT: 24224
@@ -138,27 +148,32 @@ To start using:
             networks:
               - hive-io
           redis:
-            image: redis:4.0.9-alpine
+            image: redis:5.0.7-alpine
             networks:
               - hive-io
             restart: on-failure
 
           # log stream containers
           kafka:
-            image: confluentinc/cp-kafka:4.1.1-2
+            image: confluentinc/cp-kafka:5.3.1
             depends_on:
               - zookeeper
             environment:
-              KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-              KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+              KAFKA_ZOOKEEPER_CONNECT: "zookeeper:32181"
+              KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092"
               KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+              KAFKA_COMPRESSION_TYPE: gzip
+            expose:
+              - 29092
             networks:
               - hive-io
             restart: on-failure
           zookeeper:
-            image: confluentinc/cp-zookeeper:4.1.1-2
+            image: confluentinc/cp-zookeeper:5.3.1
             environment:
-              ZOOKEEPER_CLIENT_PORT: 2181
+              ZOOKEEPER_CLIENT_PORT: 32181
+            expose:
+              - 32181
             networks:
               - hive-io
             restart: on-failure
@@ -168,13 +183,18 @@ To start using:
             build:
               context: .
               dockerfile: Consumer.dockerfile
-            image: hive-consumer-js
             environment:
+              ACTOR: PostEventActor
+              ACTOR_LIB: hive-io-domain-example
               CLUSTER_SIZE: 1
+              HTTP_VERSION: 1
+              SECURE: "false"
               MONGO_URL: "mongodb://mongo:27017/post"
-              EVENT_STORE_URL: "kafka:9092"
+              EVENT_STORE_TOPIC: "content|view"
+              EVENT_STORE_BROKERS: "kafka:29092"
               EVENT_STORE_ID: consumer-client
-              EVENT_STORE_OFFSET: earliest
+              EVENT_STORE_GROUP_ID: consumer-group
+              EVENT_STORE_FROM_START: "true"
               FLUENTD_HOST: fluentd
               FLUENTD_PORT: 24224
               FLUENTD_TIMEOUT: 3.0
@@ -186,21 +206,23 @@ To start using:
             networks:
               - hive-io
           mongo:
-            image: mongo:3.6.5
+            image: mongo:4.2.1
             networks:
               - hive-io
             restart: on-failure
 
           # rest services
-          hive-rest-js:
+          hive-base-js:
             build:
               context: .
               dockerfile: Rest.dockerfile
-            image: hive-rest-js
+            image: hive-base-js
             environment:
               ACTOR: PostQueryActor
               ACTOR_LIB: hive-io-domain-example
               CLUSTER_SIZE: 1
+              HTTP_VERSION: 1
+              SECURE: "false"
               MONGO_URL: "mongodb://mongo:27017/post"
               FLUENTD_HOST: fluentd
               FLUENTD_PORT: 24224
@@ -227,7 +249,7 @@ The table below contains a reference to the custom environment variables used in
 - [hive-producer-js](https://github.com/fnalabs/hive-producer-js#environment-variables)
 - [hive-stream-processor-js](https://github.com/fnalabs/hive-stream-processor-js#environment-variables)
 - [hive-consumer-js](https://github.com/fnalabs/hive-consumer-js#environment-variables)
-- [hive-rest-js](https://github.com/fnalabs/hive-rest-js#environment-variables)
+- [hive-base-js](https://github.com/fnalabs/hive-base-js#environment-variables)
 
 Name               | Type    | Default                       | Description
 ------------------ | ------- | ----------------------------- | -------------------------------------------------------
@@ -239,9 +261,6 @@ FLUENTD_RECONNECT  | Number  | 600000                        | Reconnect Interva
 
 [npm-image]: https://img.shields.io/npm/v/hive-io-domain-example.svg
 [npm-url]: https://www.npmjs.com/package/hive-io-domain-example
-
-[circle-image]: https://img.shields.io/circleci/project/github/fnalabs/hive-js-domain-example.svg
-[circle-url]: https://circleci.com/gh/fnalabs/hive-js-domain-example
 
 [codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js-domain-example.svg
 [codecov-url]: https://codecov.io/gh/fnalabs/hive-js-domain-example

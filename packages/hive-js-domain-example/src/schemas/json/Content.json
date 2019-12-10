@@ -1,7 +1,7 @@
 {
   "title": "Content",
   "description": "Content value object used to create and modify Post content",
-  "$id": "https://hiveframework.io/api/v1/models/Content",
+  "$id": "https://hiveframework.io/api/v2/models/Content",
   "type": "object",
   "properties": {
     "text": {

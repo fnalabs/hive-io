@@ -1,7 +1,7 @@
 {
   "title": "PostId",
   "description": "Id value object for Posts",
-  "$id": "https://hiveframework.io/api/v1/models/PostId",
+  "$id": "https://hiveframework.io/api/v2/models/PostId",
   "type": "object",
   "properties": {
     "id": {

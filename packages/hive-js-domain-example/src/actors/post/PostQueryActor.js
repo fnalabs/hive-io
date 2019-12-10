@@ -16,7 +16,7 @@ const VIEW_SCHEMA = Symbol('View schema')
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v1/models/PostId': PostId
+  'https://hiveframework.io/api/v2/models/PostId': PostId
 }
 
 /*
@@ -32,21 +32,21 @@ class PostQueryActor extends Actor {
     })
   }
 
-  async perform (modelInst, data) {
-    if (data.meta.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
+  async perform (_model, data) {
+    if (data.meta.req.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
 
-    const model = typeof data.meta.urlParams.id === 'string'
-      ? await this.repository.findOne({ _id: data.meta.urlParams.id }).exec()
+    const model = data.meta.req.urlParams.id
+      ? await this.repository.findOne({ _id: data.meta.req.urlParams.id }).exec()
       : await this.repository.find().exec()
 
     // emit 'view' to count
-    if (data.meta.urlParams.id) {
-      const view = await new Model({ type: 'View', payload: { id: data.meta.urlParams.id } }, this[VIEW_SCHEMA], { immutable: true })
+    if (data.meta.req.urlParams.id) {
+      const view = await new Model({ type: 'View', payload: { id: data.meta.req.urlParams.id } }, this[VIEW_SCHEMA], { immutable: true })
       this[LOG_SYSTEM].emit(view)
     }
 
     // emit 'log' for metrics
-    const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostQueryActor' } }, this[LOG_SCHEMA], { immutable: true })
+    const log = await new Model({ type: 'Log', payload: { ...data.meta.req, actor: 'PostQueryActor' } }, this[LOG_SCHEMA], { immutable: true })
     this[LOG_SYSTEM].emit(log)
 
     return { model }

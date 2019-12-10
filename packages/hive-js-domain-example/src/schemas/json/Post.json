@@ -1,24 +1,24 @@
 {
   "title": "Post",
   "description": "entity used for XA/SI to validate data from messages",
-  "$id": "https://hiveframework.io/api/v1/models/Post",
+  "$id": "https://hiveframework.io/api/v2/models/Post",
   "type": "object",
   "properties": {
     "id": {
       "description": "Post Id Value Object",
-      "$id": "https://hiveframework.io/api/v1/models/PostId#/properties/id"
+      "$id": "https://hiveframework.io/api/v2/models/PostId#/properties/id"
     },
     "text": {
       "description": "main Post Content",
-      "$id": "https://hiveframework.io/api/v1/models/Content#/properties/text"
+      "$id": "https://hiveframework.io/api/v2/models/Content#/properties/text"
     },
     "edited": {
       "description": "edited flag",
-      "$id": "https://hiveframework.io/api/v1/models/Content#/properties/edited"
+      "$id": "https://hiveframework.io/api/v2/models/Content#/properties/edited"
     },
     "enabled": {
       "description": "enabled flag",
-      "$id": "https://hiveframework.io/api/v1/models/Content#/properties/enabled"
+      "$id": "https://hiveframework.io/api/v2/models/Content#/properties/enabled"
     },
     "viewed": {
       "description": "total views of post content",
