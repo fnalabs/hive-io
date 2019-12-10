@@ -39,6 +39,13 @@ More examples can be found in the 2 example npm packages:
 We are currently drafting our contributing guide!
 
 ## Changelog
+#### v2.0.0-rc.3
+- moved `Model` to its own project ([Model(JSON)<sup>js</sup>](https://www.npmjs.com/package/model-json-js)) so it can be used independently
+- renamed Base service image from `hive-rest-js` to `hive-base-js`
+- updated API documentation format
+- modified examples
+- updated dependencies
+
 #### v2.0.0-rc.2
 - added browser unit test coverage for `hive-io` classes in all evergreen browsers, desktop and mobile
 - improved how data in ingested in Rest, Producer, and Stream Processor
