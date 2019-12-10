@@ -62,11 +62,15 @@ To start using:
         ```
         version: '3.5'
         services:
-          hive-rest-js:
+          hive-base-js:
             build: .
             image: hive-base-js
             environment:
+              ACTOR: PostActor
+              ACTOR_LIB: hive-io-rest-example
               CLUSTER_SIZE: 1
+              HTTP_VERSION: 1
+              SECURE: "false"
               MONGO_URL: "mongodb://mongo:27017/post"
               FLUENTD_HOST: fluentd
               FLUENTD_PORT: 24224
@@ -80,12 +84,12 @@ To start using:
             networks:
               - hive-io
           fluentd:
-            image: fluent/fluentd:v1.2.1
+            image: fluent/fluentd:v1.7.4-1.0
             networks:
               - hive-io
             restart: on-failure
           mongo:
-            image: mongo:3.6.5
+            image: mongo:4.2.1
             networks:
               - hive-io
             restart: on-failure
