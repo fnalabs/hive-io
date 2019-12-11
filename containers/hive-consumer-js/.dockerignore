@@ -1,5 +1,6 @@
 # Project specific
 *.md
+cert
 dist
 
 # Git
