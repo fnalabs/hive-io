@@ -6,7 +6,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework Producer in Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-producer-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Producer service leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-producer-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -17,7 +17,7 @@ This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework Producer in
 - [Future](#future)
 
 ## Getting Started
-Producers represent a straight forward implementation where domain `Entities|Value Objects` can be passed through to the log directly with minimal validation. Entities can pass through to queue messages for domain validation later in the stream. Value Objects have no unique identity, they are essentially immutable and should be treated as such. Therefore, this type of validation is superficial and can easily be handled by the `Entity's|Value Object's` Schema definition. Examples of this type of implementation would include streams of analytics data for user tracking or geo-location data for real-time position tracking.
+Producers handle the Command responsibilities in the CQRS pattern. Producers represent a straight forward implementation where domain `Entities|Value Objects` can be passed through to the log directly with minimal validation. Entities can pass through to queue messages for domain validation later in the stream. Value Objects have no unique identity, they are essentially immutable and should be treated as such. Therefore, this type of validation is superficial and can easily be handled by the `Entity's|Value Object's` Schema definition. Examples of this type of implementation would include streams of analytics data for user tracking or geo-location data for real-time position tracking.
 
 ### Prerequisites
 To use, you'll need:
