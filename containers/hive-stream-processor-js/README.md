@@ -6,7 +6,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework Stream Processor in Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Stream Processor service leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -17,13 +17,13 @@ This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework Stream Proc
 - [Future](#future)
 
 ## Getting Started
-Stream Processors are multi-faceted in their responsibilities. By default, they handle the command responsibilities in the CQRS pattern. Therefore, they are integrated with the domain layer to take commands and get existing aggregate data to pass to the domain layer for business-specific logic and validation. Once validated, it passes the returned event to the log and stores the updated snapshot of the aggregate to the caching layer. Depending on the needs of the domain model, the Stream Processor allows for transactional consistency if required. Essentially this makes it a Stream Producer as it is performing more than the Producer above, but for similar tasks.
+Stream Processors are multi-faceted in their responsibilities. By default, they handle the Command responsibilities in the CQRS pattern. Therefore, they are integrated with the domain layer to take commands and get existing aggregate data to pass to the domain layer for business-specific logic and validation. Once validated, it passes the returned event to the log and stores the updated snapshot of the aggregate to the caching layer. Depending on the needs of the domain model, the Stream Processor allows for transactional consistency if required. Essentially this makes it a Stream Producer as it is performing more than the Producer above, but for similar tasks.
 
 The second role of the Stream Processor is to rebuild the caching layer from the transactional log. This is valuable when standing up new environments for various reasons like A/B testing, debugging, and deploying geolocated instances of the application stack. Essentially this makes it a Stream Consumer as it is performing the specific task of rebuilding the cache as opposed to the translations and queries of the Consumer above. Typically these would be a short-lived implementation and not used nearly as often as the default Stream Processor definition above.
 
-The third role of the Stream Processor is the most complex and likely least used. For more complex domain models, sometimes the need for a saga (or process manager) is required. A saga's job is to manage the complexities of inter-aggregate communication should the need arise. Since a Stream Processor is able to read events from the logs and also write to the logs (defined separately above), it is able to issue commands to the domain layer based on the events from one aggregate to another.
+The third role of the Stream Processor is the most complex. For more complex domain models, sometimes the need for a saga (or process manager) is required. A saga's job is to manage the complexities of inter-aggregate communication should the need arise. Since a Stream Processor is able to read events from the logs and also write to the logs (defined separately above), it is able to issue commands to the domain layer based on the events from one aggregate to another.
 
-The Hive<sup>io</sup> Framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency. Riak also seems like a viable solution for this requirement as it is a similar product that also provides strong consistency concepts.
+The Hive<sup>io</sup> Framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency.
 
 ### Prerequisites
 To use, you'll need:
