@@ -6,7 +6,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework REST service in Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-base-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Base service leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-base-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -17,7 +17,7 @@ This is the [Hive<sup>io</sup>](https://hiveframework.io/) framework REST servic
 - [Future](#future)
 
 ## Getting Started
-This is the most basic building block of infrastructure in the Hive<sup>io</sup> Framework. It provides a RESTful interface for your Actors and enforces the JSON API specification Top Level Document payload structure.
+This is the most basic building block of infrastructure in the Hive<sup>io</sup> Framework. It provides a http interface for your Actors and enforces the Flux Standard Action payload structure.
 
 ### Prerequisites
 To use, you'll need:
@@ -31,14 +31,14 @@ $ docker pull fnalabs/hive-base-js:<[release]|latest>
 ```
 
 ### Examples
-To use, write your own Dockerfile and add any additional dependencies, including the package with your RESTful Actors.
+To use, write your own Dockerfile and add any additional dependencies, including the package with your Actors.
 ```
 FROM fnalabs/hive-base-js:latest
 RUN npm install hive-io-rest-example
 ```
 
 ### Environment variables
-Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework REST service. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
+Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Base service. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name               | Type     | Default                 | Description
 ------------------ | -------  | ----------------------- | -------------------------------------------------------

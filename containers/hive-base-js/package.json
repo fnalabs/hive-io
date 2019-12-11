@@ -1,7 +1,7 @@
 {
   "name": "hive-base-js",
-  "version": "2.0.0-rc.2",
-  "description": "Starter kit for Hive^io framework REST services in Node.js implementations in Docker",
+  "version": "2.0.0-rc.3",
+  "description": "Starter kit for Hive^io framework REST services leveraging Node.js in Docker",
   "main": "./bin/start",
   "scripts": {
     "prebuild": "del dist",
@@ -34,11 +34,11 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/cli": "~7.7.4",
-    "@babel/core": "~7.7.4",
+    "@babel/cli": "~7.7.5",
+    "@babel/core": "~7.7.5",
     "@babel/plugin-proposal-nullish-coalescing-operator": "~7.7.4",
-    "@babel/plugin-proposal-optional-chaining": "~7.7.4",
-    "@babel/plugin-transform-modules-commonjs": "~7.7.4",
+    "@babel/plugin-proposal-optional-chaining": "~7.7.5",
+    "@babel/plugin-transform-modules-commonjs": "~7.7.5",
     "@babel/register": "~7.7.4",
     "babel-eslint": "~10.0.3",
     "babel-plugin-add-module-exports": "~1.0.2",
