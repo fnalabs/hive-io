@@ -8,7 +8,7 @@
 
 A reactive, universal JavaScript library for the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
-This is where the business logic for your domain model is implemented. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices. The intent is to clearly define a separation between infrastructure as code and business logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
+This is where the domain logic for your domain model is implemented. The [Actor Model](https://en.wikipedia.org/wiki/Actor_model) is used as the basic building block to implement standardized, reactive microservices. The intent is to clearly define a separation between infrastructure as code and domain logic allowing them both to adapt and scale independently. From simple REST services to CQRS/ES microservices, this library is flexible enough to enable the Actors to adopt new roles on the fly.
 
 #### Contents
 - [Installing](#installing)
@@ -24,7 +24,12 @@ Install using `npm`:
 $ npm install --save hive-io
 ```
 
-## [API](https://hiveframework.io/api/)
+## [API](https://fnalabs.github.io/hive-js/)
+- [Actor](https://fnalabs.github.io/hive-js/Actor.html)
+- [MessageActor](https://fnalabs.github.io/hive-js/MessageActor.html)
+- [Model](https://fnalabs.github.io/hive-js/Model.html)
+- [Schema](https://fnalabs.github.io/hive-js/Schema.html)
+- [System](https://fnalabs.github.io/hive-js/System.html)
 
 ## Examples
 More examples can be found in the 2 example npm packages:
@@ -38,66 +43,10 @@ More examples can be found in the 2 example npm packages:
 ## Contributing
 We are currently drafting our contributing guide!
 
-## Changelog
-#### v2.0.0-rc.3
-- moved `Model` to its own project ([Model(JSON)<sup>js</sup>](https://www.npmjs.com/package/model-json-js)) so it can be used independently
-- renamed Base service image from `hive-rest-js` to `hive-base-js`
-- updated API documentation format
-- modified examples
-- updated dependencies
-
-#### v2.0.0-rc.2
-- added browser unit test coverage for `hive-io` classes in all evergreen browsers, desktop and mobile
-- improved how data in ingested in Rest, Producer, and Stream Processor
-- modified examples
-- updated dependencies
-
-#### v2.0.0-rc.1
-- modified Stream Processor for pessimistic concurrency
-- modified Stream Processor to publish to Log if in `stream-processor` mode and Actors return values from their `perform` method
-- updated routes in `hive-io-domain-example`
-
-#### v2.0.0-rc
-- level set version for all framework components
-- fix error handling on components
-- update documentation
-
-#### v2.0.0-beta.6
-- bug fix in Actor
-
-#### v2.0.0-beta.5
-- bug fix in MessageActor
-- more updates to documentation
-
-#### v2.0.0-beta.4
-- making Schemas optional for Actors whose only role is routing.
-- updated the default Schema on Model to accept any model data object.
-- more updates to documentation
-
-#### v2.0.0-beta.3
-- bug fix in System
-
-#### v2.0.0-beta.2
-- replaced JSON API specification with Flux Standard Action specification
-- added System class for internal Actor message bus
-  - this required a breaking change in the argument order on the `Actor.perform` method
-- added browser tests for most recent Chrome and Firefox
-
-#### v2.0.0-beta.1
-- added documentation
-
-#### v2.0.0-beta
-- updated name and organization
-- renamed Handler to Actor and added Aggregate functionality to it
-- removed Schema for more robust JSON Schema solution (refactored into `schema-json-js` dependency)
-- removed Message|Command|Event since these can be represented as Model|Schema and performed with Actors
-- adopted JSON API and JSON Schema specifications
+## [Changelog](https://github.com/fnalabs/hive-js/releases)
 
 #### v1.0.0
 - initial release (of `js-cqrs-es`)
-
-#### pre-v1.0.0
-![nothing to see here](https://www.reactiongifs.us/wp-content/uploads/2016/04/nothing_to_see_here_naked_gun.gif)
 
 [npm-image]: https://img.shields.io/npm/v/hive-io.svg
 [npm-url]: https://www.npmjs.com/package/hive-io

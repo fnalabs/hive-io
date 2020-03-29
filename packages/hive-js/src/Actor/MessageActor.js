@@ -17,7 +17,7 @@ const immutable = true
  * <p>Class that extends <code>Actor</code> with more specific handling of Domain Commands|Events to act upon the Model. It takes 2 additional parameters than the base <code>Actor</code>, the Command and Event JSON Schema definitions.</p>
  *
  * <p>Primary use case(s) are:
- * <ul><li>process CQRS Commands to generate Events to apply to a Model in <code>perform</code> method</p>
+ * <ul><li>process CQRS Commands to generate Events to apply to a Model in <code>perform</code> method</li></ul></p>
  *
  * <p><strong><em>NOTE:</em></strong> The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.</p>
  * @property {any} repository - A reference to a storage layer client of your choosing or <code>undefined</code>.
@@ -26,7 +26,7 @@ const immutable = true
  * @param {Schema} eventSchema - The instance of the Actor's associated Event JSON Schema definition.
  * @param {Schema} [commandSchema={}] - The optional instance of the Actor's associated Command JSON Schema definition.
  * @param {any} [repository] - An optional reference to a storage layer client of your choosing.
- * @example <caption>A Command example MessageActor class from the <a href="https://github.com/fnalabs/hive-js#examples">README</a>. It is meant to be wrapped with one of the application types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
+ * @example <caption>A Command example MessageActor class. It is meant to be wrapped with one of the microservice types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
  * import { parse, MessageActor, Schema } from 'hive-io'
  *
  * import ExampleSchema from '../schemas/ExampleSchema.json'
@@ -48,7 +48,7 @@ const immutable = true
  *     return new CommandActor(parse`/example/${'exampleId'}`, example, event, command, argsList[0])
  *   }
  * })
- * @example <caption>An Event example MessageActor class from the <a href="https://github.com/fnalabs/hive-js#examples">README</a>. It is meant to be wrapped with one of the application types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
+ * @example <caption>An Event example MessageActor class. It is meant to be wrapped with one of the microservice types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
  * import { parse, MessageActor, Schema } from 'hive-io'
  *
  * import ExampleSchema from '../schemas/ExampleSchema.json'

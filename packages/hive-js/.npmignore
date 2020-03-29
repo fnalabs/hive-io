@@ -5,7 +5,6 @@ src
 tmp*
 tst
 .*
-package.tar.gz
 karma.*
 
 # Logs

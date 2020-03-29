@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -xe
 
 runBuild () {
     local DIVIDER="===================="
@@ -13,13 +13,13 @@ runBuild () {
         -name \*.js \
         -exec bash -c 'mkdir -p $(dirname dist${1#$2}) \
                         && terser ${1} \
-                            --compress ecma=8,keep_fnames,sequences=false \
+                            --compress ecma=9,keep_classnames,keep_fnames,sequences=false \
                             --mangle keep_classnames,keep_fnames \
-                            --ecma 8 \
+                            --ecma 9 \
                         > dist${1#$2}' - {} $TEMP_DIR \;
 
     printf "${TEMPLATE}" "Clean-up"
     rm -rf ${TEMP_DIR}
 }
 
-runBuild
+runBuild && exit 0
