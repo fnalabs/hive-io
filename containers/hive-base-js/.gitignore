@@ -1,7 +1,6 @@
 # Project specific
 cert
 dist
-app.tar.gz
 
 # Logs
 logs

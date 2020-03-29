@@ -1,9 +1,9 @@
 // imports
-import CONFIG from '../conf'
+import { ACTOR, ACTOR_LIB, CONTENT_TYPE, PING_URL } from './config'
 
 // constants
-const pingUrlRegExp = new RegExp(`^${CONFIG.PING_URL}$`)
-const contentTypeRegExp = new RegExp(`^${CONFIG.CONTENT_TYPE}`)
+const pingUrlRegExp = new RegExp(`^${PING_URL}$`)
+const contentTypeRegExp = new RegExp(`^${CONTENT_TYPE}`)
 
 // helper functions
 export async function json (req) {
@@ -80,7 +80,7 @@ export function send (res, status = 200, model = null) {
 // export main
 export default async function main () {
   // init dependencies
-  const Actor = await require(CONFIG.ACTOR_LIB)[CONFIG.ACTOR]
+  const Actor = await require(ACTOR_LIB)[ACTOR]
   const actor = await new Actor()
 
   // router for microservice

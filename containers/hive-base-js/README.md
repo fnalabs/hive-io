@@ -6,7 +6,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Base service leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-base-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Base microservice leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-base-js/) on Docker Hub to support most use cases.
 
 #### Contents
 - [Getting Started](#getting-started)
@@ -38,19 +38,21 @@ RUN npm install hive-io-rest-example
 ```
 
 ### Environment variables
-Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Base service. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
+Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Base microservice. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
-Name               | Type     | Default                 | Description
------------------- | -------  | ----------------------- | -------------------------------------------------------
-NODE_ENV           | String   | 'production'            | app runtime environment
-PORT               | Number   | 3000                    | app port to listen on
-HTTP_VERSION       | Number   | 2                       | HTTP version for backward compatibility
-SECURE             | Boolean  | false                   | whether to run server as a secure server or not. defaults to false for certifications
-CLUSTER_SIZE       | Number   | [total CPUs available]  | defaults to the total available CPUs allocated to the container or to the size you specify here
-CONTENT_TYPE       | String   | 'application/json'      | HTTP Content Type header to check
-PING_URL           | String   | '/ping'                 | URL to use for shallow health checks for the service
-ACTOR              | String   |                         | Actor (Model) the microservice is responsible for
-ACTOR_LIB          | String   |                         | module where the ACTOR resides
+Name               | Type    | Default                       | Description
+------------------ | ------- | ----------------------------- | -------------------------------------------------------
+NODE_ENV           | String  | 'production'                  | microservice runtime environment
+PORT               | Number  | 3000                          | microservice port to listen on
+HTTP_VERSION       | Number  | 2                             | HTTP version for backward compatibility
+SECURE             | String  | 'false'                       | whether to run microservice secure or not. defaults to 'false' since we cannot provide certifications
+CLUSTER_SIZE       | Number  | [total CPUs available]        | defaults to the total available CPUs allocated to the container or to the size you specify here
+SSL_CERT_PATH      | String  | '/opt/app/cert/ssl-cert.pem'  | default path for SSL certificate file
+SSL_KEY_PATH       | String  | '/opt/app/cert/ssl-key.pem'   | default path for SSL key file
+CONTENT_TYPE       | String  | 'application/json'            | HTTP Content-Type header to check
+PING_URL           | String  | '/ping'                       | URL to use for shallow health checks for the microservice
+ACTOR              | String  |                               | Actor (Model) the microservice is responsible for
+ACTOR_LIB          | String  |                               | module where the ACTOR resides
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-base-js/issues)
