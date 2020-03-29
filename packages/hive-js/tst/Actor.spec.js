@@ -151,11 +151,22 @@ describe('class Actor', () => {
 
   describe('#parse', () => {
     it('should parse a given url that matches the template correctly', () => {
+      expect(testActor.parse('/view')).to.deep.equal({})
       expect(testActor.parse('/view/12345')).to.deep.equal({ viewId: '12345' })
       expect(testActor.parse('/view/1234567890?some=query&string=values')).to.deep.equal({ viewId: '1234567890' })
 
       const actor = new Actor(parse`/test/${'testId'}/child`, testSchema)
       expect(actor.parse('/test/12345/child')).to.deep.equal({ testId: '12345' })
+
+      const anotherActor = new Actor(parse`/test/${'testId'}/child/${'childId'}/subchild/${'subChildId'}/leaf/${'leafId'}`, testSchema)
+      expect(anotherActor.parse('/test')).to.deep.equal({})
+      expect(anotherActor.parse('/test/12345')).to.deep.equal({ testId: '12345' })
+      expect(anotherActor.parse('/test/12345/child')).to.deep.equal({ testId: '12345' })
+      expect(anotherActor.parse('/test/12345/child/67890')).to.deep.equal({ testId: '12345', childId: '67890' })
+      expect(anotherActor.parse('/test/12345/child/67890/subchild')).to.deep.equal({ testId: '12345', childId: '67890' })
+      expect(anotherActor.parse('/test/12345/child/67890/subchild/abcde')).to.deep.equal({ testId: '12345', childId: '67890', subChildId: 'abcde' })
+      expect(anotherActor.parse('/test/12345/child/67890/subchild/abcde/leaf')).to.deep.equal({ testId: '12345', childId: '67890', subChildId: 'abcde' })
+      expect(anotherActor.parse('/test/12345/child/67890/subchild/abcde/leaf/fghij')).to.deep.equal({ testId: '12345', childId: '67890', subChildId: 'abcde', leafId: 'fghij' })
     })
 
     it('should parse a given url that matches the template correctly', () => {

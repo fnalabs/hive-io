@@ -8,8 +8,12 @@ import { parse } from '../src/util'
 chai.use(dirtyChai)
 
 describe('#parse', () => {
-  it('should parse a template literal successfully', () => {
-    expect(parse`/test/${'testId'}`).to.deep.equal({ regex: /\/test\//, keys: ['testId'] })
+  it('should parse a simple template literal successfully', () => {
+    expect(parse`/test/${'testId'}`).to.deep.equal({ regex: /\/test\/?/, keys: ['testId'] })
+  })
+
+  it('should parse a complex template literal successfully', () => {
+    expect(parse`/test/${'testId'}/child/${'childId'}`).to.deep.equal({ regex: /\/test\/?|\/child\/?/, keys: ['testId', 'childId'] })
   })
 
   it('should error when omitting a resource name', () => {

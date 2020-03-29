@@ -11,7 +11,7 @@ export const MODEL = Symbol('Model schema')
  * <p>Class that implements a basic Actor instance in the <a href="https://en.wikipedia.org/wiki/Actor_model">Actor Model</a> pattern. It is essentially a combination of a Controller and Model class from the MVC pattern. It takes 3 optional parameters: a parsed template literal representing the Actor's URL, an instance of the associated Model's JSON Schema definition, and a reference to a downstream repository.</p>
  *
  * <p>Primary use case(s) are:
- * <ul><li>local, atomic business logic in the <code>perform</code> method</li>
+ * <ul><li>local, atomic domain logic in the <code>perform</code> method</li>
  * <li>pass messages to other actors via internal (System) or external (Kafka) message buses</li>
  * <li>straight forward routing via <code>switch</code>/<code>if</code> conditions for microservices</li></ul></p>
  *
@@ -21,7 +21,7 @@ export const MODEL = Symbol('Model schema')
  * @param {Object} [url=parse`/empty`] - The parsed template literal for the Actor's URL.
  * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
  * @param {any} [repository] - An optional reference to a storage layer client of your choosing.
- * @example <caption>An example Actor class from the <a href="https://github.com/fnalabs/hive-js#examples">README</a>. It is meant to be wrapped with one of the application types (REST, Producer, Consumer, Stream Processor) or to include a connection to the DB of your choice.</caption>
+ * @example <caption>An example Actor class. It is meant to be wrapped with one of the microservice types (Base, Producer, Consumer, Stream Processor) or to include a connection to the DB of your choice.</caption>
  * import { parse, Actor, Schema } from 'hive-io'
  * import ExampleSchema from '../schemas/ExampleSchema.json'
  *
@@ -118,14 +118,15 @@ class Actor {
    */
   parse (url) {
     if (this[URL].keys.length === 0) return {}
+    const keys = [...this[URL].keys]
 
     const queryIndex = ~url.indexOf('?') ? url.indexOf('?') : undefined
+
     return url
       .slice(0, queryIndex)
       .split(this[URL].regex)
-      .slice(1)
       .reduce((urlParams, param, index) => {
-        if (index < this[URL].keys.length) urlParams[this[URL].keys[index]] = param
+        if (param && param.length) urlParams[keys.shift()] = param
         return urlParams
       }, {})
   }

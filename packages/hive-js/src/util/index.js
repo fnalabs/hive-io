@@ -19,7 +19,11 @@ export function parse (strings, ...keys) {
   }
 
   if (strings[strings.length - 1] === '') strings = strings.slice(0, -1)
-  const regex = new RegExp(strings.join('|'))
+
+  // check the last character of the last string in the 'strings' array
+  const regex = strings[strings.length - 1][strings[strings.length - 1].length - 1] === '/'
+    ? new RegExp(`${strings.join('?|')}?`)
+    : new RegExp(strings.join('?|'))
 
   return { regex, keys }
 }
