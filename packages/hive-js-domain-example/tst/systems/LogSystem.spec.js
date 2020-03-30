@@ -40,7 +40,10 @@ describe('LogSystem', () => {
         construct: async function (LogActor) {
           return new LogActor(parse`/log`, logSchema)
         }
-      })
+      }),
+      '../actors/ViewActor': class ViewActor extends Actor {
+        perform () { performSpy() }
+      }
     })
     logSystem = await new LogSystem()
   })

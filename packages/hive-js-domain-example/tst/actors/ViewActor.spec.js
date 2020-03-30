@@ -20,13 +20,14 @@ chai.use(dirtyChai)
 const viewData = { type: 'View', payload: { id: 'id' } }
 
 describe('ViewActor', () => {
-  let ViewActor, viewActor, viewSchema, requestSpy, endSpy
+  let ViewActor, viewActor, viewSchema, connectStub, endSpy, requestSpy
 
   afterEach(() => {
     ViewActor = null
     viewActor = null
     viewSchema = null
 
+    connectStub = null
     endSpy = null
     requestSpy = null
   })
@@ -35,10 +36,15 @@ describe('ViewActor', () => {
     endSpy = sinon.spy()
     requestSpy = sinon.spy()
 
+    connectStub = sinon.stub().returns({
+      end () { endSpy() },
+      request () { requestSpy(); return this }
+    })
+
     viewSchema = await new Schema(ViewSchema, REFS)
 
     ViewActor = proxyquire('../../src/actors/ViewActor', {
-      http: { request () { requestSpy(); return this }, end () { endSpy() } }
+      '../util/httpConnect': connectStub
     })
     viewActor = await new ViewActor()
   })
@@ -49,6 +55,8 @@ describe('ViewActor', () => {
     expect(viewActor.replay).to.be.a('function')
     expect(viewActor.assign).to.be.a('function')
     expect(viewActor.parse).to.be.a('function')
+
+    expect(connectStub.calledOnce).to.be.true()
   })
 
   it('should process a View sent through an Actor System', async () => {

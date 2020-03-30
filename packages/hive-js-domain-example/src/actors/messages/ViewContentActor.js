@@ -13,10 +13,6 @@ const REFS = {
  * class ViewContentActor
  */
 class ViewContentActor extends Actor {
-  constructor (viewedContentSchema) {
-    super(parse`/posts/${'id'}`, viewedContentSchema)
-  }
-
   async perform (_model, data) {
     data.type = 'ViewedContent'
     data.payload = { id: data.meta.req.urlParams.id }
@@ -33,6 +29,6 @@ class ViewContentActor extends Actor {
 export default new Proxy(ViewContentActor, {
   construct: async function (ViewContentActor) {
     const viewedContentSchema = await new Schema(ViewedContentSchema, REFS)
-    return new ViewContentActor(viewedContentSchema)
+    return new ViewContentActor(parse`/posts/${'id'}`, viewedContentSchema)
   }
 })

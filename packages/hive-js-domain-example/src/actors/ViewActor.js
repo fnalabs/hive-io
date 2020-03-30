@@ -1,23 +1,26 @@
 // imports
-import http from 'http'
 import { Actor } from 'hive-io'
 
-import CONSTANTS from '../constants'
+import httpConnect from '../util/httpConnect'
 
 // constants
-const OPTIONS = {
-  host: CONSTANTS.VIEW_HOST,
-  port: CONSTANTS.VIEW_PORT,
-  path: '/posts/',
-  method: 'PATCH'
+const HEADERS = {
+  ':method': 'PATCH'
 }
 
 /*
  * class ViewActor
  */
 export default class ViewActor extends Actor {
+  constructor () {
+    super()
+
+    this.client = httpConnect()
+  }
+
   async perform (model) {
-    OPTIONS.path = `/posts/${model.id}`
-    http.request(OPTIONS).end()
+    HEADERS[':path'] = `/posts/${model.id}`
+
+    this.client.request(HEADERS).end()
   }
 }

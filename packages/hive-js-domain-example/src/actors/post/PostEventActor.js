@@ -1,5 +1,5 @@
 // imports
-import CONSTANTS from '../../constants'
+import { UPDATE_OPTIONS } from '../../config'
 
 import { Actor, Model, Schema } from 'hive-io'
 
@@ -56,7 +56,7 @@ class PostEventActor extends Actor {
         throw new Error('Event not recognized')
     }
 
-    await this.repository.findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
+    await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
 
     const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostEventActor' } }, this[LOG_SCHEMA], { immutable: true })
     this[LOG_SYSTEM].emit(log)
