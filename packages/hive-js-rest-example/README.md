@@ -5,7 +5,7 @@
 [![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-An example REST module to help describe implementation details when leveraging the [Hive<sup>io</sup>](https://hiveframework.io) framework.
+An example REST module to help describe implementation details when leveraging the [Hive<sup>io</sup>](https://hiveframework.io) Framework.
 
 #### Contents
 - [Overview](#overview)
@@ -104,8 +104,8 @@ To start using:
     ```
 
 ### Environment Variables
-The table below contains a reference to the custom environment variables used in the example. Standard environment variables are documented for the following service containers:
-- [hive-rest-js](https://github.com/fnalabs/hive-rest-js#environment-variables)
+The table below contains a reference to the custom environment variables used in the example. Standard environment variables are documented for the following microservice containers:
+- [hive-base-js](https://github.com/fnalabs/hive-base-js#environment-variables)
 
 Name               | Type    | Default                       | Description
 ------------------ | ------- | ----------------------------- | -------------------------------------------------------

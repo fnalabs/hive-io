@@ -1,5 +1,5 @@
 // imports
-import uuidV4 from 'uuid/v4'
+import { v4 as uuidV4 } from 'uuid'
 import { Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'

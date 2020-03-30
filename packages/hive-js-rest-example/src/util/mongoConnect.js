@@ -1,5 +1,6 @@
-import CONSTANTS from '../constants'
 import mongoose from 'mongoose'
+
+import { MONGO_URL } from '../config'
 
 export default async function mongoConnect () {
   return new Promise((resolve, reject) => {
@@ -8,6 +9,6 @@ export default async function mongoConnect () {
       .on('close', () => console.log('Database connection closed.')) // eslint-disable-line no-console
       .once('open', () => resolve(mongoose))
 
-    mongoose.connect(CONSTANTS.MONGO_URL, { useFindAndModify: false })
+    mongoose.connect(MONGO_URL, { useFindAndModify: false })
   })
 }

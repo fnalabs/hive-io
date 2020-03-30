@@ -1,9 +1,9 @@
 // imports
-import CONSTANTS from '../../constants'
-
 import { Actor, Schema } from 'hive-io'
 
 import PostSchema from '../../schemas/json/Post.json'
+
+import { UPDATE_OPTIONS } from '../../config'
 
 /*
  * class DeletePostActor
@@ -14,8 +14,7 @@ class DeletePostActor extends Actor {
     const conditions = { _id: data.meta.req.urlParams.postId }
     const update = { $set: { enabled: false } }
 
-    model =
-      await this.repository.findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
+    model = await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
 
     return { model }
   }

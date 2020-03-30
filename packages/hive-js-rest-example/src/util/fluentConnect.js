@@ -1,12 +1,13 @@
-import CONSTANTS from '../constants'
 import logger from 'fluent-logger'
+
+import { FLUENTD_HOST, FLUENTD_PORT, FLUENTD_TIMEOUT, FLUENTD_RECONNECT } from '../config'
 
 export default function fluentConnect () {
   const log = logger.createFluentSender('request', {
-    host: CONSTANTS.FLUENTD_HOST,
-    port: CONSTANTS.FLUENTD_PORT,
-    timeout: CONSTANTS.FLUENTD_TIMEOUT,
-    reconnectInterval: CONSTANTS.FLUENTD_RECONNECT
+    host: FLUENTD_HOST,
+    port: FLUENTD_PORT,
+    timeout: FLUENTD_TIMEOUT,
+    reconnectInterval: FLUENTD_RECONNECT
   })
   return log
 }

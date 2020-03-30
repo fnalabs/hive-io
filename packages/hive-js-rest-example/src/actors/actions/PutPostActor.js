@@ -1,5 +1,5 @@
 // imports
-import CONSTANTS from '../../constants'
+import { UPDATE_OPTIONS } from '../../config'
 
 import { Actor, Schema } from 'hive-io'
 
@@ -18,8 +18,7 @@ class PutPostActor extends Actor {
     const update = { $set: { text: data.payload.text, edited: true } }
 
     // upload to mongo
-    model =
-      await this.repository.findOneAndUpdate(conditions, update, CONSTANTS.UPDATE_OPTIONS).exec()
+    model = await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
 
     return { model }
   }
