@@ -1,5 +1,16 @@
 // imports
-import CONFIG from '../conf'
+import {
+  PROCESSOR_TYPE,
+  EVENT_STORE_CONSUMER_TOPIC,
+  EVENT_STORE_PRODUCER_TOPIC,
+  EVENT_STORE_ID,
+  EVENT_STORE_GROUP_ID,
+  EVENT_STORE_BROKERS,
+  EVENT_STORE_FROM_START,
+  EVENT_STORE_PARTITIONS,
+  EVENT_STORE_BUFFER,
+  EVENT_STORE_TIMEOUT
+} from './config'
 
 import { Kafka, CompressionTypes } from 'kafkajs'
 
@@ -14,11 +25,11 @@ const DISCONNECT = Symbol('method to disconnect from Kafka')
 const RESET = Symbol('method to reset buffer')
 const RECORD_TIMEOUT = Symbol('method to handle record timeouts')
 
-const isConsumer = CONFIG.PROCESSOR_TYPE === 'consumer'
-const isProducer = CONFIG.PROCESSOR_TYPE === 'producer'
-const isStreamProcessor = CONFIG.PROCESSOR_TYPE === 'stream_processor'
-const topicRegExp = CONFIG.EVENT_STORE_CONSUMER_TOPIC
-  ? new RegExp(CONFIG.EVENT_STORE_CONSUMER_TOPIC)
+const isConsumer = PROCESSOR_TYPE === 'consumer'
+const isProducer = PROCESSOR_TYPE === 'producer'
+const isStreamProcessor = PROCESSOR_TYPE === 'stream_processor'
+const topicRegExp = EVENT_STORE_CONSUMER_TOPIC
+  ? new RegExp(EVENT_STORE_CONSUMER_TOPIC)
   : null
 
 /*
@@ -30,19 +41,19 @@ export default class EventStore {
   constructor () {
     // create Kafka client
     const kafka = new Kafka({
-      clientId: CONFIG.EVENT_STORE_ID,
-      brokers: CONFIG.EVENT_STORE_BROKERS.split(',')
+      clientId: EVENT_STORE_ID,
+      brokers: EVENT_STORE_BROKERS.split(',')
     })
 
     if (isProducer || isStreamProcessor) {
-      this[TOPIC] = CONFIG.EVENT_STORE_PRODUCER_TOPIC
+      this[TOPIC] = EVENT_STORE_PRODUCER_TOPIC
       this[PRODUCER] = kafka.producer()
 
       this[RESET]()
     }
 
     if ((isConsumer || isStreamProcessor) && topicRegExp) {
-      this[CONSUMER] = kafka.consumer({ groupId: CONFIG.EVENT_STORE_GROUP_ID })
+      this[CONSUMER] = kafka.consumer({ groupId: EVENT_STORE_GROUP_ID })
     }
 
     // error handling
@@ -58,13 +69,13 @@ export default class EventStore {
     // subscribe to topic(s)
     await this[CONSUMER].subscribe({
       topic: topicRegExp,
-      fromBeginning: CONFIG.EVENT_STORE_FROM_START
+      fromBeginning: EVENT_STORE_FROM_START
     })
     // and start consuming events
     await this[CONSUMER].run({
-      autoCommitInterval: CONFIG.EVENT_STORE_TIMEOUT,
-      autoCommitThreshold: CONFIG.EVENT_STORE_BUFFER,
-      partitionsConsumedConcurrently: CONFIG.EVENT_STORE_PARTITIONS,
+      autoCommitInterval: EVENT_STORE_TIMEOUT,
+      autoCommitThreshold: EVENT_STORE_BUFFER,
+      partitionsConsumedConcurrently: EVENT_STORE_PARTITIONS,
       eachMessage: handler
     })
   }
@@ -74,11 +85,11 @@ export default class EventStore {
   }
 
   async record (meta, model) {
-    if (!this[TIMEOUT]) this[TIMEOUT] = setTimeout(this[RECORD_TIMEOUT], CONFIG.EVENT_STORE_TIMEOUT)
+    if (!this[TIMEOUT]) this[TIMEOUT] = setTimeout(this[RECORD_TIMEOUT], EVENT_STORE_TIMEOUT)
 
     this[MESSAGES].push({ ...meta, value: JSON.stringify(model) })
 
-    if (this[MESSAGES].length >= CONFIG.EVENT_STORE_BUFFER) {
+    if (this[MESSAGES].length >= EVENT_STORE_BUFFER) {
       clearTimeout(this[TIMEOUT])
 
       return this[RECORD_TIMEOUT]()
@@ -92,7 +103,7 @@ export default class EventStore {
         if (isConsumer || isStreamProcessor) await this[CONSUMER].disconnect()
       } catch (_) {}
 
-      console.error(`${CONFIG.EVENT_STORE_ID}: ${type} occurred, disconnecting`)
+      console.error(`${EVENT_STORE_ID}: ${type} occurred, disconnecting`)
     }
 
     return handleError
@@ -108,7 +119,7 @@ export default class EventStore {
 
       this[RESET]()
     } catch (e) {
-      console.error(`${CONFIG.EVENT_STORE_ID}: ${e}`)
+      console.error(`${EVENT_STORE_ID}: ${e}`)
     }
   }
 

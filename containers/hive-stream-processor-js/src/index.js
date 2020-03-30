@@ -1,5 +1,5 @@
 // imports
-import CONFIG from '../conf'
+import { ACTOR, ACTOR_LIB, CONTENT_TYPE, PING_URL, PROCESSOR_TYPE } from './config'
 
 import EventStore from './store'
 import Repository from './repository'
@@ -7,12 +7,12 @@ import Repository from './repository'
 let actor, repository, store
 
 // constants
-const isConsumer = CONFIG.PROCESSOR_TYPE === 'consumer'
-const isProducer = CONFIG.PROCESSOR_TYPE === 'producer'
-const isStreamProcessor = CONFIG.PROCESSOR_TYPE === 'stream_processor'
+const isConsumer = PROCESSOR_TYPE === 'consumer'
+const isProducer = PROCESSOR_TYPE === 'producer'
+const isStreamProcessor = PROCESSOR_TYPE === 'stream_processor'
 
-const contentTypeRegExp = new RegExp(`^${CONFIG.CONTENT_TYPE}`)
-const pingUrlRegExp = new RegExp(`^${CONFIG.PING_URL}$`)
+const contentTypeRegExp = new RegExp(`^${CONTENT_TYPE}`)
+const pingUrlRegExp = new RegExp(`^${PING_URL}$`)
 
 // helper functions
 export async function handleConsume ({ message }) {
@@ -104,7 +104,7 @@ export default async function main () {
   store = new EventStore()
   repository = new Repository(store)
 
-  const Actor = await require(CONFIG.ACTOR_LIB)[CONFIG.ACTOR]
+  const Actor = await require(ACTOR_LIB)[ACTOR]
   actor = await new Actor(repository)
 
   // bootstrap event observer

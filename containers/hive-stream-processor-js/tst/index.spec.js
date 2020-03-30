@@ -64,7 +64,7 @@ describe('app', () => {
         replayStub = sinon.stub().returns({})
 
         const main = proxyquire('../src/', {
-          '../conf': {
+          './config': {
             PROCESSOR_TYPE: 'producer',
             ACTOR_LIB: 'kafkajs',
             ACTOR: 'ViewActor',
@@ -312,7 +312,7 @@ describe('app', () => {
         replayStub = sinon.stub().returns({})
 
         const main = proxyquire('../src/', {
-          '../conf': {
+          './config': {
             PROCESSOR_TYPE: 'consumer',
             ACTOR_LIB: 'kafkajs',
             ACTOR: 'ViewActor',
@@ -409,7 +409,7 @@ describe('app', () => {
         replayStub = sinon.stub().returns({})
 
         const main = proxyquire('../src/', {
-          '../conf': {
+          './config': {
             PROCESSOR_TYPE: 'stream_processor',
             ACTOR_LIB: 'kafkajs',
             ACTOR: 'ViewActor',
@@ -502,7 +502,7 @@ describe('app', () => {
         updateSpy = sinon.spy()
 
         const { default: main, handleConsume } = proxyquire('../src/', {
-          '../conf': {
+          './config': {
             PROCESSOR_TYPE: 'consumer',
             ACTOR_LIB: 'kafkajs',
             ACTOR: 'ViewActor',
@@ -567,7 +567,7 @@ describe('app', () => {
         updateSpy = sinon.spy()
 
         const { default: main, handleConsume } = proxyquire('../src/', {
-          '../conf': {
+          './config': {
             PROCESSOR_TYPE: 'stream_processor',
             ACTOR_LIB: 'kafkajs',
             ACTOR: 'ViewActor',

@@ -1,5 +1,12 @@
 // imports
-import CONFIG from '../conf'
+import {
+  CACHE_URL,
+  LOCK_TTL,
+  LOCK_DRIFT_FACTOR,
+  LOCK_RETRY_COUNT,
+  LOCK_RETRY_DELAY,
+  LOCK_RETRY_JITTER
+} from './config'
 
 import Redis from 'ioredis'
 import Redlock from 'redlock'
@@ -15,21 +22,21 @@ const TTL = Symbol('Redlock TTL')
  */
 export default class Repository {
   constructor (store) {
-    this[TTL] = CONFIG.LOCK_TTL
-    this[CACHE] = new Redis(CONFIG.CACHE_URL)
+    this[TTL] = LOCK_TTL
+    this[CACHE] = new Redis(CACHE_URL)
     this[LOCK] = new Redlock([this[CACHE]], {
       // the expected clock drift; for more details
       // see http://redis.io/topics/distlock
-      driftFactor: CONFIG.LOCK_DRIFT_FACTOR, // time in ms
+      driftFactor: LOCK_DRIFT_FACTOR, // time in ms
       // the max number of times Redlock will attempt
       // to lock a resource before erroring
-      retryCount: CONFIG.LOCK_RETRY_COUNT,
+      retryCount: LOCK_RETRY_COUNT,
       // the time in ms between attempts
-      retryDelay: CONFIG.LOCK_RETRY_DELAY, // time in ms
+      retryDelay: LOCK_RETRY_DELAY, // time in ms
       // the max time in ms randomly added to retries
       // to improve performance under high contention
       // see https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
-      retryJitter: CONFIG.LOCK_RETRY_JITTER // time in ms
+      retryJitter: LOCK_RETRY_JITTER // time in ms
     })
     this[STORE] = store
 
