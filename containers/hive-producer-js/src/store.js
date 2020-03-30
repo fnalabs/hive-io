@@ -1,5 +1,11 @@
 // imports
-import CONFIG from '../conf'
+import {
+  EVENT_STORE_BROKERS,
+  EVENT_STORE_BUFFER,
+  EVENT_STORE_ID,
+  EVENT_STORE_TIMEOUT,
+  EVENT_STORE_TOPIC
+} from './config'
 
 import { Kafka, CompressionTypes } from 'kafkajs'
 
@@ -20,10 +26,10 @@ const RECORD_TIMEOUT = Symbol('method to handle record timeouts')
  */
 export default class EventStore {
   constructor () {
-    this[TOPIC] = CONFIG.EVENT_STORE_TOPIC
+    this[TOPIC] = EVENT_STORE_TOPIC
     this[PRODUCER] = new Kafka({
-      clientId: CONFIG.EVENT_STORE_ID,
-      brokers: CONFIG.EVENT_STORE_BROKERS.split(',')
+      clientId: EVENT_STORE_ID,
+      brokers: EVENT_STORE_BROKERS.split(',')
     }).producer()
 
     // error handling
@@ -40,11 +46,11 @@ export default class EventStore {
   }
 
   async record (meta, model) {
-    if (!this[TIMEOUT]) this[TIMEOUT] = setTimeout(this[RECORD_TIMEOUT], CONFIG.EVENT_STORE_TIMEOUT)
+    if (!this[TIMEOUT]) this[TIMEOUT] = setTimeout(this[RECORD_TIMEOUT], EVENT_STORE_TIMEOUT)
 
     this[MESSAGES].push({ ...meta, value: JSON.stringify(model) })
 
-    if (this[MESSAGES].length >= CONFIG.EVENT_STORE_BUFFER) {
+    if (this[MESSAGES].length >= EVENT_STORE_BUFFER) {
       clearTimeout(this[TIMEOUT])
 
       return this[RECORD_TIMEOUT]()
@@ -57,7 +63,7 @@ export default class EventStore {
         await this[PRODUCER].disconnect()
       } catch (_) {}
 
-      console.error(`${CONFIG.EVENT_STORE_ID}: ${type} occurred, disconnecting`)
+      console.error(`${EVENT_STORE_ID}: ${type} occurred, disconnecting`)
     }
 
     return handleError
@@ -73,7 +79,7 @@ export default class EventStore {
 
       this[RESET]()
     } catch (e) {
-      console.error(`${CONFIG.EVENT_STORE_ID}: ${e}`)
+      console.error(`${EVENT_STORE_ID}: ${e}`)
     }
   }
 
