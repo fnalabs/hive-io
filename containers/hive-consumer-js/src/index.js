@@ -1,12 +1,12 @@
 // imports
-import CONFIG from '../conf'
+import { ACTOR, ACTOR_LIB, PING_URL } from './config'
 
 import EventStore from './store'
 
 let actor
 
 // constants
-const pingUrlRegExp = new RegExp(`^${CONFIG.PING_URL}$`)
+const pingUrlRegExp = new RegExp(`^${PING_URL}$`)
 
 // helper functions
 export function handleConsume ({ message }) {
@@ -31,7 +31,7 @@ export function send (res, status = 200, model = null) {
 // export main
 export default async function main () {
   // init dependencies
-  const Actor = await require(CONFIG.ACTOR_LIB)[CONFIG.ACTOR]
+  const Actor = await require(ACTOR_LIB)[ACTOR]
   actor = await new Actor()
 
   // init event store to start consuming data

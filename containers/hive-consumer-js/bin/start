@@ -1,21 +1,30 @@
 #!/usr/bin/env node
-const CONFIG = require('../conf')
-const CPU_COUNT = (CONFIG.CLUSTER_SIZE && Number.parseInt(CONFIG.CLUSTER_SIZE)) || require('os').cpus().length
-const isHTTP2 = CONFIG.HTTP_VERSION === 2
+const {
+  CLUSTER_SIZE,
+  HTTP_VERSION,
+  PORT,
+  SECURE,
+  SSL_CERT_PATH,
+  SSL_KEY_PATH
+} = require('../dist/config')
+
+const CPU_COUNT = (CLUSTER_SIZE && Number.parseInt(CLUSTER_SIZE)) || require('os').cpus().length
+const isHTTP2 = HTTP_VERSION === 2
 
 const cluster = require('cluster')
 const fs = require('fs')
 const http = isHTTP2
   ? require('http2')
-  : CONFIG.SECURE
+  : SECURE
     ? require('https')
     : require('http')
 
 const { default: main } = require('../dist')
 
-const options = CONFIG.SECURE ? {
-  key: fs.readFileSync('./cert/ssl-key.pem'),
-  cert: fs.readFileSync('./cert/ssl-cert.pem')
+const options = SECURE ? {
+  allowHTTP1: true,
+  cert: fs.readFileSync(SSL_CERT_PATH),
+  key: fs.readFileSync(SSL_KEY_PATH)
 } : {}
 
 if (cluster.isMaster && CPU_COUNT > 1) {
@@ -35,15 +44,15 @@ if (cluster.isMaster && CPU_COUNT > 1) {
 } else {
   main()
     .then(route => {
-      if (CONFIG.SECURE) {
+      if (SECURE) {
         isHTTP2
-          ? http.createSecureServer(options, route).listen(CONFIG.PORT)
-          : http.createServer(options, route).listen(CONFIG.PORT)
+          ? http.createSecureServer(options, route).listen(PORT)
+          : http.createServer(options, route).listen(PORT)
       } else {
-        http.createServer(options, route).listen(CONFIG.PORT)
+        http.createServer(options, route).listen(PORT)
       }
 
-      console.info('app running on port', CONFIG.PORT)
+      console.info('app running on port', PORT)
       if (CPU_COUNT > 1) console.log(`Worker ${process.pid} started`)
     })
     .catch(error => console.error(error))

@@ -38,7 +38,7 @@ describe('app', () => {
       performStub = performStubs.shift()
 
       const main = proxyquire('../src/', {
-        '../conf': {
+        './config': {
           ACTOR_LIB: 'kafkajs',
           ACTOR: 'ViewActor',
           PING_URL: '/ping',
@@ -159,7 +159,7 @@ describe('app', () => {
       performSpy = sinon.spy()
 
       const { default: main, handleConsume } = proxyquire('../src/', {
-        '../conf': {
+        './config': {
           ACTOR_LIB: 'kafkajs',
           ACTOR: 'ViewActor',
           PING_URL: '/ping',
