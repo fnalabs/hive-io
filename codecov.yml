@@ -1,0 +1,66 @@
+flags:
+  hive-io:
+    paths:
+      - packages/hive-js/src/
+  hive-io-domain:
+    paths:
+      - packages/hive-js-domain-example/src/
+  hive-io-rest:
+    paths:
+      - packages/hive-js-rest-example/src/
+  hive-base:
+    paths:
+      - containers/hive-base-js/src/
+  hive-consumer:
+    paths:
+      - containers/hive-consumer-js/src/
+  hive-producer:
+    paths:
+      - containers/hive-producer-js/src/
+  hive-stream-processor:
+    paths:
+      - containers/hive-stream-processor-js/src/
+
+coverage:
+  status:
+    changes: off
+    patch: off
+    project:
+      default:
+        target: 90%
+        threshold: 0%
+      hive-io:
+        target: 90%
+        threshold: 0%
+        flags:
+          - hive-io
+      hive-io-domain:
+        target: 90%
+        threshold: 0%
+        flags:
+          - hive-io-domain
+      hive-io-rest:
+        target: 90%
+        threshold: 0%
+        flags:
+          - hive-io-rest
+      hive-base:
+        target: 90%
+        threshold: 0%
+        flags:
+          - hive-base
+      hive-consumer:
+        target: 90%
+        threshold: 0%
+        flags:
+          - hive-consumer
+      hive-producer:
+        target: 90%
+        threshold: 0%
+        flags:
+          - hive-producer
+      hive-stream-processor:
+        target: 90%
+        threshold: 0%
+        flags:
+          - hive-stream-processor

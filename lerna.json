@@ -1,0 +1,23 @@
+{
+  "command": {
+    "bootstrap": {
+      "ignore": "hive-io-@(base|producer|consumer|stream-processor)",
+      "npmClientArgs": [
+        "--no-optional"
+      ]
+    },
+    "publish": {
+      "ignoreChanges": [
+        "**/*.md",
+        "**/tst/**"
+      ]
+    }
+  },
+  "packages": [
+    "containers/*",
+    "packages/*"
+  ],
+  "npmClient": "npm",
+  "useWorkspaces": false,
+  "version": "0.0.0"
+}
