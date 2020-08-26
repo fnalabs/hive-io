@@ -4,6 +4,8 @@ src
 tmp*
 tst
 .*
+babel.config.json
+README.md
 
 # Logs
 logs
