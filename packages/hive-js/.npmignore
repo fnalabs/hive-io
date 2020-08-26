@@ -1,11 +1,12 @@
 # Project specific
 bin
-docs
 src
 tmp*
 tst
 .*
 karma.*
+babel.config.json
+README.md
 
 # Logs
 logs
