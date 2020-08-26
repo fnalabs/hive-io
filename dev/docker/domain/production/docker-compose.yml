@@ -1,0 +1,178 @@
+version: '3.5'
+services:
+  # proxy for layer 7 routing
+  proxy:
+    build: ../../../hive-io-proxy
+    image: hive-io-proxy
+    depends_on:
+      - hive-producer-js
+      - hive-base-js
+      - hive-stream-processor-js
+    ports:
+      - 443:443
+    volumes:
+      - ../../../hive-io-proxy:/usr/local/etc/haproxy:rw
+    networks:
+      - hive-io
+    restart: on-failure
+  fluentd:
+    image: fluent/fluentd:v1.9.2-1.0
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # producers
+  hive-producer-js:
+    build:
+      context: .
+      dockerfile: Producer.dockerfile
+    image: hive-producer-js:production
+    environment:
+      ACTOR: ViewContentActor
+      ACTOR_LIB: hive-io-domain-example
+      CLUSTER_SIZE: 1
+      SECURE: "true"
+      EVENT_STORE_TOPIC: view
+      EVENT_STORE_BROKERS: "kafka:29092"
+      EVENT_STORE_ID: producer-client
+      FLUENTD_HOST: fluentd
+      FLUENTD_PORT: 24224
+      FLUENTD_TIMEOUT: 3.0
+      FLUENTD_RECONNECT: 600000
+    depends_on:
+      - kafka
+      - fluentd
+    ports:
+      - 3000:3000
+    volumes:
+      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+    networks:
+      - hive-io
+
+  # stream processors
+  hive-stream-processor-js:
+    build:
+      context: .
+      dockerfile: Stream-Processor.dockerfile
+    image: hive-stream-processor-js:production
+    environment:
+      ACTOR: PostCommandActor
+      ACTOR_LIB: hive-io-domain-example
+      CLUSTER_SIZE: 1
+      SECURE: "true"
+      CACHE_URL: "redis://redis:6379"
+      EVENT_STORE_PRODUCER_TOPIC: content
+      EVENT_STORE_BROKERS: "kafka:29092"
+      EVENT_STORE_ID: stream-processor-client
+      FLUENTD_HOST: fluentd
+      FLUENTD_PORT: 24224
+      FLUENTD_TIMEOUT: 3.0
+      FLUENTD_RECONNECT: 600000
+    depends_on:
+      - redis
+      - kafka
+      - fluentd
+    ports:
+      - 3001:3000
+    volumes:
+      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+    networks:
+      - hive-io
+  redis:
+    image: redis:5.0.7-alpine
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # log stream containers
+  kafka:
+    image: confluentinc/cp-kafka:5.4.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:32181"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_COMPRESSION_TYPE: gzip
+    expose:
+      - 29092
+    networks:
+      - hive-io
+    restart: on-failure
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 32181
+    expose:
+      - 32181
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # consumers
+  hive-consumer-js:
+    build:
+      context: .
+      dockerfile: Consumer.dockerfile
+    image: hive-consumer-js:production
+    environment:
+      ACTOR: PostEventActor
+      ACTOR_LIB: hive-io-domain-example
+      CLUSTER_SIZE: 1
+      SECURE: "true"
+      EVENT_STORE_TOPIC: "content|view"
+      EVENT_STORE_BROKERS: "kafka:29092"
+      EVENT_STORE_ID: consumer-client
+      EVENT_STORE_GROUP_ID: consumer-group
+      EVENT_STORE_FROM_START: "true"
+      MONGO_URL: "mongodb://mongo:27017/post"
+      FLUENTD_HOST: fluentd
+      FLUENTD_PORT: 24224
+      FLUENTD_TIMEOUT: 3.0
+      FLUENTD_RECONNECT: 600000
+    depends_on:
+      - mongo
+      - kafka
+      - fluentd
+    ports:
+      - 3002:3000
+    volumes:
+      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+    networks:
+      - hive-io
+  mongo:
+    image: mongo:4.2.3
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # rest services
+  hive-base-js:
+    build:
+      context: .
+      dockerfile: Rest.dockerfile
+    image: hive-base-js:production
+    environment:
+      ACTOR: PostQueryActor
+      ACTOR_LIB: hive-io-domain-example
+      CLUSTER_SIZE: 1
+      SECURE: "true"
+      MONGO_URL: "mongodb://mongo:27017/post"
+      FLUENTD_HOST: fluentd
+      FLUENTD_PORT: 24224
+      FLUENTD_TIMEOUT: 3.0
+      FLUENTD_RECONNECT: 600000
+    depends_on:
+      - mongo
+      - fluentd
+    ports:
+      - 3003:3000
+    volumes:
+      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+    networks:
+      - hive-io
+
+# networking specifics
+networks:
+  hive-io:
+    driver: bridge
