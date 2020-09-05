@@ -1,21 +1,23 @@
 version: '3.5'
 services:
   # proxy for layer 7 routing
-  hive-io-proxy:
-    build: ../../../hive-io-proxy
-    image: hive-io-proxy:development
+  proxy:
+    build: ../../../proxy
+    image: hive-proxy:development
+    container_name: proxy
     depends_on:
       - hive-base-js
       - hive-stream-processor-js
     ports:
       - 443:443
     volumes:
-      - ../../../hive-io-proxy:/usr/local/etc/haproxy:rw
+      - ../../../proxy:/usr/local/etc/haproxy:rw
     networks:
       - hive-io
     restart: on-failure
   fluentd:
     image: fluent/fluentd:v1.9.2-1.0
+    container_name: fluentd
     networks:
       - hive-io
     restart: on-failure
@@ -23,11 +25,10 @@ services:
   # producers
   hive-producer-js:
     build:
-      context: ../../../hive-producer-js
-      args:
-        APP_MODULE: hive-io-domain-example
+      context: ../../../../containers/hive-producer-js
       target: development
     image: hive-producer-js:development
+    container_name: hive-producer-js
     environment:
       ACTOR: ViewContentActor
       ACTOR_LIB: hive-io-domain-example
@@ -47,23 +48,21 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ../../../hive-producer-js:/opt/app:rw
-      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+      - ../../../../containers/hive-producer-js:/opt/app:rw
+      - ../../../proxy/cert:/opt/app/cert:rw
       - /opt/app/node_modules
-      - ../../../hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io-domain-example/node_modules/hive-io:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io:rw
+      - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
+      - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
     networks:
       - hive-io
 
   # stream processors
   hive-stream-processor-js:
     build:
-      context: ../../../hive-stream-processor-js
-      args:
-        APP_MODULE: hive-io-domain-example
+      context: ../../../../containers/hive-stream-processor-js
       target: development
     image: hive-stream-processor-js:development
+    container_name: hive-stream-processor-js
     environment:
       ACTOR: PostCommandActor
       ACTOR_LIB: hive-io-domain-example
@@ -85,16 +84,16 @@ services:
     ports:
       - 3001:3000
     volumes:
-      - ../../../hive-stream-processor-js:/opt/app:rw
-      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+      - ../../../../containers/hive-stream-processor-js:/opt/app:rw
+      - ../../../proxy/cert:/opt/app/cert:rw
       - /opt/app/node_modules
-      - ../../../hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io-domain-example/node_modules/hive-io:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io:rw
+      - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
+      - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
     networks:
       - hive-io
   redis:
     image: redis:5.0.7-alpine
+    container_name: redis
     networks:
       - hive-io
     restart: on-failure
@@ -102,6 +101,7 @@ services:
   # log stream containers
   kafka:
     image: confluentinc/cp-kafka:5.4.0
+    container_name: kafka
     depends_on:
       - zookeeper
     environment:
@@ -118,6 +118,7 @@ services:
     restart: on-failure
   zookeeper:
     image: confluentinc/cp-zookeeper:5.4.0
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
     expose:
@@ -129,11 +130,10 @@ services:
   # consumers
   hive-consumer-js:
     build:
-      context: ../../../hive-consumer-js
-      args:
-        APP_MODULE: hive-io-domain-example
+      context: ../../../../containers/hive-consumer-js
       target: development
     image: hive-consumer-js:development
+    container_name: hive-consumer-js
     environment:
       ACTOR: PostEventActor
       ACTOR_LIB: hive-io-domain-example
@@ -157,21 +157,22 @@ services:
     ports:
       - 3002:3000
     volumes:
-      - ../../../hive-consumer-js:/opt/app:rw
-      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+      - ../../../../containers/hive-consumer-js:/opt/app:rw
+      - ../../../proxy/cert:/opt/app/cert:rw
       - /opt/app/node_modules
-      - ../../../hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io-domain-example/node_modules/hive-io:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io:rw
+      - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
+      - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
     networks:
       - hive-io
   mongo:
     image: mongo:4.2.3
+    container_name: mongo
     networks:
       - hive-io
     restart: on-failure
   mongo-viewer:
     image: mongo-express:0.54.0
+    container_name: mongo-viewer
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_SITE_BASEURL: "/mongo/"
@@ -186,11 +187,10 @@ services:
   # rest services
   hive-base-js:
     build:
-      context: ../../../hive-base-js
-      args:
-        APP_MODULE: hive-io-domain-example
+      context: ../../../../containers/hive-base-js
       target: development
     image: hive-base-js:development
+    container_name: hive-base-js
     environment:
       ACTOR: PostQueryActor
       ACTOR_LIB: hive-io-domain-example
@@ -209,12 +209,11 @@ services:
     ports:
       - 3003:3000
     volumes:
-      - ../../../hive-base-js:/opt/app:rw
-      - ../../../hive-io-proxy/cert:/opt/app/cert:rw
+      - ../../../../containers/hive-base-js:/opt/app:rw
+      - ../../../proxy/cert:/opt/app/cert:rw
       - /opt/app/node_modules
-      - ../../../hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io-domain-example/node_modules/hive-io:rw
-      - ../../../hive-js:/opt/app/node_modules/hive-io:rw
+      - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
+      - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
     networks:
       - hive-io
 
