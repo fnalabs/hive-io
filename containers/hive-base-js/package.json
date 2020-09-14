@@ -102,6 +102,9 @@
     "instrument": false
   },
   "standard": {
+    "ignore": [
+      "dist/"
+    ],
     "parser": "babel-eslint"
   }
 }

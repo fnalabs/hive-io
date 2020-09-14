@@ -9,6 +9,7 @@ services:
     environment:
       ACTOR: PostActor
       ACTOR_LIB: hive-io-rest-example
+      ACTOR_URLS: "/posts,/posts/:postId"
       CLUSTER_SIZE: 1
       SECURE: "true"
       MONGO_URL: "mongodb://mongo:27017/post"

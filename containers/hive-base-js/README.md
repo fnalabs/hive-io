@@ -49,10 +49,10 @@ SECURE             | String  | 'false'                       | whether to run mi
 CLUSTER_SIZE       | Number  | [total CPUs available]        | defaults to the total available CPUs allocated to the container or to the size you specify here
 SSL_CERT_PATH      | String  | '/opt/app/cert/ssl-cert.pem'  | default path for SSL certificate file
 SSL_KEY_PATH       | String  | '/opt/app/cert/ssl-key.pem'   | default path for SSL key file
-CONTENT_TYPE       | String  | 'application/json'            | HTTP Content-Type header to check
 PING_URL           | String  | '/ping'                       | URL to use for shallow health checks for the microservice
 ACTOR              | String  |                               | Actor (Model) the microservice is responsible for
 ACTOR_LIB          | String  |                               | module where the ACTOR resides
+ACTOR_URLS         | String  |                               | URL associated with the Actor
 
 ## Future
 - feature requests via [issues](https://github.com/fnalabs/hive-base-js/issues)
