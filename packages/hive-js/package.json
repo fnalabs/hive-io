@@ -85,7 +85,7 @@
   },
   "standard": {
     "ignore": [
-      "docs/"
+      "dist/"
     ],
     "parser": "babel-eslint"
   }

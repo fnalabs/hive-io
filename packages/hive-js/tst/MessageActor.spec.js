@@ -6,7 +6,6 @@ import dirtyChai from 'dirty-chai'
 import { Model, Schema } from 'model-json-js'
 
 import { Actor, MessageActor } from '../src/Actor'
-import { parse } from '../src/util'
 
 // schemas
 import TestSchema from './schemas/TestSchema.json'
@@ -55,8 +54,8 @@ describe('class MessageActor', () => {
     viewTestSchema = await new Schema(ViewTestSchema)
     viewedTestSchema = await new Schema(ViewedTestSchema)
 
-    createTestActor = new MessageActor(parse`/test`, testSchema, createdTestSchema, createTestSchema)
-    viewTestActor = new MessageActor(parse`/view`, testSchema, viewedTestSchema, viewTestSchema)
+    createTestActor = new MessageActor(testSchema, createdTestSchema, createTestSchema)
+    viewTestActor = new MessageActor(testSchema, viewedTestSchema, viewTestSchema)
 
     class TestActor extends Actor {
       async perform (modelInstance, data) {
@@ -79,7 +78,7 @@ describe('class MessageActor', () => {
         }
       }
     }
-    testActor = new TestActor(parse`/view`, testSchema)
+    testActor = new TestActor(testSchema)
   })
 
   describe('#constructor', () => {
@@ -88,17 +87,16 @@ describe('class MessageActor', () => {
       expect(createTestActor.perform).to.be.a('function')
       expect(createTestActor.replay).to.be.a('function')
       expect(createTestActor.assign).to.be.a('function')
-      expect(createTestActor.parse).to.be.a('function')
     })
 
     it('should create a MessageActor with only an EventSchema defined', () => {
-      const eventActor = new MessageActor(parse`/view`, testSchema, createdTestSchema)
+      const eventActor = new MessageActor(testSchema, createdTestSchema)
       expect(eventActor).to.be.an.instanceof(MessageActor)
     })
 
     it('should throw an error if MessageActor isn\'t passed an event schema', () => {
       try {
-        new MessageActor(parse`/view`, testSchema) // eslint-disable-line
+        new MessageActor(testSchema) // eslint-disable-line
       } catch (e) {
         expect(e.message).to.equal('#MessageActor: event schema must be a Schema')
       }
@@ -148,7 +146,7 @@ describe('class MessageActor', () => {
     })
 
     it('should create, validate, and return the command and event', async () => {
-      const test = new MessageActor(parse`/test`, undefined, createdTestSchema, createTestSchema)
+      const test = new MessageActor(undefined, createdTestSchema, createTestSchema)
       const { command, event, model } = await test.perform(undefined, createData)
 
       expect(command).to.be.an.instanceof(Model)

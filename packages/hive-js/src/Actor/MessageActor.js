@@ -19,22 +19,20 @@ const immutable = true
  * <p>Primary use case(s) are:
  * <ul><li>process CQRS Commands to generate Events to apply to a Model in <code>perform</code> method</li></ul></p>
  *
- * <p><strong><em>NOTE:</em></strong> The URL template literal passed to the tagged function must start with a slash then the resource name associated with the Model, whether its used or not, as convention.</p>
  * @property {any} repository - A reference to a storage layer client of your choosing or <code>undefined</code>.
- * @param {Object} [url=parse`/empty`] - The parsed template literal for the Actor's URL.
  * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
  * @param {Schema} eventSchema - The instance of the Actor's associated Event JSON Schema definition.
  * @param {Schema} [commandSchema={}] - The optional instance of the Actor's associated Command JSON Schema definition.
  * @param {any} [repository] - An optional reference to a storage layer client of your choosing.
  * @example <caption>A Command example MessageActor class. It is meant to be wrapped with one of the microservice types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
- * import { parse, MessageActor, Schema } from 'hive-io'
+ * import { MessageActor, Schema } from 'hive-io'
  *
  * import ExampleSchema from '../schemas/ExampleSchema.json'
  * import EventSchema from '../schemas/EventSchema.json'
  * import CommandSchema from '../schemas/CommandSchema.json'
  *
  * class CommandActor extends MessageActor {
- *   async perform (data) {
+ *   async perform (model, action) {
  *     // Do something interesting with the data
  *   }
  * }
@@ -45,17 +43,17 @@ const immutable = true
  *     const event = await new Schema(EventSchema)
  *     const command = await new Schema(CommandSchema)
  *
- *     return new CommandActor(parse`/example/${'exampleId'}`, example, event, command, argsList[0])
+ *     return new CommandActor(example, event, command, argsList[0])
  *   }
  * })
  * @example <caption>An Event example MessageActor class. It is meant to be wrapped with one of the microservice types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
- * import { parse, MessageActor, Schema } from 'hive-io'
+ * import { MessageActor, Schema } from 'hive-io'
  *
  * import ExampleSchema from '../schemas/ExampleSchema.json'
  * import EventSchema from '../schemas/EventSchema.json'
  *
  * class EventActor extends MessageActor {
- *   async perform (data) {
+ *   async perform (model, action) {
  *     // Do something interesting with the data
  *   }
  * }
@@ -65,13 +63,13 @@ const immutable = true
  *     const example = await new Schema(ExampleSchema)
  *     const event = await new Schema(EventSchema)
  *
- *     return new EventActor(parse`/example/${'exampleId'}`, example, event, undefined, argsList[0])
+ *     return new EventActor(example, event, undefined, argsList[0])
  *   }
  * })
  */
 class MessageActor extends Actor {
-  constructor (url, modelSchema, eventSchema, commandSchema = {}, repository) {
-    super(url, modelSchema, repository)
+  constructor (modelSchema, eventSchema, commandSchema = {}, repository) {
+    super(modelSchema, repository)
 
     if (!(eventSchema instanceof Schema)) throw new TypeError('#MessageActor: event schema must be a Schema')
 
@@ -82,22 +80,22 @@ class MessageActor extends Actor {
   }
 
   /**
-   * Method that performs the specified Command in the <code>data</code> to the specified <code>model</code>.
+   * Method that performs the specified Command in the <code>action</code> to the specified <code>model</code>.
    * @param {Object} model - An instance of the model associated with the received data generated from <code>replay</code>.
-   * @param {Object} [data] - An optional FSA Object literal containing the Model's <code>type</code> and optional <code>meta</code> and <code>payload</code>.
+   * @param {Object} [action] - An optional FSA Object literal containing the Model's <code>type</code> and optional <code>meta</code> and <code>payload</code>.
    * @returns {Object} An Object literal containing the latest materialized view of the model and the immutable  instances of the command and event.
    * @async
    */
-  async perform (model, data) {
+  async perform (model, action) {
     // init and validate command and event
-    const command = this[COMMAND].title === data.type
-      ? await new Model(data, this[COMMAND], { immutable })
+    const command = this[COMMAND].title === action.type
+      ? await new Model(action, this[COMMAND], { immutable })
       : undefined
-    const event = await new Model({ ...data, type: this[EVENT].title }, this[EVENT], { immutable })
+    const event = await new Model({ ...action, type: this[EVENT].title }, this[EVENT], { immutable })
 
-    // call parent perform to init or apply data to model and validate
+    // call parent perform to init or apply action to model and validate
     if (this[MODEL] && this[MODEL].title) {
-      const performed = await super.perform(model, { ...data, type: this[MODEL].title })
+      const performed = await super.perform(model, { ...action, type: this[MODEL].title })
       return { ...performed, command, event }
     }
 
