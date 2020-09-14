@@ -9,9 +9,9 @@ import { UPDATE_OPTIONS } from '../../config'
  * class DeletePostActor
  */
 class DeletePostActor extends Actor {
-  async perform (model, data) {
+  async perform (model, action) {
     // upload to mongo
-    const conditions = { _id: data.meta.req.urlParams.postId }
+    const conditions = { _id: action.meta.request.params.postId }
     const update = { $set: { enabled: false } }
 
     model = await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()

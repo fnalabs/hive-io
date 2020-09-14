@@ -9,13 +9,13 @@ import PostSchema from '../../schemas/json/Post.json'
  * class PutPostActor
  */
 class PutPostActor extends Actor {
-  async perform (model, data) {
+  async perform (model, action) {
     // validate
-    await super.perform(model, data)
+    await super.perform(model, action)
 
     // prepare upload params
-    const conditions = { _id: data.meta.req.urlParams.postId }
-    const update = { $set: { text: data.payload.text, edited: true } }
+    const conditions = { _id: action.meta.request.params.postId }
+    const update = { $set: { text: action.payload.text, edited: true } }
 
     // upload to mongo
     model = await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
