@@ -32,6 +32,7 @@ services:
     environment:
       ACTOR: ViewContentActor
       ACTOR_LIB: hive-io-domain-example
+      ACTOR_URLS: "/posts/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
       EVENT_STORE_TOPIC: view
@@ -66,6 +67,7 @@ services:
     environment:
       ACTOR: PostCommandActor
       ACTOR_LIB: hive-io-domain-example
+      ACTOR_URLS: "/posts,/posts/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
       CACHE_URL: "redis://redis:6379"
@@ -194,6 +196,7 @@ services:
     environment:
       ACTOR: PostQueryActor
       ACTOR_LIB: hive-io-domain-example
+      ACTOR_URLS: "/posts,/posts/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
       MONGO_URL: "mongodb://mongo:27017/post"
