@@ -1,12 +1,13 @@
 // imports
-import { PING_URL, ACTOR, ACTOR_LIB, ACTOR_URLS } from './config'
+import { ACTOR, ACTOR_LIB, ACTOR_URLS, PING_URL } from './config'
 
 import cors from 'fastify-cors'
 import helmet from 'fastify-helmet'
 
 let actor
 
-export async function healthHandler () {
+// helper functions
+export function healthHandler () {
   return 'OK'
 }
 

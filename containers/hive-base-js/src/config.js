@@ -13,6 +13,6 @@ export const PING_URL = process.env.PING_URL ?? '/ping'
 // domain configurations
 export const ACTOR = process.env.ACTOR
 export const ACTOR_LIB = process.env.ACTOR_LIB
-export const ACTOR_URLS = typeof process.env.ACTOR_URLS === 'string'
+export const ACTOR_URLS = (typeof process.env.ACTOR_URLS === 'string' && process.env.ACTOR_URLS.length)
   ? process.env.ACTOR_URLS.split(',')
-  : ['/actor']
+  : []

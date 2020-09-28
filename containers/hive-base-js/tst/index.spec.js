@@ -54,8 +54,8 @@ describe('main', () => {
 
 describe('handlers', () => {
   describe('#healthHandler', () => {
-    it('should respond with `OK` successfully', async () => {
-      await expect(healthHandler()).to.eventually.equal('OK')
+    it('should respond with `OK` successfully', () => {
+      expect(healthHandler()).to.equal('OK')
     })
   })
 
@@ -64,24 +64,27 @@ describe('handlers', () => {
 
     it('should handle requests without a body successfully', async () => {
       const request = {}
+      const result = await mainHandler(request)
 
-      await expect(mainHandler(request)).to.eventually.equal('test')
+      expect(result).to.equal('test')
 
       expect(performStub.calledOnce).to.be.true()
     })
 
     it('should handle requests with only a body type successfully', async () => {
       const request = { body: { type: 'Test' } }
+      const result = await mainHandler(request)
 
-      await expect(mainHandler(request)).to.eventually.equal('test')
+      expect(result).to.equal('test')
 
       expect(performStub.calledOnce).to.be.true()
     })
 
     it('should handle requests with short-circuit body successfully', async () => {
       const request = { body: { test: 'short-circuit' } }
+      const result = await mainHandler(request)
 
-      await expect(mainHandler(request)).to.eventually.equal('test')
+      expect(result).to.equal('test')
 
       expect(performStub.calledOnce).to.be.true()
     })
@@ -94,8 +97,9 @@ describe('handlers', () => {
           meta: { some: 'metadata' }
         }
       }
+      const result = await mainHandler(request)
 
-      await expect(mainHandler(request)).to.eventually.equal('test')
+      expect(result).to.equal('test')
 
       expect(performStub.calledOnce).to.be.true()
     })
