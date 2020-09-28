@@ -3,217 +3,120 @@ import chai, { expect } from 'chai'
 import chaiHttp from 'chai-http'
 import dirtyChai from 'dirty-chai'
 import proxyquire from 'proxyquire'
-import sinon from 'sinon'
+import { spy, stub } from 'sinon'
 
-import http from 'http'
+import cors from 'fastify-cors'
+import helmet from 'fastify-helmet'
 
 chai.use(chaiHttp)
 chai.use(dirtyChai)
 
-describe('app', () => {
-  let app, route, recordStub, parseStub, performStub, produceSpy
+// mocks
+const performStub = stub().resolves({ event: 'test' })
+const produceSpy = spy()
+const recordSpy = spy()
+const { default: main, healthHandler, mainHandler } = proxyquire('../src', {
+  './config': {
+    PING_URL: '/test/ping',
+    ACTOR: 'PostActor',
+    ACTOR_LIB: 'codecov',
+    ACTOR_URLS: ['/test/actor']
+  },
+  './store': class EventStore {
+    async produce () { produceSpy() }
+    async record () { recordSpy() }
+  },
+  codecov: {
+    PostActor: class Actor {
+      async perform () { return performStub() }
+    }
+  }
+})
 
-  describe('#routes', () => {
-    const recordStubs = [
-      sinon.stub(),
-      sinon.stub(),
-      sinon.stub(),
-      sinon.stub(),
-      sinon.stub(),
-      sinon.stub(),
-      sinon.stub(),
-      sinon.stub().throws(Error),
-      sinon.stub()
-    ]
+const fastifyMock = {
+  all: spy(),
+  get: spy(),
+  register: spy()
+}
 
+// tests
+describe('main', () => {
+  before(async () => {
+    await main(fastifyMock)
+  })
+
+  it('should initialize the app successfully', () => {
+    expect(produceSpy.calledOnce).to.be.true()
+
+    expect(fastifyMock.register.calledTwice).to.be.true()
+    expect(fastifyMock.register.firstCall.calledWith(cors)).to.be.true()
+    expect(fastifyMock.register.secondCall.calledWith(helmet)).to.be.true()
+
+    expect(fastifyMock.get.calledOnce).to.be.true()
+    expect(fastifyMock.get.firstCall.calledWith('/test/ping', healthHandler)).to.be.true()
+
+    expect(fastifyMock.all.calledOnce).to.be.true()
+    expect(fastifyMock.all.firstCall.calledWith('/test/actor', mainHandler)).to.be.true()
+  })
+})
+
+describe('handlers', () => {
+  describe('#healthHandler', () => {
+    it('should respond with `OK` successfully', () => {
+      expect(healthHandler()).to.equal('OK')
+    })
+  })
+
+  describe('#mainHandler', () => {
     afterEach(() => {
-      app = null
-      route = null
-
-      recordStub = null
-      parseStub = null
-      performStub = null
-      produceSpy = null
+      performStub.resetHistory()
+      recordSpy.resetHistory()
     })
 
-    beforeEach(async () => {
-      recordStub = recordStubs.shift()
-      parseStub = sinon.stub().returns({})
-      performStub = sinon.stub().returns({})
-      produceSpy = sinon.spy()
+    it('should handle requests without a body successfully', async () => {
+      const request = {}
+      const result = await mainHandler(request)
 
-      const main = proxyquire('../src/', {
-        './config': {
-          ACTOR_LIB: 'kafkajs',
-          ACTOR: 'ViewActor',
-          PING_URL: '/ping',
-          CONTENT_TYPE: 'application/json'
-        },
-        kafkajs: {
-          ViewActor: class MessageActor {
-            perform () { return performStub() }
-            parse () { return parseStub() }
-          }
-        },
-        './store': class Store {
-          produce () { produceSpy() }
-          record () { recordStub() }
+      expect(result).to.equal('test')
+
+      expect(performStub.calledOnce).to.be.true()
+      expect(recordSpy.calledOnce).to.be.true()
+    })
+
+    it('should handle requests with only a body type successfully', async () => {
+      const request = { body: { type: 'Test' } }
+      const result = await mainHandler(request)
+
+      expect(result).to.equal('test')
+
+      expect(performStub.calledOnce).to.be.true()
+      expect(recordSpy.calledOnce).to.be.true()
+    })
+
+    it('should handle requests with short-circuit body successfully', async () => {
+      const request = { body: { test: 'short-circuit' } }
+      const result = await mainHandler(request)
+
+      expect(result).to.equal('test')
+
+      expect(performStub.calledOnce).to.be.true()
+      expect(recordSpy.calledOnce).to.be.true()
+    })
+
+    it('should handle requests with serialized model with data successfully', async () => {
+      const request = {
+        body: {
+          type: 'Test',
+          payload: { test: 'serialized model' },
+          meta: { some: 'metadata' }
         }
-      }).default
-      route = await main()
-      app = http.createServer(route)
-    })
+      }
+      const result = await mainHandler(request)
 
-    it('should respond with 200 from /ping', done => {
-      chai.request(app)
-        .get('/ping')
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
+      expect(result).to.equal('test')
 
-          expect(recordStub.called).to.be.false()
-          expect(parseStub.called).to.be.false()
-          expect(performStub.called).to.be.false()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 200 from /test on successful POST with payload', done => {
-      chai.request(app)
-        .post('/test')
-        .send({ payload: {} })
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(recordStub.calledOnce).to.be.true()
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 200 from /test on successful POST with meta', done => {
-      chai.request(app)
-        .post('/test')
-        .send({ meta: {} })
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(recordStub.calledOnce).to.be.true()
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 200 from /test on successful POST with short-circuit payload', done => {
-      chai.request(app)
-        .post('/test')
-        .send({ some: 'thing' })
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(recordStub.calledOnce).to.be.true()
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 200 from /test on successful DELETE with no payload', done => {
-      chai.request(app)
-        .delete('/test')
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(recordStub.calledOnce).to.be.true()
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 200 from /test on successful post with serialized model payload', done => {
-      chai.request(app)
-        .post('/test')
-        .send({ type: 'Test', payload: {}, meta: {} })
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(recordStub.calledOnce).to.be.true()
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 200 from /test on successful post with duplicate headers as an Array', done => {
-      chai.request(app)
-        .post('/test')
-        .set('set-cookie', 'test1')
-        .set('set-cookie', 'test2')
-        .send({ type: 'Test', payload: {}, meta: {} })
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(recordStub.calledOnce).to.be.true()
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 400 from /test on unsuccessful POST', done => {
-      chai.request(app)
-        .post('/test')
-        .send({ meta: {} })
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(400)
-
-          expect(recordStub.calledOnce).to.be.true()
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 405 from /test on unsuccessful GET', done => {
-      chai.request(app)
-        .get('/test/1')
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(405)
-
-          expect(recordStub.called).to.be.false()
-          expect(parseStub.called).to.be.false()
-          expect(performStub.called).to.be.false()
-          expect(produceSpy.calledOnce).to.be.true()
-
-          done()
-        })
+      expect(performStub.calledOnce).to.be.true()
+      expect(recordSpy.calledOnce).to.be.true()
     })
   })
 })

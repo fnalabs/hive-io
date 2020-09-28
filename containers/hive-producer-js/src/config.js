@@ -8,12 +8,14 @@ export const SSL_CERT_PATH = process.env.SSL_CERT_PATH ?? '/opt/app/cert/ssl-cer
 export const SSL_KEY_PATH = process.env.SSL_KEY_PATH ?? '/opt/app/cert/ssl-key.pem'
 
 // service configurations
-export const CONTENT_TYPE = process.env.CONTENT_TYPE ?? 'application/json'
 export const PING_URL = process.env.PING_URL ?? '/ping'
 
 // domain configurations
 export const ACTOR = process.env.ACTOR
 export const ACTOR_LIB = process.env.ACTOR_LIB
+export const ACTOR_URLS = (typeof process.env.ACTOR_URLS === 'string' && process.env.ACTOR_URLS.length)
+  ? process.env.ACTOR_URLS.split(',')
+  : []
 
 // event store configurations
 export const EVENT_STORE_TOPIC = process.env.EVENT_STORE_TOPIC
