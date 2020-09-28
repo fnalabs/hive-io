@@ -9,6 +9,7 @@
 This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Consumer microservice leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
 
 #### Contents
+
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installing](#installing)
@@ -17,10 +18,13 @@ This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Consumer mi
 - [Future](#future)
 
 ## Getting Started
+
 Consumers handle the Query responsibilities in the CQRS pattern. They are responsible for translating single or multiple event streams into denormalized formats that can be queried by user applications. Since all of the data has been validated before it is logged, they free themselves from that requirement and can focus on translating and serving data.
 
 ### Prerequisites
+
 To use, you'll need:
+
 - **Required**
   - [Docker](https://www.docker.com/)
   - [Kafka](https://kafka.apache.org/)
@@ -28,19 +32,24 @@ To use, you'll need:
   - Load Balancer (Layer 7)
 
 ### Installing
+
 To start using in your own infrastructure, pull the base image:
+
 ```sh
-$ docker pull fnalabs/hive-consumer-js:<[release]|latest>
+docker pull fnalabs/hive-consumer-js:<[release]|latest>
 ```
 
 ### Examples
+
 To use, write your own Dockerfile and add any additional dependencies, including the package with your domain Actors.
-```
+
+```dockerfile
 FROM fnalabs/hive-consumer-js:latest
 RUN npm install hive-io-domain-example
 ```
 
 ### Environment variables
+
 Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Consumer microservice. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name                    | Type    | Default                       | Description
@@ -55,6 +64,7 @@ SSL_KEY_PATH            | String  | '/opt/app/cert/ssl-key.pem'   | default path
 PING_URL                | String  | '/ping'                       | URL to use for shallow health checks for the microservice
 ACTOR                   | String  |                               | Actor to denormalize the aggregates
 ACTOR_LIB               | String  |                               | library where the ACTOR resides
+ACTOR_URLS              | String  |                               | comma-separated URLs associated with the Actor
 EVENT_STORE_TOPIC       | String  |                               | Kafka topic the events will be consumed from
 EVENT_STORE_ID          | String  |                               | unique identifier for Kafka client connection
 EVENT_STORE_GROUP_ID    | String  |                               | defines Kafka Consumer group id
@@ -65,6 +75,7 @@ EVENT_STORE_BUFFER      | Number  | null                          | maximum numb
 EVENT_STORE_TIMEOUT     | Number  | null                          | time (in `ms`) to poll Kafka for delivery reports
 
 ## Future
+
 - feature requests via [issues](https://github.com/fnalabs/hive-consumer-js/issues)
 
 [docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-consumer-js.svg

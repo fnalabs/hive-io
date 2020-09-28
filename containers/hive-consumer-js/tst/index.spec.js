@@ -3,183 +3,118 @@ import chai, { expect } from 'chai'
 import chaiHttp from 'chai-http'
 import dirtyChai from 'dirty-chai'
 import proxyquire from 'proxyquire'
-import sinon from 'sinon'
+import { spy, stub } from 'sinon'
 
-import http from 'http'
+import cors from 'fastify-cors'
+import helmet from 'fastify-helmet'
 
 chai.use(chaiHttp)
 chai.use(dirtyChai)
 
-describe('app', () => {
-  describe('#routes', () => {
-    let app, route, constructorSpy, consumeSpy, parseStub, performStub
-    const performStubs = [
-      sinon.stub().returns({}),
-      sinon.stub().returns({}),
-      sinon.stub().returns({}),
-      sinon.stub().throws(Error),
-      sinon.stub().returns({})
-    ]
+// mocks
+const consumeSpy = spy()
+const performStub = stub().resolves({ model: 'test' })
+const { default: main, consumeHandler, healthHandler, mainHandler } = proxyquire('../src', {
+  './config': {
+    PING_URL: '/test/ping',
+    ACTOR: 'PostActor',
+    ACTOR_LIB: 'codecov',
+    ACTOR_URLS: ['/test/actor']
+  },
+  './store': class EventStore {
+    consume () { consumeSpy() }
+  },
+  codecov: {
+    PostActor: class Actor {
+      async perform () { return performStub() }
+    }
+  }
+})
 
-    afterEach(() => {
-      app = null
-      route = null
+const fastifyMock = {
+  all: spy(),
+  get: spy(),
+  register: spy()
+}
 
-      constructorSpy = null
-      consumeSpy = null
-      parseStub = null
-      performStub = null
-    })
+// tests
+describe('main', () => {
+  before(async () => {
+    await main(fastifyMock)
+  })
 
-    beforeEach(async () => {
-      constructorSpy = sinon.spy()
-      consumeSpy = sinon.spy()
-      parseStub = sinon.stub().returns({})
-      performStub = performStubs.shift()
+  it('should initialize the app successfully', () => {
+    expect(consumeSpy.calledOnce).to.be.true()
 
-      const main = proxyquire('../src/', {
-        './config': {
-          ACTOR_LIB: 'kafkajs',
-          ACTOR: 'ViewActor',
-          PING_URL: '/ping',
-          CONTENT_TYPE: 'application/json'
-        },
-        kafkajs: {
-          ViewActor: class MessageActor {
-            perform () { return performStub() }
-            parse () { return parseStub() }
-          }
-        },
-        './store': class Store {
-          constructor () { constructorSpy() }
-          consume () { consumeSpy() }
-        }
-      }).default
-      route = await main()
-      app = http.createServer(route)
-    })
+    expect(fastifyMock.register.calledTwice).to.be.true()
+    expect(fastifyMock.register.firstCall.calledWith(cors)).to.be.true()
+    expect(fastifyMock.register.secondCall.calledWith(helmet)).to.be.true()
 
-    it('should respond with 200 from /ping', done => {
-      chai.request(app)
-        .get('/ping')
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
+    expect(fastifyMock.get.calledOnce).to.be.true()
+    expect(fastifyMock.get.firstCall.calledWith('/test/ping', healthHandler)).to.be.true()
 
-          expect(constructorSpy.calledOnce).to.be.true()
-          expect(consumeSpy.calledOnce).to.be.true()
+    expect(fastifyMock.all.calledOnce).to.be.true()
+    expect(fastifyMock.all.firstCall.calledWith('/test/actor', mainHandler)).to.be.true()
+  })
+})
 
-          expect(parseStub.called).to.be.false()
-          expect(performStub.called).to.be.false()
+describe('handlers', () => {
+  describe('#consumeHandler', () => {
+    afterEach(() => performStub.resetHistory())
 
-          done()
-        })
-    })
+    it('should consume messages successfully', async () => {
+      const testMessage = { message: { value: '{}' } }
+      await consumeHandler(testMessage)
 
-    it('should respond with 200 from /test on successful GET', done => {
-      chai.request(app)
-        .get('/test')
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(constructorSpy.calledOnce).to.be.true()
-          expect(consumeSpy.calledOnce).to.be.true()
-
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 200 from /test on successful post with duplicate headers as an Array', done => {
-      chai.request(app)
-        .get('/test')
-        .set('set-cookie', 'test1')
-        .set('set-cookie', 'test2')
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(200)
-
-          expect(constructorSpy.calledOnce).to.be.true()
-          expect(consumeSpy.calledOnce).to.be.true()
-
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 400 from /test on unsuccessful GET', done => {
-      chai.request(app)
-        .get('/test')
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(400)
-
-          expect(constructorSpy.calledOnce).to.be.true()
-          expect(consumeSpy.calledOnce).to.be.true()
-
-          expect(parseStub.calledOnce).to.be.true()
-          expect(performStub.calledOnce).to.be.true()
-
-          done()
-        })
-    })
-
-    it('should respond with 405 from /test on unsuccessful POST', done => {
-      chai.request(app)
-        .post('/test/1')
-        .send({ meta: {} })
-        .end((err, res) => {
-          expect(err).to.be.null()
-          expect(res).to.have.status(405)
-
-          expect(constructorSpy.calledOnce).to.be.true()
-          expect(consumeSpy.calledOnce).to.be.true()
-
-          expect(parseStub.called).to.be.false()
-          expect(performStub.called).to.be.false()
-
-          done()
-        })
+      expect(performStub.calledOnce).to.be.true()
     })
   })
 
-  describe('#handleConsume', () => {
-    let performSpy
+  describe('#healthHandler', () => {
+    it('should respond with `OK` successfully', () => {
+      expect(healthHandler()).to.equal('OK')
+    })
+  })
 
-    after(() => {
-      performSpy = null
+  describe('#mainHandler', () => {
+    afterEach(() => performStub.resetHistory())
+
+    it('should handle requests without a body successfully', async () => {
+      const request = {}
+
+      await expect(mainHandler(request)).to.eventually.be('test')
+
+      expect(performStub.calledOnce).to.be.true()
     })
 
-    before(async () => {
-      performSpy = sinon.spy()
+    it('should handle requests with only a body type successfully', async () => {
+      const request = { body: { type: 'Test' } }
 
-      const { default: main, handleConsume } = proxyquire('../src/', {
-        './config': {
-          ACTOR_LIB: 'kafkajs',
-          ACTOR: 'ViewActor',
-          PING_URL: '/ping',
-          CONTENT_TYPE: 'application/json'
-        },
-        kafkajs: {
-          ViewActor: class MessageActor {
-            perform (model, data) { return performSpy(model, data) }
-          }
-        },
-        './store': class Store {
-          consume () {}
+      await expect(mainHandler(request)).to.eventually.be('test')
+
+      expect(performStub.calledOnce).to.be.true()
+    })
+
+    it('should handle requests with short-circuit body successfully', async () => {
+      const request = { body: { test: 'short-circuit' } }
+
+      await expect(mainHandler(request)).to.eventually.be('test')
+
+      expect(performStub.calledOnce).to.be.true()
+    })
+
+    it('should handle requests with serialized model with data successfully', async () => {
+      const request = {
+        body: {
+          type: 'Test',
+          payload: { test: 'serialized model' },
+          meta: { some: 'metadata' }
         }
-      })
-      await main()
-      handleConsume({ message: { value: '{}' } })
-    })
+      }
 
-    it('should handle messages from Event Store successfully', () => {
-      expect(performSpy.calledOnce).to.be.true()
+      await expect(mainHandler(request)).to.eventually.be('test')
+
+      expect(performStub.calledOnce).to.be.true()
     })
   })
 })
