@@ -17,10 +17,10 @@ const REFS = {
  * class DisableContentActor
  */
 class DisableContentActor extends MessageActor {
-  async perform (modelInst, data) {
+  async perform (modelInst, action) {
     if (modelInst.enabled === false) throw new Error('#DisableContent: content already disabled')
 
-    const { command, event, model } = await super.perform(modelInst, data)
+    const { command, event, model } = await super.perform(modelInst, action)
 
     model.enabled = false
 
@@ -36,6 +36,6 @@ export default new Proxy(DisableContentActor, {
     const postSchema = await new Schema(PostSchema, REFS)
     const disabledContentSchema = await new Schema(DisabledContentSchema, REFS)
 
-    return new DisableContentActor(undefined, postSchema, disabledContentSchema)
+    return new DisableContentActor(postSchema, disabledContentSchema)
   }
 })

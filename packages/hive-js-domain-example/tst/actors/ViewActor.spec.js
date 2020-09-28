@@ -20,7 +20,7 @@ chai.use(dirtyChai)
 const viewData = { type: 'View', payload: { id: 'id' } }
 
 describe('ViewActor', () => {
-  let ViewActor, viewActor, viewSchema, connectStub, endSpy, requestSpy
+  let ViewActor, viewActor, viewSchema, connectStub, closeSpy, endSpy, onSpy, requestSpy, setEncodingSpy
 
   afterEach(() => {
     ViewActor = null
@@ -28,17 +28,26 @@ describe('ViewActor', () => {
     viewSchema = null
 
     connectStub = null
+    closeSpy = null
     endSpy = null
+    onSpy = null
     requestSpy = null
+    setEncodingSpy = null
   })
 
   beforeEach(async () => {
+    closeSpy = sinon.spy()
     endSpy = sinon.spy()
+    onSpy = sinon.spy()
     requestSpy = sinon.spy()
+    setEncodingSpy = sinon.spy()
 
     connectStub = sinon.stub().returns({
+      close () { closeSpy() },
       end () { endSpy() },
-      request () { requestSpy(); return this }
+      on () { onSpy() },
+      request () { requestSpy(); return this },
+      setEncoding () { setEncodingSpy() }
     })
 
     viewSchema = await new Schema(ViewSchema, REFS)
@@ -54,16 +63,24 @@ describe('ViewActor', () => {
     expect(viewActor.perform).to.be.a('function')
     expect(viewActor.replay).to.be.a('function')
     expect(viewActor.assign).to.be.a('function')
-    expect(viewActor.parse).to.be.a('function')
-
-    expect(connectStub.calledOnce).to.be.true()
   })
 
   it('should process a View sent through an Actor System', async () => {
     const viewModel = await new Model(viewData, viewSchema)
     await viewActor.perform(viewModel)
 
+    expect(connectStub.calledOnce).to.be.true()
+    expect(setEncodingSpy.calledOnce).to.be.true()
+    expect(onSpy.calledOnce).to.be.true()
     expect(requestSpy.calledOnce).to.be.true()
     expect(endSpy.calledOnce).to.be.true()
+  })
+
+  it('should handle "end" event successfully', () => {
+    const closeSpy = sinon.spy()
+    viewActor.connection = { close: () => closeSpy() }
+    viewActor.onEnd()
+
+    expect(closeSpy.calledOnce).to.be.true()
   })
 })

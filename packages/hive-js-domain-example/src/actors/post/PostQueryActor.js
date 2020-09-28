@@ -1,5 +1,5 @@
 // imports
-import { parse, Actor, Model, Schema } from 'hive-io'
+import { Actor, Model, Schema } from 'hive-io'
 
 import mongoConnect from '../../util/mongoConnect'
 import LogSystem from '../../systems/LogSystem'
@@ -24,7 +24,7 @@ const REFS = {
  */
 class PostQueryActor extends Actor {
   constructor (logSchema, logSystem, viewSchema, repository) {
-    super(parse`/posts/${'id'}`, undefined, repository)
+    super(undefined, repository)
     Object.defineProperties(this, {
       [LOG_SCHEMA]: { value: logSchema },
       [LOG_SYSTEM]: { value: logSystem },
@@ -32,21 +32,22 @@ class PostQueryActor extends Actor {
     })
   }
 
-  async perform (_model, data) {
-    if (data.meta.req.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
+  async perform (_model, action) {
+    if (action.meta.request.method !== 'GET') throw new TypeError('Post values can only be queried from this endpoint')
+    const { id } = action.meta.request.params
 
-    const model = data.meta.req.urlParams.id
-      ? await this.repository.findOne({ _id: data.meta.req.urlParams.id }).exec()
+    const model = id
+      ? await this.repository.findOne({ _id: id }).exec()
       : await this.repository.find().exec()
 
     // emit 'view' to count
-    if (data.meta.req.urlParams.id) {
-      const view = await new Model({ type: 'View', payload: { id: data.meta.req.urlParams.id } }, this[VIEW_SCHEMA], { immutable: true })
+    if (id) {
+      const view = await new Model({ type: 'View', payload: { id } }, this[VIEW_SCHEMA], { immutable: true })
       this[LOG_SYSTEM].emit(view)
     }
 
     // emit 'log' for metrics
-    const log = await new Model({ type: 'Log', payload: { ...data.meta.req, actor: 'PostQueryActor' } }, this[LOG_SCHEMA], { immutable: true })
+    const log = await new Model({ type: 'Log', payload: { ...action.meta.request, actor: 'PostQueryActor' } }, this[LOG_SCHEMA], { immutable: true })
     this[LOG_SYSTEM].emit(log)
 
     return { model }

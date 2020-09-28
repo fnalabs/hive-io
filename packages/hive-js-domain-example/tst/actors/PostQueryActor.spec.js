@@ -9,9 +9,9 @@ import { Actor } from 'hive-io'
 chai.use(dirtyChai)
 
 // constants
-const getAll = { meta: { req: { method: 'GET', urlParams: {} } } }
-const getOne = { meta: { req: { method: 'GET', urlParams: { id: '1' } } } }
-const postError = { meta: { req: { method: 'POST' } } }
+const getAll = { meta: { request: { method: 'GET', params: {} } } }
+const getOne = { meta: { request: { method: 'GET', params: { id: '1' } } } }
+const postError = { meta: { request: { method: 'POST' } } }
 
 // tests
 describe('PostQueryActor', () => {
@@ -56,7 +56,6 @@ describe('PostQueryActor', () => {
     expect(postQueryActor.perform).to.be.a('function')
     expect(postQueryActor.replay).to.be.a('function')
     expect(postQueryActor.assign).to.be.a('function')
-    expect(postQueryActor.parse).to.be.a('function')
   })
 
   it('should perform a get all posts request successfully', async () => {

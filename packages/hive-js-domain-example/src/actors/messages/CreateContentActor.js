@@ -18,10 +18,10 @@ const REFS = {
  * class CreateContentActor
  */
 class CreateContentActor extends MessageActor {
-  async perform (modelInst, data) {
-    if (typeof modelInst !== 'undefined') throw new Error(`#${data.type}: ${modelInst.id} already exists`)
+  async perform (modelInst, action) {
+    if (typeof modelInst !== 'undefined') throw new Error(`#${action.type}: ${modelInst.id} already exists`)
 
-    const { command, event, model } = await super.perform(modelInst, data)
+    const { command, event, model } = await super.perform(modelInst, action)
 
     model.enabled = true
     model.edited = false
@@ -39,6 +39,6 @@ export default new Proxy(CreateContentActor, {
     const createdContentSchema = await new Schema(CreatedContentSchema, REFS)
     const createContentSchema = await new Schema(CreateContentSchema, REFS)
 
-    return new CreateContentActor(undefined, postSchema, createdContentSchema, createContentSchema)
+    return new CreateContentActor(postSchema, createdContentSchema, createContentSchema)
   }
 })

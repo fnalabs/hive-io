@@ -1,6 +1,6 @@
 // imports
 import { v4 as uuidV4 } from 'uuid'
-import { parse, Actor, Model, Schema } from 'hive-io'
+import { Actor, Model, Schema } from 'hive-io'
 
 import {
   CreateContentActor,
@@ -31,7 +31,7 @@ const REFS = {
  */
 class PostCommandActor extends Actor {
   constructor (postSchema, logSchema, logSystem, actors, repository) {
-    super(parse`/posts/${'id'}`, postSchema, repository)
+    super(postSchema, repository)
     Object.defineProperties(this, {
       [ACTORS]: { value: actors },
       [LOG_SCHEMA]: { value: logSchema },
@@ -39,44 +39,44 @@ class PostCommandActor extends Actor {
     })
   }
 
-  async perform (model, data) {
-    if (data.type === 'Post') return super.perform(model, data)
+  async perform (model, action) {
+    if (action.type === 'Post') return super.perform(model, action)
 
     let results
     switch (true) {
-      case data.payload?.text && data.meta?.req?.method === 'PATCH':
-        data.type = 'EditContent'
-        data.payload.id = data.meta.req.urlParams.id
-      case data.type === 'EditedContent': // eslint-disable-line no-fallthrough
-        results = await this[ACTORS].editContentActor.perform(model, data)
+      case action.payload?.text && action.meta?.request?.method === 'PATCH':
+        action.type = 'EditContent'
+        action.payload.id = action.meta.request.params.id
+      case action.type === 'EditedContent': // eslint-disable-line no-fallthrough
+        results = await this[ACTORS].editContentActor.perform(model, action)
         break
 
-      case data.meta?.req?.method === 'PATCH':
-        data.payload = { id: data.meta.req.urlParams.id }
-      case data.type === 'EnabledContent': // eslint-disable-line no-fallthrough
-        results = await this[ACTORS].enableContentActor.perform(model, data)
+      case action.meta?.request?.method === 'PATCH':
+        action.payload = { id: action.meta.request.params.id }
+      case action.type === 'EnabledContent': // eslint-disable-line no-fallthrough
+        results = await this[ACTORS].enableContentActor.perform(model, action)
         break
 
-      case data.meta?.req?.method === 'POST':
-        data.type = 'CreateContent'
-        data.payload.id = uuidV4()
-      case data.type === 'CreatedContent': // eslint-disable-line no-fallthrough
-        results = await this[ACTORS].createContentActor.perform(model, data)
+      case action.meta?.request?.method === 'POST':
+        action.type = 'CreateContent'
+        action.payload.id = uuidV4()
+      case action.type === 'CreatedContent': // eslint-disable-line no-fallthrough
+        results = await this[ACTORS].createContentActor.perform(model, action)
         break
 
-      case data.meta?.req?.method === 'DELETE':
-        data.type = 'CreateContent'
-        data.payload = { id: data.meta.req.urlParams.id }
-      case data.type === 'DisabledContent': // eslint-disable-line no-fallthrough
-        results = await this[ACTORS].disableContentActor.perform(model, data)
+      case action.meta?.request?.method === 'DELETE':
+        action.type = 'CreateContent'
+        action.payload = { id: action.meta.request.params.id }
+      case action.type === 'DisabledContent': // eslint-disable-line no-fallthrough
+        results = await this[ACTORS].disableContentActor.perform(model, action)
         break
 
       default:
         throw new Error('Command|Event not recognized')
     }
 
-    if (data.meta?.req) {
-      const log = await new Model({ type: 'Log', payload: { ...data.meta.req, actor: 'PostCommandActor' } }, this[LOG_SCHEMA], { immutable: true })
+    if (action.meta?.request) {
+      const log = await new Model({ type: 'Log', payload: { ...action.meta.request, actor: 'PostCommandActor' } }, this[LOG_SCHEMA], { immutable: true })
       this[LOG_SYSTEM].emit(log)
     }
 

@@ -25,11 +25,10 @@ describe('ViewContentActor', () => {
     expect(viewContentActor.perform).to.be.a('function')
     expect(viewContentActor.replay).to.be.a('function')
     expect(viewContentActor.assign).to.be.a('function')
-    expect(viewContentActor.parse).to.be.a('function')
   })
 
   it('should process a View data successfully', async () => {
-    const data = { meta: { req: { urlParams: { id: '1' } } } }
+    const data = { meta: { request: { params: { id: '1' } } } }
     const { event } = await viewContentActor.perform(undefined, data)
 
     expect(event).to.be.an.instanceof(Model)
