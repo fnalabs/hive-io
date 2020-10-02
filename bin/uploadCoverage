@@ -1,0 +1,10 @@
+#!/usr/bin/env bash -xe
+
+IFS='/'
+for FILE in coverage/*; do
+    read -ra COVERAGE_PATH <<< "$FILE"
+    codecov -f coverage/${COVERAGE_PATH[1]}/coverage.lcov -F ${COVERAGE_PATH[1]}
+done
+IFS=' '
+
+exit 0
