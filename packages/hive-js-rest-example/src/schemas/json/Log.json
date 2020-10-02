@@ -4,22 +4,9 @@
   "$id": "https://hiveframework.io/api/v1/models/Log",
   "type": "object",
   "properties": {
-    "headers": {
-      "description": "HTTP headers",
-      "type": "object"
-    },
-    "method": {
-      "description": "HTTP request method",
-      "type": "string"
-    },
     "url": {
       "description": "HTTP request url",
       "type": "string"
-    },
-    "urlParams": {
-      "description": "Hive^io url params",
-      "type": "object"
-    },
-    "additionalProperties": false
+    }
   }
 }

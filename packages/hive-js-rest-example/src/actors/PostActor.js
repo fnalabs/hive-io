@@ -1,5 +1,5 @@
 // imports
-import { parse, Actor, Model, Schema } from 'hive-io'
+import { Actor, Model, Schema } from 'hive-io'
 
 import mongoConnect from '../util/mongoConnect'
 import {
@@ -13,9 +13,6 @@ import LogSystem from '../systems/LogSystem'
 import LogSchema from '../schemas/json/Log.json'
 import MongoSchema from '../schemas/mongoose/Post'
 
-// constants
-const urlRegexp = new RegExp('^/posts')
-
 // private properties
 const ACTORS = Symbol('Actors')
 const LOG_SCHEMA = Symbol('Log schema')
@@ -26,7 +23,7 @@ const LOG_SYSTEM = Symbol('Log system')
  */
 class PostActor extends Actor {
   constructor (logSchema, logSystem, actors) {
-    super(parse`/posts/${'postId'}`)
+    super()
 
     Object.defineProperties(this, {
       [ACTORS]: { value: actors },
@@ -35,33 +32,32 @@ class PostActor extends Actor {
     })
   }
 
-  async perform (model, data) {
-    if (!urlRegexp.test(data.meta.req.url)) throw new Error(`${data.meta.req.url} not supported`)
-
+  async perform (model, action) {
     let results
-    data.type = 'Post'
-    switch (data.meta.req.method) {
+    action.type = 'Post'
+
+    switch (action.meta.request.method) {
       case 'GET':
-        results = await this[ACTORS].getPostActor.perform(model, data)
+        results = await this[ACTORS].getPostActor.perform(model, action)
         break
 
       case 'PATCH':
-        results = await this[ACTORS].putPostActor.perform(model, data)
+        results = await this[ACTORS].putPostActor.perform(model, action)
         break
 
       case 'POST':
-        results = await this[ACTORS].postPostActor.perform(model, data)
+        results = await this[ACTORS].postPostActor.perform(model, action)
         break
 
       case 'DELETE':
-        results = await this[ACTORS].deletePostActor.perform(model, data)
+        results = await this[ACTORS].deletePostActor.perform(model, action)
         break
 
       default:
         throw new Error('HTTP verb not supported')
     }
 
-    const log = await new Model({ type: 'Log', payload: data.meta.req }, this[LOG_SCHEMA], { immutable: true })
+    const log = await new Model({ type: 'Log', payload: { url: action.meta.request.url } }, this[LOG_SCHEMA], { immutable: true })
     this[LOG_SYSTEM].emit(log)
 
     return results

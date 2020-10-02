@@ -70,7 +70,6 @@ describe('PostEventActor', () => {
       expect(postEventActor.perform).to.be.a('function')
       expect(postEventActor.replay).to.be.a('function')
       expect(postEventActor.assign).to.be.a('function')
-      expect(postEventActor.parse).to.be.a('function')
       expect(emitSpy.called).to.be.false()
     })
   })

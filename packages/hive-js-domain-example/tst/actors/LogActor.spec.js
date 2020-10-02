@@ -11,7 +11,7 @@ import LogSchema from '../../src/schemas/json/Log.json'
 chai.use(dirtyChai)
 
 // constants
-const logData = { type: 'Log', payload: { url: '/posts', urlParams: { postId: '1' }, method: 'GET' } }
+const logData = { type: 'Log', payload: { url: '/posts', params: { id: '1' }, method: 'GET' } }
 
 describe('LogActor', () => {
   let LogActor, logActor, logSchema, emitSpy, loggerStub
@@ -44,7 +44,6 @@ describe('LogActor', () => {
     expect(logActor.perform).to.be.a('function')
     expect(logActor.replay).to.be.a('function')
     expect(logActor.assign).to.be.a('function')
-    expect(logActor.parse).to.be.a('function')
   })
 
   it('should process a Log sent through an Actor System', async () => {

@@ -8,14 +8,14 @@ import PostSchema from '../../schemas/json/Post.json'
  * class PostPostActor
  */
 class PostPostActor extends Actor {
-  async perform (model, data) {
+  async perform (model, action) {
     const Model = this.repository
 
     // validate
-    await super.perform(model, data)
+    await super.perform(model, action)
 
     // upload to mongo
-    const post = { _id: uuidV4(), text: data.payload.text }
+    const post = { _id: uuidV4(), text: action.payload.text }
     model = await new Model(post).save()
 
     return { model }

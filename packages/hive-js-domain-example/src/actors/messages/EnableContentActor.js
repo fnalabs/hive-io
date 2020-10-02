@@ -17,10 +17,10 @@ const REFS = {
  * class EnableContentActor
  */
 class EnableContentActor extends MessageActor {
-  async perform (modelInst, data) {
+  async perform (modelInst, action) {
     if (modelInst.enabled === true) throw new Error('#EnableContent: content already enabled')
 
-    const { command, event, model } = await super.perform(modelInst, data)
+    const { command, event, model } = await super.perform(modelInst, action)
 
     model.enabled = true
 
@@ -36,6 +36,6 @@ export default new Proxy(EnableContentActor, {
     const postSchema = await new Schema(PostSchema, REFS)
     const enabledContentSchema = await new Schema(EnabledContentSchema, REFS)
 
-    return new EnableContentActor(undefined, postSchema, enabledContentSchema)
+    return new EnableContentActor(postSchema, enabledContentSchema)
   }
 })

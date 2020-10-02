@@ -1,0 +1,13 @@
+#!/usr/bin/env bash -xe
+
+# remove old keys/certs
+rm -f ssl.pem ssl-cert.pem ssl-key.pem
+
+# generate new certs
+openssl req -x509 -out ssl-cert.pem -keyout ssl-key.pem \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=localhost' -extensions EXT -config <( \
+   printf "keyUsage=digitalSignature\nextendedKeyUsage=serverAuth\n[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=@alt_names\n[alt_names]\nDNS.1=localhost\nDNS.2=proxy\nDNS.3=hive-base-js\nDNS.4=hive-consumer-js\nDNS.5=hive-producer-js\nDNS.6=hive-stream-processor-js")
+cat ssl-key.pem ssl-cert.pem >> ssl.pem
+
+exit 0

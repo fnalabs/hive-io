@@ -20,7 +20,7 @@
       "description": "HTTP request url",
       "type": "string"
     },
-    "urlParams": {
+    "params": {
       "description": "Hive^io url params",
       "type": "object"
     },
@@ -28,6 +28,5 @@
       "description": "version sent with request",
       "type": "integer"
     }
-  },
-  "additionalProperties": false
+  }
 }

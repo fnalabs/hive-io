@@ -1,0 +1,370 @@
+{
+	"info": {
+		"_postman_id": "06ea39d2-3312-4173-b4d2-7a2cd7c93aee",
+		"name": "Hive^io CQRS/ES example",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Commands",
+			"description": "",
+			"item": [
+				{
+					"name": "CreateContent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"text\": \"something\"\n}"
+						},
+						"url": {
+							"raw": "localhost/posts",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DisableContent",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "localhost/posts/{{postId}}",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EditContent",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"text\": \"something else\"\n}"
+						},
+						"url": {
+							"raw": "localhost/posts/{{postId}}",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EnableContent",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "localhost/posts/{{postId}}",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Queries",
+			"description": "",
+			"item": [
+				{
+					"name": "all Posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "localhost/posts",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"posts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "single Post",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "localhost/posts/{{postId}}",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"posts",
+								"{{postId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "health",
+			"description": "",
+			"item": [
+				{
+					"name": "Producer health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "localhost:3000/ping",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stream Processor health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "localhost:3001/ping",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consumer health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "localhost:3002/ping",
+							"host": [
+								"localhost"
+							],
+							"port": "3002",
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Query health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "localhost:3003/ping",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "badges",
+			"description": "",
+			"item": [
+				{
+					"name": "MicroBadger hive-rest-js",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-rest-js/TV9L4ZHcs15GiDenffAdQYw16tQ=",
+							"protocol": "https",
+							"host": [
+								"hooks",
+								"microbadger",
+								"com"
+							],
+							"path": [
+								"images",
+								"fnalabs",
+								"hive-rest-js",
+								"TV9L4ZHcs15GiDenffAdQYw16tQ="
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MicroBadger hive-producer-js",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-producer-js/Bs1xKXLCo-GUo5--qHKMekyyTU4=",
+							"protocol": "https",
+							"host": [
+								"hooks",
+								"microbadger",
+								"com"
+							],
+							"path": [
+								"images",
+								"fnalabs",
+								"hive-producer-js",
+								"Bs1xKXLCo-GUo5--qHKMekyyTU4="
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MicroBadger hive-stream-processor-js",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-stream-processor-js/ywxbUkYYQJFaVhxiQrtU98uoDMc=",
+							"protocol": "https",
+							"host": [
+								"hooks",
+								"microbadger",
+								"com"
+							],
+							"path": [
+								"images",
+								"fnalabs",
+								"hive-stream-processor-js",
+								"ywxbUkYYQJFaVhxiQrtU98uoDMc="
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MicroBadger hive-consumer-js",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-consumer-js/EqM_nJa4wW8Rbl5fFwAoXQU6TBI=",
+							"protocol": "https",
+							"host": [
+								"hooks",
+								"microbadger",
+								"com"
+							],
+							"path": [
+								"images",
+								"fnalabs",
+								"hive-consumer-js",
+								"EqM_nJa4wW8Rbl5fFwAoXQU6TBI="
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "dbcc1137-4801-4507-bbaa-801e6a44b39b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "5d94d5c8-0011-4c2c-946f-5acf9a3b610e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "3ccfeb48-b7f3-4494-bf8d-c7458ae7c7d8",
+			"key": "postId",
+			"value": "12b6be7b-8974-4a20-a857-6df700cbf637",
+			"type": "string",
+			"description": ""
+		}
+	]
+}

@@ -12,14 +12,14 @@ chai.use(dirtyChai)
 // constants
 const createData = {
   payload: { text: 'something' },
-  meta: { req: { urlParams: {}, method: 'POST' } }
+  meta: { request: { params: {}, method: 'POST' } }
 }
 const createdData = {
   type: 'CreatedContent',
   payload: { text: 'something', id: '1' }
 }
 const disableData = {
-  meta: { req: { urlParams: { id: '1' }, method: 'DELETE' } }
+  meta: { request: { params: { id: '1' }, method: 'DELETE' } }
 }
 const disabledData = {
   type: 'DisabledContent',
@@ -27,14 +27,14 @@ const disabledData = {
 }
 const editData = {
   payload: { text: 'something else' },
-  meta: { req: { urlParams: { id: '1' }, method: 'PATCH' } }
+  meta: { request: { params: { id: '1' }, method: 'PATCH' } }
 }
 const editedData = {
   type: 'EditedContent',
   payload: { text: 'something else', id: '1' }
 }
 const enableData = {
-  meta: { req: { urlParams: { id: '1' }, method: 'PATCH' } }
+  meta: { request: { params: { id: '1' }, method: 'PATCH' } }
 }
 const enabledData = {
   type: 'EnabledContent',
@@ -71,7 +71,6 @@ describe('PostCommandActor', () => {
       expect(postCommandActor.perform).to.be.a('function')
       expect(postCommandActor.replay).to.be.a('function')
       expect(postCommandActor.assign).to.be.a('function')
-      expect(postCommandActor.parse).to.be.a('function')
 
       expect(emitSpy.called).to.be.false()
     })
@@ -97,7 +96,7 @@ describe('PostCommandActor', () => {
 
         const data1 = {
           payload: { text: null },
-          meta: { req: { urlParams: {}, method: 'POST' } }
+          meta: { request: { params: {}, method: 'POST' } }
         }
         try {
           await postCommandActor.perform(undefined, data1)
@@ -107,7 +106,7 @@ describe('PostCommandActor', () => {
 
         const data2 = {
           payload: { id: 1, text: 'something' },
-          meta: { req: { urlParams: {}, method: 'POST' } }
+          meta: { request: { params: {}, method: 'POST' } }
         }
         try {
           await postCommandActor.perform(undefined, data2)
@@ -175,7 +174,7 @@ describe('PostCommandActor', () => {
 
         const data = {
           payload: { text: null },
-          meta: { req: { urlParams: { id: 1 }, method: 'PATCH' } }
+          meta: { request: { params: { id: 1 }, method: 'PATCH' } }
         }
         const { model } = await postCommandActor.replay([createdData, disabledData])
 

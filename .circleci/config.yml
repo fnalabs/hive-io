@@ -1,0 +1,86 @@
+version: 2.0
+
+jobs:
+  checkout_code:
+    docker:
+      - image: circleci/node:12.18.2
+    working_directory: ~/hive-io
+    steps:
+      - checkout
+      - save_cache:
+          key: hive-io-repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/hive-io
+
+  install_dependencies:
+    docker:
+      - image: circleci/node:12.18.2
+    working_directory: ~/hive-io
+    steps:
+      - restore_cache:
+          keys:
+            - hive-io-repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Install dependencies
+          command:  npm run init
+      - save_cache:
+          key: hive-io-dependencies-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/hive-io/node_modules
+            - ~/hive-io/containers/hive-base-js/node_modules
+            - ~/hive-io/containers/hive-consumer-js/node_modules
+            - ~/hive-io/containers/hive-producer-js/node_modules
+            - ~/hive-io/containers/hive-stream-processor-js/node_modules
+            - ~/hive-io/packages/hive-js/node_modules
+            - ~/hive-io/packages/hive-js-domain-example/node_modules
+            - ~/hive-io/packages/hive-js-rest-example/node_modules
+
+  build:
+    docker:
+      - image: circleci/node:12.18.2
+    working_directory: ~/hive-io
+    steps:
+      - restore_cache:
+          keys:
+            - hive-io-repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys:
+            - hive-io-dependencies-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Build code
+          command: npm run build
+
+  test:
+    docker:
+      - image: circleci/node:12.18.2
+    working_directory: ~/hive-io
+    steps:
+      - restore_cache:
+          keys:
+            - hive-io-repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys:
+            - hive-io-dependencies-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Run lint and unit tests
+          command: npm test
+      - run:
+          name: Run coverage report
+          command: npm run coverage
+      - store_artifacts:
+          path: ~/hive-io/coverage
+
+workflows:
+  version: 2
+  code-review:
+    jobs:
+      - checkout_code
+      - install_dependencies:
+          requires:
+            - checkout_code
+      - build:
+          requires:
+            - install_dependencies
+      - test:
+          requires:
+            - build

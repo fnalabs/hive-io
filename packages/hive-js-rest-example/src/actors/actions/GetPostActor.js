@@ -7,8 +7,8 @@ import PostSchema from '../../schemas/json/Post.json'
  * class GetPostActor
  */
 class GetPostActor extends Actor {
-  async perform (model, data) {
-    const _id = data.meta.req.urlParams.postId
+  async perform (model, action) {
+    const _id = action.meta.request.params.postId
     const conditions = { _id }
     const update = { $inc: { viewed: 1 } }
 

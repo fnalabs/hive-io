@@ -4,14 +4,14 @@ import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
 import proxyquire from 'proxyquire'
 import sinon from 'sinon'
-import { parse, Actor, Model, Schema, System } from 'hive-io'
+import { Actor, Model, Schema, System } from 'hive-io'
 
 import LogSchema from '../../src/schemas/json/Log.json'
 
 chai.use(dirtyChai)
 
 // constants
-const logData = { type: 'Log', payload: { url: '/posts', urlParams: { postId: '1' }, method: 'GET' } }
+const logData = { type: 'Log', payload: { url: '/posts', params: { id: '1' }, method: 'GET' } }
 
 describe('LogSystem', () => {
   let LogSystem, logSystem, logSchema, logModel, performSpy
@@ -38,7 +38,7 @@ describe('LogSystem', () => {
     LogSystem = proxyquire('../../src/systems/LogSystem', {
       '../actors/LogActor': new Proxy(LogActor, {
         construct: async function (LogActor) {
-          return new LogActor(parse`/log`, logSchema)
+          return new LogActor(logSchema)
         }
       }),
       '../actors/ViewActor': class ViewActor extends Actor {
@@ -64,7 +64,7 @@ describe('LogSystem', () => {
         done()
       }
     }
-    const resultsActor = new ResultsActor(parse`/results`, logSchema)
+    const resultsActor = new ResultsActor(logSchema)
 
     // init test system
     expect(logSystem.on(logSchema, resultsActor)).to.be.an.instanceof(System)

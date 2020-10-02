@@ -1,0 +1,63 @@
+version: '3.5'
+services:
+  hive-base-js:
+    build:
+      context: ../../../../containers/hive-base-js
+      target: development
+    image: hive-base-js:development
+    container_name: hive-base-js
+    environment:
+      ACTOR: PostActor
+      ACTOR_LIB: hive-io-rest-example
+      ACTOR_URLS: "/posts,/posts/:postId"
+      CLUSTER_SIZE: 1
+      SECURE: "true"
+      MONGO_URL: "mongodb://mongo:27017/post"
+      FLUENTD_HOST: fluentd
+      FLUENTD_PORT: 24224
+      FLUENTD_TIMEOUT: 3.0
+      FLUENTD_RECONNECT: 600000
+    depends_on:
+      - mongo
+      - fluentd
+    command: npm run dev
+    ports:
+      - 443:3000
+    volumes:
+      - ../../../../containers/hive-base-js:/opt/app:rw
+      - /opt/app/node_modules
+      - /opt/app/cert
+      - ../../../../packages/hive-js-rest-example:/opt/app/node_modules/hive-io-rest-example:rw
+      - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
+    networks:
+      - hive-io
+  fluentd:
+    image: fluent/fluentd:v1.9.2-1.0
+    container_name: fluentd
+    networks:
+      - hive-io
+    restart: on-failure
+  mongo:
+    image: mongo:4.2.3
+    container_name: mongo
+    networks:
+      - hive-io
+    restart: on-failure
+  mongo-viewer:
+    image: mongo-express:0.54.0
+    container_name: mongo-viewer
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_SITE_BASEURL: "/mongo/"
+    depends_on:
+      - mongo
+    ports:
+      - 8081:8081
+    networks:
+      - hive-io
+    restart: on-failure
+
+# networking specifics
+networks:
+  hive-io:
+    driver: bridge

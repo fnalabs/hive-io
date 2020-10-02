@@ -12,15 +12,20 @@ const HEADERS = {
  * class ViewActor
  */
 export default class ViewActor extends Actor {
-  constructor () {
-    super()
+  connection = null
 
-    this.client = httpConnect()
+  onEnd = () => {
+    this.connection.close()
+    this.connection = null
   }
 
   async perform (model) {
-    HEADERS[':path'] = `/posts/${model.id}`
+    this.connection = httpConnect()
 
-    this.client.request(HEADERS).end()
+    HEADERS[':path'] = `/posts/${model.id}`
+    const request = this.connection.request(HEADERS)
+    request.setEncoding('utf8')
+    request.on('end', this.onEnd)
+    request.end()
   }
 }

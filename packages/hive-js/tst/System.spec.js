@@ -8,7 +8,6 @@ import Schema from 'schema-json-js'
 import { Model } from 'model-json-js'
 
 import { Actor } from '../src/Actor'
-import { parse } from '../src/util'
 
 import System from '../src/System'
 
@@ -46,7 +45,7 @@ describe('class System', () => {
     }
     testSchema = await new Schema(TestSchema)
     testModel = await new Model(data, testSchema, { immutable: true })
-    testActor = new TestActor(parse`/test`, testSchema)
+    testActor = new TestActor(testSchema)
     testSystem = new System()
   })
 
@@ -68,7 +67,7 @@ describe('class System', () => {
           done()
         }
       }
-      const resultsActor = new ResultsActor(parse`/results`, testSchema)
+      const resultsActor = new ResultsActor(testSchema)
 
       // init test system
       expect(testSystem.on(testSchema, testActor).on(testSchema, resultsActor)).to.be.an.instanceof(System)

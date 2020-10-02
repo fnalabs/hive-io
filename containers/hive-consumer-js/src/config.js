@@ -13,6 +13,9 @@ export const PING_URL = process.env.PING_URL ?? '/ping'
 // actor configurations
 export const ACTOR = process.env.ACTOR
 export const ACTOR_LIB = process.env.ACTOR_LIB
+export const ACTOR_URLS = (typeof process.env.ACTOR_URLS === 'string' && process.env.ACTOR_URLS.length)
+  ? process.env.ACTOR_URLS.split(',')
+  : []
 
 // event store configurations
 export const EVENT_STORE_TOPIC = process.env.EVENT_STORE_TOPIC

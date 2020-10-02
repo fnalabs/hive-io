@@ -18,10 +18,10 @@ const REFS = {
  * class EditContentActor
  */
 class EditContentActor extends MessageActor {
-  async perform (modelInst, data) {
-    if (typeof modelInst === 'undefined') throw new Error(`#${data.type}: ${data.payload.id} doesn't exist`)
+  async perform (modelInst, action) {
+    if (typeof modelInst === 'undefined') throw new Error(`#${action.type}: ${action.payload.id} doesn't exist`)
 
-    const { command, event, model } = await super.perform(modelInst, data)
+    const { command, event, model } = await super.perform(modelInst, action)
 
     model.edited = true
 
@@ -38,6 +38,6 @@ export default new Proxy(EditContentActor, {
     const editedContentSchema = await new Schema(EditedContentSchema, REFS)
     const editContentSchema = await new Schema(EditContentSchema, REFS)
 
-    return new EditContentActor(undefined, postSchema, editedContentSchema, editContentSchema)
+    return new EditContentActor(postSchema, editedContentSchema, editContentSchema)
   }
 })

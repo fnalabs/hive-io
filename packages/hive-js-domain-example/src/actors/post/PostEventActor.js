@@ -18,7 +18,7 @@ const LOG_SYSTEM = Symbol('Log System')
  */
 class PostEventActor extends Actor {
   constructor (logSchema, logSystem, repository) {
-    super(undefined, undefined, repository)
+    super(undefined, repository)
 
     Object.defineProperties(this, {
       [LOG_SCHEMA]: { value: logSchema },
@@ -26,14 +26,14 @@ class PostEventActor extends Actor {
     })
   }
 
-  async perform (_model, data) {
-    const id = data.payload.id
+  async perform (_model, action) {
+    const id = action.payload.id
     const conditions = { _id: id }
 
     let update
-    switch (data.type) {
+    switch (action.type) {
       case 'CreatedContent':
-        update = { _id: data.payload.id, text: data.payload.text }
+        update = { _id: id, text: action.payload.text }
         break
 
       case 'DisabledContent':
@@ -41,7 +41,7 @@ class PostEventActor extends Actor {
         break
 
       case 'EditedContent':
-        update = { $set: { text: data.payload.text, edited: true } }
+        update = { $set: { text: action.payload.text, edited: true } }
         break
 
       case 'EnabledContent':
@@ -58,7 +58,7 @@ class PostEventActor extends Actor {
 
     await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
 
-    const log = await new Model({ type: 'Log', payload: { ...data.meta, actor: 'PostEventActor' } }, this[LOG_SCHEMA], { immutable: true })
+    const log = await new Model({ type: 'Log', payload: { ...action.meta, actor: 'PostEventActor' } }, this[LOG_SCHEMA], { immutable: true })
     this[LOG_SYSTEM].emit(log)
   }
 }
