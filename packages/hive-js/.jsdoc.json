@@ -5,10 +5,10 @@
   },
   "source": {
     "include": [
-      "src",
       "README.md",
-      "../model-json-js/src",
-      "../schema-json-js/src"
+      "src",
+      "../../../lib-js/packages/model-json-js/src",
+      "../../../lib-js/packages/schema-json-js/src"
     ],
     "includePattern": ".js$"
   },
@@ -22,12 +22,12 @@
     "showInheritedInNav": true
   },
   "opts": {
-    "destination": "./docs",
+    "destination": "../../../hive-js/docs",
     "encoding": "utf8",
     "pedantic": true,
     "private": false,
     "readme": "./README.md",
     "recurse": true,
-    "template": "./node_modules/minami"
+    "template": "../../node_modules/minami"
   }
 }
