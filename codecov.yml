@@ -2,24 +2,31 @@ flags:
   hive-io:
     paths:
       - packages/hive-js/src/
+    carryforward: true
   hive-io-domain:
     paths:
       - packages/hive-js-domain-example/src/
+    carryforward: true
   hive-io-rest:
     paths:
       - packages/hive-js-rest-example/src/
+    carryforward: true
   hive-base:
     paths:
       - containers/hive-base-js/src/
+    carryforward: true
   hive-consumer:
     paths:
       - containers/hive-consumer-js/src/
+    carryforward: true
   hive-producer:
     paths:
       - containers/hive-producer-js/src/
+    carryforward: true
   hive-stream-processor:
     paths:
       - containers/hive-stream-processor-js/src/
+    carryforward: true
 
 coverage:
   status:
