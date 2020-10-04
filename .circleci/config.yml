@@ -49,6 +49,10 @@ jobs:
       - run:
           name: Build code
           command: npm run build
+      - save_cache:
+          key: hive-io-build-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/hive-io/packages/hive-js/dist
 
   test:
     docker:
@@ -61,6 +65,9 @@ jobs:
       - restore_cache:
           keys:
             - hive-io-dependencies-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          keys:
+            - hive-io-build-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Run lint and unit tests
           command: npm test
