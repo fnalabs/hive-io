@@ -23,12 +23,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fnalabs/hive-stream-processor-js.git"
+    "url": "git+https://github.com/fnalabs/hive-io.git"
   },
   "bugs": {
-    "url": "https://github.com/fnalabs/hive-stream-processor-js/issues"
+    "url": "https://github.com/fnalabs/hive-io/issues"
   },
-  "homepage": "https://github.com/fnalabs/hive-stream-processor-js#readme",
+  "homepage": "https://hiveframework.io",
   "author": "Adam Eilers",
   "license": "Apache-2.0",
   "engines": {

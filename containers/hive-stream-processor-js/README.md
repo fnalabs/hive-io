@@ -3,18 +3,17 @@
 [![Docker Image][docker-image]][docker-url]
 [![License][license-image]][license-url]
 [![Code Coverage][codecov-image]][codecov-url]
-[![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io/) Framework Stream Processor microservice leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Stream Processor microservice leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
 
 #### Contents
 
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installing](#installing)
-  - [Examples](#examples)
-  - [Environment Variables](#environment-variables)
+    - [Prerequisites](#prerequisites)
+    - [Installing](#installing)
+    - [Examples](#examples)
+    - [Environment Variables](#environment-variables)
 - [Future](#future)
 
 ## Getting Started
@@ -25,18 +24,18 @@ The second role of the Stream Processor is to rebuild the caching layer from the
 
 The third role of the Stream Processor is the most complex. For more complex domain models, sometimes the need for a saga (or process manager) is required. A saga's job is to manage the complexities of inter-aggregate communication should the need arise. Since a Stream Processor is able to read events from the logs and also write to the logs (defined separately above), it is able to issue commands to the domain layer based on the events from one aggregate to another.
 
-The Hive<sup>io</sup> Framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency.
+The Hive<sup>io</sup> framework leverages Redis for a caching layer due to its high availability, distribution, and performance capabilities. Also, it employs the Redlock algorithm to provide transactional consistency and manage concurrency.
 
 ### Prerequisites
 
 To use, you'll need:
 
 - **Required**
-  - [Docker](https://www.docker.com/)
-  - [Kafka](https://kafka.apache.org/)
-  - [Redis](https://redis.io/)
+    - [Docker](https://www.docker.com)
+    - [Kafka](https://kafka.apache.org)
+    - [Redis](https://redis.io)
 - **Recommended**
-  - Load Balancer (Layer 7)
+    - Load Balancer (Layer 7)
 
 ### Installing
 
@@ -57,7 +56,7 @@ RUN npm install hive-io-domain-example
 
 ### Environment variables
 
-Below is a table describing the possible environment variables to run the Hive<sup>io</sup> Framework Stream Processor microservice. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
+Below is a table describing the possible environment variables to run the Hive<sup>io</sup> framework Stream Processor microservice. You can override these settings if/when required. This option works great if using the standard setup within a Docker container.
 
 Name                        | Type    | Default                       | Description
 --------------------------- | ------- | ----------------------------- | -------------------------------------------------------
@@ -91,19 +90,16 @@ LOCK_RETRY_JITTER           | Number  | 400                           | Redlock 
 
 ## Future
 
-- feature requests via [issues](https://github.com/fnalabs/hive-stream-processor-js/issues)
+- feature requests via [issues](https://github.com/fnalabs/hive-io/issues)
 
 [docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-stream-processor-js.svg
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-stream-processor-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
-[license-url]: https://github.com/fnalabs/hive-stream-processor-js/blob/master/LICENSE
+[license-url]: https://github.com/fnalabs/hive-io/blob/master/containers/hive-stream-processor-js/LICENSE
 
-[codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-stream-processor-js.svg
-[codecov-url]: https://codecov.io/gh/fnalabs/hive-stream-processor-js
-
-[depstat-image]: https://img.shields.io/david/fnalabs/hive-stream-processor-js.svg
-[depstat-url]: https://david-dm.org/fnalabs/hive-stream-processor-js
+[codecov-image]: https://codecov.io/gh/fnalabs/hive-io/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/fnalabs/hive-io
 
 [style-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
 [style-url]: https://standardjs.com
