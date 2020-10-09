@@ -22,7 +22,7 @@
     "showInheritedInNav": true
   },
   "opts": {
-    "destination": "../../../hive-js/docs",
+    "destination": "../../docs",
     "encoding": "utf8",
     "pedantic": true,
     "private": false,

@@ -16,6 +16,7 @@
     "dev:package:hive": "lerna run dev --stream --scope hive-io",
     "dev:package:rest": "lerna run dev --stream --scope hive-io-rest-example",
     "dev:package:domain": "lerna run dev --stream --scope hive-io-domain-example",
+    "predocument": "del docs",
     "document": "lerna run document --scope hive-io",
     "init": "npx lerna bootstrap && lerna run init",
     "link": "lerna link",
