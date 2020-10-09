@@ -1,13 +1,14 @@
 # hive-io-domain-example
 
 [![NPM Version][npm-image]][npm-url]
+[![License][license-image]][license-url]
 [![Code Coverage][codecov-image]][codecov-url]
-[![Dependency Status][depstat-image]][depstat-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-An example CQRS/ES domain module to help describe implementation details when leveraging the [Hive<sup>io</sup>](https://hiveframework.io) Framework.
+An example CQRS/ES domain module to help describe implementation details when leveraging the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
 #### Contents
+
 - [Overview](#overview)
     - [Endpoints](#endpoints)
     - [Source Code](#source-code)
@@ -17,70 +18,78 @@ An example CQRS/ES domain module to help describe implementation details when le
     - [Environment Variables](#environment-variables)
 
 ## Overview
-This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example) into a highly distributed architecture in order to handle different magnitudes of network traffic for `viewed` metrics and `content` management. It is a contrived but more robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup> framework](https://hiveframework.io).
+
+This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example) into a highly distributed architecture in order to handle different magnitudes of network traffic for `viewed` metrics and `content` management. It is a contrived but more robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
 ### Endpoints
+
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
+
 - `http://localhost/posts (GET, POST)`
-    - POST [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/commands/CreateContent.json)
-        ```
+    - POST [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/src/schemas/json/commands/CreateContent.json)
+        ```json
         {
           "text": "something"
         }
         ```
 - `http://localhost/posts/<postId> (GET, PATCH, DELETE)`
-    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-js-domain-example/blob/master/src/schemas/json/commands/EditContent.json)
-        ```
+    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/src/schemas/json/commands/EditContent.json)
+        ```json
         {
           "text": "something different"
         }
         ```
     - DELETE
 
-***NOTE:*** Network [data payloads](https://fnalabs.github.io/hive-js/#data-interface) follow the Flux Standard Action specification for network transport. `type` and `payload` are derived from the routes and data sent respectively in this example.
+***NOTE:*** Network [data models](https://hiveframework.io/model) follow the Flux Standard Action specification for network transport. `type` and `payload` are derived from the routes and data sent respectively in this example.
 
-### [Source Code](https://github.com/fnalabs/hive-js-domain-example)
+### [Source Code](https://github.com/fnalabs/hive-io/tree/master/packages/hive-js-domain-example)
 
 ## Getting Started
+
 This is a straight forward CQRS/ES example of a `Post` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It is a highly distributed application with the expectation that `viewed` traffic will be much larger than `content` management traffic. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
 
 ### Prerequisites
+
 To use, you'll need:
+
 - **Required**
     - [Docker](https://www.docker.com/)
     - [Docker Compose](https://docs.docker.com/compose/)
     - Proxy/Load Balancer ([HAProxy](https://hub.docker.com/_/haproxy))
 
 ### Installing
+
 To start using:
+
 1. Create the following files:
     - `Producer.dockerfile`
-        ```
+        ```dockerfile
         FROM fnalabs/hive-producer-js:latest
         RUN npm install hive-io-domain-example
         ```
     - `Stream-Processor.dockerfile`
-        ```
+        ```dockerfile
         FROM fnalabs/hive-stream-processor-js:latest
         RUN npm install hive-io-domain-example
         ```
     - `Consumer.dockerfile`
-        ```
+        ```dockerfile
         FROM fnalabs/hive-consumer-js:latest
         RUN npm install hive-io-domain-example
         ```
     - `Rest.dockerfile`
-        ```
+        ```dockerfile
         FROM fnalabs/hive-base-js:latest
         RUN npm install hive-io-domain-example
         ```
     - `docker-compose.yml`
-        ```
+        ```yml
         version: '3.5'
         services:
           # proxy for layer 7 routing
           # NOTE: this is an example, you will need to define your own
-          #       ex. https://github.com/fnalabs/hive-io-proxy
+          #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/proxy
           proxy:
             image: haproxy:1.8.23-alpine
             depends_on:
@@ -240,16 +249,18 @@ To start using:
             driver: bridge
         ```
 2. Run the following commands:
-    ```
-    $ docker-compose up
+    ```sh
+    docker-compose up
     ```
 
 ### Environment Variables
+
 The table below contains a reference to the custom environment variables used in the example. Standard environment variables are documented for the following service containers:
-- [hive-producer-js](https://github.com/fnalabs/hive-producer-js#environment-variables)
-- [hive-stream-processor-js](https://github.com/fnalabs/hive-stream-processor-js#environment-variables)
-- [hive-consumer-js](https://github.com/fnalabs/hive-consumer-js#environment-variables)
-- [hive-base-js](https://github.com/fnalabs/hive-base-js#environment-variables)
+
+- [hive-producer-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-producer-js#environment-variables)
+- [hive-stream-processor-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-stream-processor-js#environment-variables)
+- [hive-consumer-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-consumer-js#environment-variables)
+- [hive-base-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-base-js#environment-variables)
 
 Name               | Type    | Default                       | Description
 ------------------ | ------- | ----------------------------- | -------------------------------------------------------
@@ -262,11 +273,11 @@ FLUENTD_RECONNECT  | Number  | 600000                        | Reconnect Interva
 [npm-image]: https://img.shields.io/npm/v/hive-io-domain-example.svg
 [npm-url]: https://www.npmjs.com/package/hive-io-domain-example
 
-[codecov-image]: https://img.shields.io/codecov/c/github/fnalabs/hive-js-domain-example.svg
-[codecov-url]: https://codecov.io/gh/fnalabs/hive-js-domain-example
+[license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+[license-url]: https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/LICENSE
 
-[depstat-image]: https://img.shields.io/david/fnalabs/hive-js-domain-example.svg
-[depstat-url]: https://david-dm.org/fnalabs/hive-js-domain-example
+[codecov-image]: https://circleci.com/github/fnalabs/hive-io.svg
+[codecov-url]: https://codecov.io/gh/fnalabs/hive-io
 
 [style-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
 [style-url]: https://standardjs.com
