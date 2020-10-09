@@ -83,7 +83,7 @@ EVENT_STORE_TIMEOUT     | Number  | null                          | time (in `ms
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license-url]: https://github.com/fnalabs/hive-io/blob/master/containers/hive-consumer-js/LICENSE
 
-[codecov-image]: https://circleci.com/github/fnalabs/hive-io.svg
+[codecov-image]: https://codecov.io/gh/fnalabs/hive-io/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/fnalabs/hive-io
 
 [style-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
