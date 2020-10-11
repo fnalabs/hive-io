@@ -1,10 +1,23 @@
 #!/usr/bin/env bash -xe
 
-IFS='/'
-for FILE in coverage/*; do
-    read -ra COVERAGE_PATH <<< "$FILE"
-    codecov -f coverage/${COVERAGE_PATH[1]}/coverage.lcov -F ${COVERAGE_PATH[1]}
-done
-IFS=' '
+function upload () {
+    local LIB=(hive-io)
+    local CONTAINERS=(hive-base hive-consumer hive-producer hive-stream-processor)
+    local EXAMPLES=(hive-io-domain-example hive-io-rest-example)
 
-exit 0
+    iterate "library" "${LIB[@]}"
+    iterate "containers" "${CONTAINERS[@]}"
+    iterate "examples" "${EXAMPLES[@]}"
+}
+
+function iterate () {
+    local FLAG=$1
+    shift
+    local ARR=("$@")
+
+    for DIR in "${ARR[@]}"; do
+        codecov -f coverage/$DIR/coverage.lcov -F $FLAG
+    done
+}
+
+upload && exit 0
