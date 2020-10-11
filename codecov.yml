@@ -1,31 +1,19 @@
 flags:
-  hive-io:
+  library:
     paths:
       - packages/hive-js/src/
     carryforward: true
-  hive-io-domain:
-    paths:
-      - packages/hive-js-domain-example/src/
-    carryforward: true
-  hive-io-rest:
-    paths:
-      - packages/hive-js-rest-example/src/
-    carryforward: true
-  hive-base:
+  containers:
     paths:
       - containers/hive-base-js/src/
-    carryforward: true
-  hive-consumer:
-    paths:
       - containers/hive-consumer-js/src/
-    carryforward: true
-  hive-producer:
-    paths:
       - containers/hive-producer-js/src/
-    carryforward: true
-  hive-stream-processor:
-    paths:
       - containers/hive-stream-processor-js/src/
+    carryforward: true
+  examples:
+    paths:
+      - packages/hive-js-domain-example/src/
+      - packages/hive-js-rest-example/src/
     carryforward: true
 
 coverage:
@@ -36,38 +24,18 @@ coverage:
       default:
         target: 90%
         threshold: 0%
-      hive-io:
+      library:
         target: 90%
         threshold: 0%
         flags:
-          - hive-io
-      hive-io-domain:
+          - library
+      containers:
         target: 90%
         threshold: 0%
         flags:
-          - hive-io-domain
-      hive-io-rest:
+          - containers
+      examples:
         target: 90%
         threshold: 0%
         flags:
-          - hive-io-rest
-      hive-base:
-        target: 90%
-        threshold: 0%
-        flags:
-          - hive-base
-      hive-consumer:
-        target: 90%
-        threshold: 0%
-        flags:
-          - hive-consumer
-      hive-producer:
-        target: 90%
-        threshold: 0%
-        flags:
-          - hive-producer
-      hive-stream-processor:
-        target: 90%
-        threshold: 0%
-        flags:
-          - hive-stream-processor
+          - examples

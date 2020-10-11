@@ -6,8 +6,8 @@
   "scripts": {
     "prebuild": "del dist",
     "build": "cross-env NODE_ENV=production bash ./bin/build",
-    "precoverage": "mkdir ../../coverage/hive-io-domain",
-    "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov > ../../coverage/hive-io-domain/coverage.lcov",
+    "precoverage": "mkdir ../../coverage/hive-io-domain-example",
+    "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov > ../../coverage/hive-io-domain-example/coverage.lcov",
     "dev": "nodemon -e js,json -w src -x \"npm run build\" & nodemon -e js -w tst -x \"npm test\"",
     "fix": "standard --fix",
     "init": "del node_modules && npm install --no-optional --no-package-lock",
