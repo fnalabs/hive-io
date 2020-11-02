@@ -16,7 +16,7 @@ services:
       - hive-io
     restart: on-failure
   fluentd:
-    image: fluent/fluentd:v1.9.2-1.0
+    image: fluent/fluentd:v1.11.4-2.0
     container_name: fluentd
     networks:
       - hive-io
@@ -94,7 +94,7 @@ services:
     networks:
       - hive-io
   redis:
-    image: redis:5.0.7-alpine
+    image: redis:6.0.9-alpine
     container_name: redis
     networks:
       - hive-io
@@ -102,7 +102,7 @@ services:
 
   # log stream containers
   kafka:
-    image: confluentinc/cp-kafka:5.4.0
+    image: confluentinc/cp-kafka:5.4.3
     container_name: kafka
     depends_on:
       - zookeeper
@@ -119,7 +119,7 @@ services:
       - hive-io
     restart: on-failure
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.4.0
+    image: confluentinc/cp-zookeeper:5.4.3
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
@@ -167,7 +167,7 @@ services:
     networks:
       - hive-io
   mongo:
-    image: mongo:4.2.3
+    image: mongo:4.4.1
     container_name: mongo
     networks:
       - hive-io
