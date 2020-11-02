@@ -38,6 +38,6 @@ export default new Proxy(EditContentActor, {
     const editedContentSchema = await new Schema(EditedContentSchema, REFS)
     const editContentSchema = await new Schema(EditContentSchema, REFS)
 
-    return new EditContentActor(postSchema, editedContentSchema, editContentSchema)
+    return new EditContentActor(editedContentSchema, editContentSchema, postSchema)
   }
 })

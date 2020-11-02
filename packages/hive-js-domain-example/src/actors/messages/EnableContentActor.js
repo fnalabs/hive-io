@@ -36,6 +36,6 @@ export default new Proxy(EnableContentActor, {
     const postSchema = await new Schema(PostSchema, REFS)
     const enabledContentSchema = await new Schema(EnabledContentSchema, REFS)
 
-    return new EnableContentActor(postSchema, enabledContentSchema)
+    return new EnableContentActor(enabledContentSchema, undefined, postSchema)
   }
 })

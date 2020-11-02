@@ -20,9 +20,9 @@ const immutable = true
  * <ul><li>process CQRS Commands to generate Events to apply to a Model in <code>perform</code> method</li></ul></p>
  *
  * @property {any} repository - A reference to a storage layer client of your choosing or <code>undefined</code>.
- * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
  * @param {Schema} eventSchema - The instance of the Actor's associated Event JSON Schema definition.
- * @param {Schema} [commandSchema={}] - The optional instance of the Actor's associated Command JSON Schema definition.
+ * @param {Schema} [commandSchema] - The optional instance of the Actor's associated Command JSON Schema definition.
+ * @param {Schema} [modelSchema] - The instance of the associated Model's JSON Schema definition.
  * @param {any} [repository] - An optional reference to a storage layer client of your choosing.
  * @example <caption>A Command example MessageActor class. It is meant to be wrapped with one of the microservice types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
  * import { MessageActor, Schema } from 'hive-io'
@@ -43,7 +43,7 @@ const immutable = true
  *     const event = await new Schema(EventSchema)
  *     const command = await new Schema(CommandSchema)
  *
- *     return new CommandActor(example, event, command, argsList[0])
+ *     return new CommandActor(event, command, example, argsList[0])
  *   }
  * })
  * @example <caption>An Event example MessageActor class. It is meant to be wrapped with one of the microservice types (Producer, Consumer, Stream Processor). Actors wrapped by each of the previously mentioned types are passed references to the centralized log store when <code>perform</code> and <code>replay</code> methods are called.</caption>
@@ -63,19 +63,19 @@ const immutable = true
  *     const example = await new Schema(ExampleSchema)
  *     const event = await new Schema(EventSchema)
  *
- *     return new EventActor(example, event, undefined, argsList[0])
+ *     return new EventActor(event, undefined, example, argsList[0])
  *   }
  * })
  */
 class MessageActor extends Actor {
-  constructor (modelSchema, eventSchema, commandSchema = {}, repository) {
+  constructor (eventSchema, commandSchema, modelSchema, repository) {
     super(modelSchema, repository)
 
-    if (!(eventSchema instanceof Schema)) throw new TypeError('#MessageActor: event schema must be a Schema')
+    if (!(eventSchema instanceof Schema)) throw new TypeError('#MessageActor: Event schema must be a Schema')
 
     Object.defineProperties(this, {
       [EVENT]: { value: eventSchema },
-      [COMMAND]: { value: commandSchema }
+      [COMMAND]: { value: commandSchema || {} }
     })
   }
 

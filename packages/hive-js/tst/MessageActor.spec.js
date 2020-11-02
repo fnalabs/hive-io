@@ -54,8 +54,8 @@ describe('class MessageActor', () => {
     viewTestSchema = await new Schema(ViewTestSchema)
     viewedTestSchema = await new Schema(ViewedTestSchema)
 
-    createTestActor = new MessageActor(testSchema, createdTestSchema, createTestSchema)
-    viewTestActor = new MessageActor(testSchema, viewedTestSchema, viewTestSchema)
+    createTestActor = new MessageActor(createdTestSchema, createTestSchema, testSchema)
+    viewTestActor = new MessageActor(viewedTestSchema, viewTestSchema, testSchema)
 
     class TestActor extends Actor {
       async perform (modelInstance, data) {
@@ -90,15 +90,15 @@ describe('class MessageActor', () => {
     })
 
     it('should create a MessageActor with only an EventSchema defined', () => {
-      const eventActor = new MessageActor(testSchema, createdTestSchema)
+      const eventActor = new MessageActor(createdTestSchema, undefined, testSchema)
       expect(eventActor).to.be.an.instanceof(MessageActor)
     })
 
     it('should throw an error if MessageActor isn\'t passed an event schema', () => {
       try {
-        new MessageActor(testSchema) // eslint-disable-line
+        new MessageActor() // eslint-disable-line
       } catch (e) {
-        expect(e.message).to.equal('#MessageActor: event schema must be a Schema')
+        expect(e.message).to.equal('#MessageActor: Event schema must be a Schema')
       }
     })
   })
@@ -146,7 +146,7 @@ describe('class MessageActor', () => {
     })
 
     it('should create, validate, and return the command and event', async () => {
-      const test = new MessageActor(undefined, createdTestSchema, createTestSchema)
+      const test = new MessageActor(createdTestSchema, createTestSchema)
       const { command, event, model } = await test.perform(undefined, createData)
 
       expect(command).to.be.an.instanceof(Model)
