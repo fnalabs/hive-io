@@ -50,7 +50,7 @@
     "npm": ">=6"
   },
   "dependencies": {
-    "model-json-js": "1.0.3"
+    "model-json-js": "1.0.4"
   },
   "nyc": {
     "check-coverage": true,
@@ -85,7 +85,8 @@
   },
   "standard": {
     "ignore": [
-      "dist/"
+      "dist/",
+      "tmp*"
     ],
     "parser": "babel-eslint"
   }

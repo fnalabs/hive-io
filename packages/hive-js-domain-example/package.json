@@ -35,8 +35,8 @@
   "dependencies": {
     "fluent-logger": "3.4.1",
     "hive-io": "file:../hive-js",
-    "mongoose": "5.10.0",
-    "uuid": "8.3.0"
+    "mongoose": "5.10.11",
+    "uuid": "8.3.1"
   },
   "nyc": {
     "exclude": [
@@ -75,7 +75,8 @@
   },
   "standard": {
     "ignore": [
-      "dist/"
+      "dist/",
+      "tmp*"
     ],
     "parser": "babel-eslint"
   }
