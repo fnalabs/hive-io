@@ -32,13 +32,13 @@ services:
     networks:
       - hive-io
   fluentd:
-    image: fluent/fluentd:v1.9.2-1.0
+    image: fluent/fluentd:v1.11.4-2.0
     container_name: fluentd
     networks:
       - hive-io
     restart: on-failure
   mongo:
-    image: mongo:4.2.3
+    image: mongo:4.4.1
     container_name: mongo
     networks:
       - hive-io

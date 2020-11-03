@@ -39,6 +39,6 @@ export default new Proxy(CreateContentActor, {
     const createdContentSchema = await new Schema(CreatedContentSchema, REFS)
     const createContentSchema = await new Schema(CreateContentSchema, REFS)
 
-    return new CreateContentActor(postSchema, createdContentSchema, createContentSchema)
+    return new CreateContentActor(createdContentSchema, createContentSchema, postSchema)
   }
 })

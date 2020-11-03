@@ -1,7 +1,7 @@
 #
 # Development build
 #
-FROM node:12.18.2-alpine as development
+FROM node:14.15.0-alpine as development
 
 # set environment variables
 ENV APP_PATH="/opt/app" \
@@ -20,7 +20,7 @@ RUN apk --no-cache add bash-completion && \
     npm run release
 
 # start with Alpine Linux Base image
-FROM node:12.18.2-alpine as production
+FROM node:14.15.0-alpine as production
 
 # set environment variables
 ENV APP_PATH="/opt/app" \
