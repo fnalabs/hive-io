@@ -15,8 +15,7 @@
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
     "posttest": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha --timeout 5000 --recursive --exit 'tst/**/*.spec.js'",
-    "version": "npm run release && git add --all",
-    "postversion": "git push && git push --tags && npm publish"
+    "version": "npm run release"
   },
   "repository": {
     "type": "git",
@@ -34,7 +33,7 @@
   },
   "dependencies": {
     "fluent-logger": "3.4.1",
-    "hive-io": "file:../hive-js",
+    "hive-io": "^2.0.0-rc.6",
     "mongoose": "5.10.11",
     "uuid": "8.3.1"
   },
