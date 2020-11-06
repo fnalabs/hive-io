@@ -31,7 +31,7 @@ ENV APP_PATH="/opt/app" \
 
 COPY --from=development ${APP_PATH}/dist ${APP_PATH}/dist/
 COPY bin ${APP_PATH}/bin/
-COPY package.json package-lock.json LICENSE README.md ${APP_PATH}/
+COPY package.json LICENSE README.md ${APP_PATH}/
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
