@@ -18,8 +18,8 @@ services:
       FLUENTD_TIMEOUT: 3.0
       FLUENTD_RECONNECT: 600000
     depends_on:
-      - mongo
       - fluentd
+      - mongo
     command: npm run dev
     ports:
       - 443:3000
