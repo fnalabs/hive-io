@@ -18,8 +18,7 @@
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
     "posttest": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive --exit 'tst/**/*.spec.js'",
-    "version": "npm run release && git add --all",
-    "postversion": "git push && git push --tags"
+    "version": "npm run release"
   },
   "repository": {
     "type": "git",
