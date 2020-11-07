@@ -77,6 +77,7 @@ To start using:
             environment:
               ACTOR: PostActor
               ACTOR_LIB: hive-io-rest-example
+              ACTOR_URLS: "/posts,/posts/:postId"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"

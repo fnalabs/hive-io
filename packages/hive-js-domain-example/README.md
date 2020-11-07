@@ -115,6 +115,7 @@ To start using:
             environment:
               ACTOR: ViewContentActor
               ACTOR_LIB: hive-io-domain-example
+              ACTOR_URLS: "/posts/:id"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
@@ -139,6 +140,7 @@ To start using:
             environment:
               ACTOR: PostCommandActor
               ACTOR_LIB: hive-io-domain-example
+              ACTOR_URLS: "/posts,/posts/:id"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
@@ -229,6 +231,7 @@ To start using:
             environment:
               ACTOR: PostQueryActor
               ACTOR_LIB: hive-io-domain-example
+              ACTOR_URLS: "/posts,/posts/:id"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
