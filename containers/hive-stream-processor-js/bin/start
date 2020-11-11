@@ -13,8 +13,8 @@ const {
   NODE_ENV,
   PORT,
   SECURE,
-  SSL_CERT_PATH,
-  SSL_KEY_PATH
+  SSL_CERT,
+  SSL_KEY
 } = require('../dist/config')
 
 const CPU_COUNT = (CLUSTER_SIZE && Number.parseInt(CLUSTER_SIZE)) || require('os').cpus().length
@@ -22,18 +22,20 @@ const CPU_COUNT = (CLUSTER_SIZE && Number.parseInt(CLUSTER_SIZE)) || require('os
 const isHTTP2 = HTTP_VERSION === 2
 const isDev = NODE_ENV === 'development'
 
-const options = SECURE ? {
-  http2: isHTTP2,
-  https: {
-    allowHTTP1: true,
-    cert: fs.readFileSync(SSL_CERT_PATH),
-    key: fs.readFileSync(SSL_KEY_PATH)
-  },
-  logger: isDev
-} : {
-  http2: isHTTP2,
-  logger: isDev
-}
+const options = SECURE
+  ? {
+      http2: isHTTP2,
+      https: {
+        allowHTTP1: true,
+        cert: SSL_CERT[0] === '/' ? fs.readFileSync(SSL_CERT) : SSL_CERT,
+        key: SSL_KEY[0] === '/' ? fs.readFileSync(SSL_KEY) : SSL_KEY
+      },
+      logger: isDev
+    }
+  : {
+      http2: isHTTP2,
+      logger: isDev
+    }
 
 // start script
 if (cluster.isMaster && CPU_COUNT > 1) {
