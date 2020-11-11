@@ -1,6 +1,6 @@
 {
   "name": "hive-base",
-  "version": "2.0.0-rc.7",
+  "version": "2.0.0-rc.8",
   "private": true,
   "description": "Starter kit for Hive^io Framework Base microservices leveraging Node.js in Docker",
   "main": "./bin/start",
