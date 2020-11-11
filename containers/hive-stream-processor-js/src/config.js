@@ -4,8 +4,8 @@ export const PORT = Number.parseInt(process.env.PORT, 10) || 3000
 export const HTTP_VERSION = Number.parseInt(process.env.HTTP_VERSION, 10) || 2
 export const SECURE = process.env.SECURE === 'true'
 export const CLUSTER_SIZE = process.env.CLUSTER_SIZE
-export const SSL_CERT_PATH = process.env.SSL_CERT_PATH ?? '/opt/app/cert/ssl-cert.pem'
-export const SSL_KEY_PATH = process.env.SSL_KEY_PATH ?? '/opt/app/cert/ssl-key.pem'
+export const SSL_CERT = process.env.SSL_CERT ?? '/opt/app/cert/ssl-cert.pem'
+export const SSL_KEY = process.env.SSL_KEY ?? '/opt/app/cert/ssl-key.pem'
 
 // service configurations
 export const PING_URL = process.env.PING_URL ?? '/ping'

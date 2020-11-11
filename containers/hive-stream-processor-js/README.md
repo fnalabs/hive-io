@@ -65,8 +65,8 @@ PORT                        | Number  | 3000                          | microser
 CLUSTER_SIZE                | Number  | [total CPUs available]        | defaults to the total available CPUs allocated to the container or to the size you specify here
 HTTP_VERSION                | Number  | 2                             | HTTP version for backward compatibility
 SECURE                      | String  | 'false'                       | whether to run microservice secure or not. defaults to 'false' since we cannot provide certifications
-SSL_CERT_PATH               | String  | '/opt/app/cert/ssl-cert.pem'  | default path for SSL certificate file
-SSL_KEY_PATH                | String  | '/opt/app/cert/ssl-key.pem'   | default path for SSL key file
+SSL_CERT                    | String  | '/opt/app/cert/ssl-cert.pem'  | default path for SSL certificate file or the full certificate
+SSL_KEY                     | String  | '/opt/app/cert/ssl-key.pem'   | default path for SSL key file or the full key
 PING_URL                    | String  | '/ping'                       | URL to use for shallow health checks for the microservice
 PROCESSOR_TYPE              | String  | 'producer'                    | type of Stream Processor microservice you wish to run (can also be 'consumer' or 'stream_processor')
 ACTOR                       | String  |                               | Actor (Model) the microservice is responsible for

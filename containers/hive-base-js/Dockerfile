@@ -7,8 +7,8 @@ FROM node:14.15.0-alpine as development
 ENV APP_PATH="/opt/app" \
     NODE_ENV="development" \
     PORT="3000" \
-    SSL_CERT_PATH="/opt/app/cert/ssl-cert.pem" \
-    SSL_KEY_PATH="/opt/app/cert/ssl-key.pem"
+    SSL_CERT="/opt/app/cert/ssl-cert.pem" \
+    SSL_KEY="/opt/app/cert/ssl-key.pem"
 
 # Project code
 COPY . ${APP_PATH}/
@@ -26,8 +26,8 @@ FROM node:14.15.0-alpine as production
 ENV APP_PATH="/opt/app" \
     NODE_ENV="production" \
     PORT="3000" \
-    SSL_CERT_PATH="/opt/app/cert/ssl-cert.pem" \
-    SSL_KEY_PATH="/opt/app/cert/ssl-key.pem"
+    SSL_CERT="/opt/app/cert/ssl-cert.pem" \
+    SSL_KEY="/opt/app/cert/ssl-key.pem"
 
 COPY --from=development ${APP_PATH}/dist ${APP_PATH}/dist/
 COPY bin ${APP_PATH}/bin/

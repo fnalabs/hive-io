@@ -3,7 +3,7 @@ export const FLUENTD_HOST = process.env.FLUENTD_HOST
 export const FLUENTD_PORT = process.env.FLUENTD_PORT
 export const FLUENTD_TIMEOUT = Number.parseFloat(process.env.FLUENTD_TIMEOUT)
 export const FLUENTD_RECONNECT = Number.parseInt(process.env.FLUENTD_RECONNECT, 10)
-export const SSL_CERT_PATH = process.env.SSL_CERT_PATH
+export const SSL_CERT = process.env.SSL_CERT
 export const UPDATE_OPTIONS = Object.freeze({
   new: true,
   setDefaultsOnInsert: true,
