@@ -26,11 +26,8 @@ baseInstall () {
   ###
   printLine "Installing environment dependencies"
   apk --no-cache add \
-    coreutils \
     dumb-init \
-    grep \
-    openssl \
-    tree
+    openssl
 
   mkdir cert
   openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
@@ -50,11 +47,6 @@ projectInstall () {
   else
     printLine "Installing (All) Node.js Dependencies"
     npm install --quiet --no-optional
-  fi
-
-  if [ -v APP_MODULE ]; then
-    printLine "Installing microservice Actor module"
-    npm install --quiet --no-optional ${APP_MODULE}
   fi
 
   printLine "Clearing Node and NPM cache"

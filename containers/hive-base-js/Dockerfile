@@ -15,7 +15,7 @@ COPY . ${APP_PATH}/
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
-RUN apk --no-cache add bash-completion && \
+RUN apk --no-cache add bash-completion coreutils grep tree && \
     bash -e ./bin/install && \
     npm run release
 
@@ -35,7 +35,7 @@ COPY package.json LICENSE README.md ${APP_PATH}/
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
-RUN apk --no-cache add bash-completion && \
+RUN apk --no-cache add bash && \
     bash -e ./bin/install
 
 # expose standard Node.js port of 3000
