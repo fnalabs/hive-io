@@ -34,7 +34,7 @@
   "dependencies": {
     "fluent-logger": "3.4.1",
     "hive-io": "file:../hive-js",
-    "mongoose": "5.10.13",
+    "mongoose": "5.10.15",
     "uuid": "8.3.1"
   },
   "nyc": {

@@ -73,7 +73,7 @@ To start using:
         services:
           hive-base-js:
             build: .
-            image: hive-base-js
+            image: hive-base-js:production
             environment:
               ACTOR: PostActor
               ACTOR_LIB: hive-io-rest-example
@@ -87,19 +87,19 @@ To start using:
               FLUENTD_TIMEOUT: 3.0
               FLUENTD_RECONNECT: 600000
             depends_on:
-              - mongo
               - fluentd
+              - mongo
             ports:
               - 80:3000
             networks:
               - hive-io
           fluentd:
-            image: fluent/fluentd:v1.7.4-1.0
+            image: fluent/fluentd:v1.11.4-2.0
             networks:
               - hive-io
             restart: on-failure
           mongo:
-            image: mongo:4.2.1
+            image: mongo:4.4.1
             networks:
               - hive-io
             restart: on-failure
