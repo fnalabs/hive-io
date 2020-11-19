@@ -5,7 +5,7 @@
 [![Code Coverage][codecov-image]][codecov-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Consumer microservice leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Consumer microservice leveraging Node.js with Fastify in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-consumer-js/) on Docker Hub to support most use cases.
 
 #### Contents
 
@@ -77,7 +77,7 @@ EVENT_STORE_TIMEOUT     | Number  | null                          | time (in `ms
 
 - feature requests via [issues](https://github.com/fnalabs/hive-io/issues)
 
-[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-consumer-js.svg
+[docker-image]: https://img.shields.io/docker/v/fnalabs/hive-consumer-js?sort=semver
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-consumer-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg

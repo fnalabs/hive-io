@@ -5,7 +5,7 @@
 [![Code Coverage][codecov-image]][codecov-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Stream Processor microservice leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Stream Processor microservice leveraging Node.js with Fastify in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-stream-processor-js/) on Docker Hub to support most use cases.
 
 #### Contents
 
@@ -92,7 +92,7 @@ LOCK_RETRY_JITTER           | Number  | 400                           | Redlock 
 
 - feature requests via [issues](https://github.com/fnalabs/hive-io/issues)
 
-[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-stream-processor-js.svg
+[docker-image]: https://img.shields.io/docker/v/fnalabs/hive-stream-processor-js?sort=semver
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-stream-processor-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg

@@ -92,8 +92,8 @@ To start using:
           #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/proxy
           proxy:
             image: haproxy:1.8.23-alpine
+            container_name: proxy
             depends_on:
-              - hive-producer-js
               - hive-base-js
               - hive-stream-processor-js
             ports:
@@ -102,7 +102,8 @@ To start using:
               - hive-io
             restart: on-failure
           fluentd:
-            image: fluent/fluentd:v1.7.4-1.0
+            image: fluent/fluentd:v1.11.4-2.0
+            container_name: fluentd
             networks:
               - hive-io
             restart: on-failure
@@ -112,6 +113,8 @@ To start using:
             build:
               context: .
               dockerfile: Producer.dockerfile
+            image: hive-producer-js:production
+            container_name: hive-producer-js
             environment:
               ACTOR: ViewContentActor
               ACTOR_LIB: hive-io-domain-example
@@ -127,8 +130,8 @@ To start using:
               FLUENTD_TIMEOUT: 3.0
               FLUENTD_RECONNECT: 600000
             depends_on:
-              - kafka
               - fluentd
+              - kafka
             networks:
               - hive-io
 
@@ -137,6 +140,8 @@ To start using:
             build:
               context: .
               dockerfile: Stream-Processor.dockerfile
+            image: hive-stream-processor-js:production
+            container_name: hive-stream-processor-js
             environment:
               ACTOR: PostCommandActor
               ACTOR_LIB: hive-io-domain-example
@@ -153,20 +158,22 @@ To start using:
               FLUENTD_TIMEOUT: 3.0
               FLUENTD_RECONNECT: 600000
             depends_on:
-              - redis
-              - kafka
               - fluentd
+              - kafka
+              - redis
             networks:
               - hive-io
           redis:
-            image: redis:5.0.7-alpine
+            image: redis:6.0.9-alpine
+            container_name: redis
             networks:
               - hive-io
             restart: on-failure
 
           # log stream containers
           kafka:
-            image: confluentinc/cp-kafka:5.3.1
+            image: confluentinc/cp-kafka:5.4.3
+            container_name: kafka
             depends_on:
               - zookeeper
             environment:
@@ -180,7 +187,8 @@ To start using:
               - hive-io
             restart: on-failure
           zookeeper:
-            image: confluentinc/cp-zookeeper:5.3.1
+            image: confluentinc/cp-zookeeper:5.4.3
+            container_name: zookeeper
             environment:
               ZOOKEEPER_CLIENT_PORT: 32181
             expose:
@@ -194,6 +202,8 @@ To start using:
             build:
               context: .
               dockerfile: Consumer.dockerfile
+            image: hive-consumer-js:production
+            container_name: hive-consumer-js
             environment:
               ACTOR: PostEventActor
               ACTOR_LIB: hive-io-domain-example
@@ -211,13 +221,13 @@ To start using:
               FLUENTD_TIMEOUT: 3.0
               FLUENTD_RECONNECT: 600000
             depends_on:
-              - mongo
-              - kafka
               - fluentd
+              - kafka
+              - mongo
             networks:
               - hive-io
           mongo:
-            image: mongo:4.2.1
+            image: mongo:4.4.1
             networks:
               - hive-io
             restart: on-failure
@@ -227,7 +237,8 @@ To start using:
             build:
               context: .
               dockerfile: Rest.dockerfile
-            image: hive-base-js
+            image: hive-base-js:production
+            container_name: hive-base-js
             environment:
               ACTOR: PostQueryActor
               ACTOR_LIB: hive-io-domain-example
@@ -241,8 +252,9 @@ To start using:
               FLUENTD_TIMEOUT: 3.0
               FLUENTD_RECONNECT: 600000
             depends_on:
-              - mongo
               - fluentd
+              - hive-producer-js
+              - mongo
             networks:
               - hive-io
 
@@ -256,14 +268,11 @@ To start using:
     docker-compose up
     ```
 
+**NOTE:** There is a chicken or egg scenario when you run this example for the first time. In this example, the topics are not created until events are sent from `hive-producer-js` and `hive-stream-processor-js`. Therefore, you will need to restart `hive-consumer-js` after the topics are created to finally see events flow through the system.
+
 ### Environment Variables
 
-The table below contains a reference to the custom environment variables used in the example. Standard environment variables are documented for the following service containers:
-
-- [hive-producer-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-producer-js#environment-variables)
-- [hive-stream-processor-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-stream-processor-js#environment-variables)
-- [hive-consumer-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-consumer-js#environment-variables)
-- [hive-base-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-base-js#environment-variables)
+The table below contains a reference to the custom environment variables used in the example. [Standard environment variables](https://hiveframework.io/environments) are documented for all service containers.
 
 Name               | Type    | Default                       | Description
 ------------------ | ------- | ----------------------------- | -------------------------------------------------------

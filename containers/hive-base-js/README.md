@@ -5,7 +5,7 @@
 [![Code Coverage][codecov-image]][codecov-url]
 [![JavaScript Style Guide][style-image]][style-url]
 
-This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Base microservice leveraging Node.js in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-base-js/) on Docker Hub to support most use cases.
+This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Base microservice leveraging Node.js with Fastify in Docker. There is the [base image](https://hub.docker.com/r/fnalabs/hive-base-js/) on Docker Hub to support most use cases.
 
 #### Contents
 
@@ -18,7 +18,7 @@ This is the [Hive<sup>io</sup>](https://hiveframework.io) framework Base microse
 
 ## Getting Started
 
-This is the most basic building block of infrastructure in the Hive<sup>io</sup> framework. It provides a http interface for your Actors and enforces the Flux Standard Action payload structure.
+This is the most basic building block of infrastructure in the Hive<sup>io</sup> framework. It provides an HTTP interface for your Actors and enforces the Flux Standard Action payload structure.
 
 ### Prerequisites
 
@@ -66,7 +66,7 @@ ACTOR_URLS    | String  |                               | comma-separated URLs a
 
 - feature requests via [issues](https://github.com/fnalabs/hive-io/issues)
 
-[docker-image]: https://images.microbadger.com/badges/version/fnalabs/hive-base-js.svg
+[docker-image]: https://img.shields.io/docker/v/fnalabs/hive-base-js?sort=semver
 [docker-url]: https://hub.docker.com/r/fnalabs/hive-base-js/
 
 [license-image]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
