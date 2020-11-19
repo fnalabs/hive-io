@@ -1,6 +1,6 @@
 {
   "name": "hive-stream-processor",
-  "version": "2.0.0-rc.8",
+  "version": "2.0.0",
   "private": true,
   "description": "Starter kit for Hive^io Framework Stream Processor microservices leveraging Node.js in Docker",
   "main": "./bin/start",
