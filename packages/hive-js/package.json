@@ -26,7 +26,7 @@
     "document": "jsdoc --configure .jsdoc.json --verbose",
     "postdocument": "sed -i 's/Documentation/hive-io/g' ../../docs/index.html ../../docs/Actor.html ../../docs/MessageActor.html ../../docs/Model.html ../../docs/Schema.html ../../docs/System.html",
     "fix": "standard --fix",
-    "init": "del node_modules && npm install --no-optional --no-package-lock",
+    "initialize": "del node_modules && npm install --no-optional --no-package-lock",
     "release": "npm test && npm run build",
     "postrelease": "npm run document",
     "pretest": "del coverage coverage.lcov .nyc_output",
