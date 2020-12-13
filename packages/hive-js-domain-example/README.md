@@ -19,20 +19,20 @@ An example CQRS/ES domain module to help describe implementation details when le
 
 ## Overview
 
-This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example) into a highly distributed architecture in order to handle different magnitudes of network traffic for `viewed` metrics and `content` management. It is a contrived but more robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup>](https://hiveframework.io) framework.
+This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/package/hive-io-rest-example) into a highly distributed architecture in order to handle different magnitudes of network traffic for `viewed` metrics and `text` management. It is a contrived but slightly more robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
 ### Endpoints
 
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
 
-- `http://localhost/posts (GET, POST)`
+- `http://localhost/contents (GET, POST)`
     - POST [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/src/schemas/json/commands/CreateContent.json)
         ```json
         {
           "text": "something"
         }
         ```
-- `http://localhost/posts/<postId> (GET, PATCH, DELETE)`
+- `http://localhost/contents/<id> (GET, PATCH, DELETE)`
     - PATCH [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/src/schemas/json/commands/EditContent.json)
         ```json
         {
@@ -47,7 +47,9 @@ Once you get the app running using the [setup instructions](#getting-started) be
 
 ## Getting Started
 
-This is a straight forward CQRS/ES example of a `Post` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It is a highly distributed application with the expectation that `viewed` traffic will be much larger than `content` management traffic. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
+This is a straight forward CQRS/ES example of a `Content` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It is a highly distributed application with the expectation that `viewed` traffic will be much larger than `text` management traffic. It stores these `Content`s in MongoDB. It leverages Hive<sup>io</sup>'s built-in telemetry solution with OpenTelemetry. Here's how to use it.
+
+***NOTE:*** This does not include error handling, authentication, and other strategies to keep the example straight forward.
 
 ### Prerequisites
 
@@ -88,22 +90,16 @@ To start using:
         version: '3.5'
         services:
           # proxy for layer 7 routing
-          # NOTE: this is an example, you will need to define your own
+          # NOTE: this is an example, you will need to define your own config
           #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/proxy
           proxy:
-            image: haproxy:1.8.23-alpine
+            image: haproxy:2.3.2-alpine
             container_name: proxy
             depends_on:
               - hive-base-js
               - hive-stream-processor-js
             ports:
               - 80:80
-            networks:
-              - hive-io
-            restart: on-failure
-          fluentd:
-            image: fluent/fluentd:v1.11.4-2.0
-            container_name: fluentd
             networks:
               - hive-io
             restart: on-failure
@@ -118,19 +114,18 @@ To start using:
             environment:
               ACTOR: ViewContentActor
               ACTOR_LIB: hive-io-domain-example
-              ACTOR_URLS: "/posts/:id"
+              ACTOR_URLS: "/contents/:id"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
+              TELEMETRY: "true"
+              TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+              TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               EVENT_STORE_TOPIC: view
               EVENT_STORE_BROKERS: "kafka:29092"
               EVENT_STORE_ID: producer-client
-              FLUENTD_HOST: fluentd
-              FLUENTD_PORT: 24224
-              FLUENTD_TIMEOUT: 3.0
-              FLUENTD_RECONNECT: 600000
             depends_on:
-              - fluentd
+              - collector
               - kafka
             networks:
               - hive-io
@@ -143,22 +138,21 @@ To start using:
             image: hive-stream-processor-js:production
             container_name: hive-stream-processor-js
             environment:
-              ACTOR: PostCommandActor
+              ACTOR: ContentCommandActor
               ACTOR_LIB: hive-io-domain-example
-              ACTOR_URLS: "/posts,/posts/:id"
+              ACTOR_URLS: "/contents,/contents/:id"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
+              TELEMETRY: "true"
+              TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+              TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               CACHE_URL: "redis://redis:6379"
               EVENT_STORE_PRODUCER_TOPIC: content
               EVENT_STORE_BROKERS: "kafka:29092"
               EVENT_STORE_ID: stream-processor-client
-              FLUENTD_HOST: fluentd
-              FLUENTD_PORT: 24224
-              FLUENTD_TIMEOUT: 3.0
-              FLUENTD_RECONNECT: 600000
             depends_on:
-              - fluentd
+              - collector
               - kafka
               - redis
             networks:
@@ -205,29 +199,29 @@ To start using:
             image: hive-consumer-js:production
             container_name: hive-consumer-js
             environment:
-              ACTOR: PostEventActor
+              ACTOR: ContentEventActor
               ACTOR_LIB: hive-io-domain-example
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
-              MONGO_URL: "mongodb://mongo:27017/post"
+              TELEMETRY: "true"
+              TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+              TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+              TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               EVENT_STORE_TOPIC: "content|view"
               EVENT_STORE_BROKERS: "kafka:29092"
               EVENT_STORE_ID: consumer-client
               EVENT_STORE_GROUP_ID: consumer-group
               EVENT_STORE_FROM_START: "true"
-              FLUENTD_HOST: fluentd
-              FLUENTD_PORT: 24224
-              FLUENTD_TIMEOUT: 3.0
-              FLUENTD_RECONNECT: 600000
+              MONGO_URL: "mongodb://mongo:27017/content"
             depends_on:
-              - fluentd
+              - collector
               - kafka
               - mongo
             networks:
               - hive-io
           mongo:
-            image: mongo:4.4.1
+            image: mongo:4.4.2
             networks:
               - hive-io
             restart: on-failure
@@ -240,23 +234,44 @@ To start using:
             image: hive-base-js:production
             container_name: hive-base-js
             environment:
-              ACTOR: PostQueryActor
+              ACTOR: ContentQueryActor
               ACTOR_LIB: hive-io-domain-example
-              ACTOR_URLS: "/posts,/posts/:id"
+              ACTOR_URLS: "/contents,/contents/:id"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
-              MONGO_URL: "mongodb://mongo:27017/post"
-              FLUENTD_HOST: fluentd
-              FLUENTD_PORT: 24224
-              FLUENTD_TIMEOUT: 3.0
-              FLUENTD_RECONNECT: 600000
+              TELEMETRY: "true"
+              TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+              TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+              TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+              MONGO_URL: "mongodb://mongo:27017/content"
             depends_on:
-              - fluentd
+              - collector
               - hive-producer-js
               - mongo
             networks:
               - hive-io
+
+          # Tracing
+          collector:
+            # NOTE: this is an example, you will need to define your own config
+            #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/collector
+            image: otel/opentelemetry-collector:0.16.0
+            container_name: collector
+            command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
+            depends_on:
+              - zipkin
+            networks:
+              - hive-io
+            restart: on-failure
+          zipkin:
+            image: openzipkin/zipkin:2.23.1
+            container_name: zipkin
+            ports:
+              - 9411:9411
+            networks:
+              - hive-io
+            restart: on-failure
 
         # networking specifics
         networks:
@@ -274,13 +289,9 @@ To start using:
 
 The table below contains a reference to the custom environment variables used in the example. [Standard environment variables](https://hiveframework.io/environments) are documented for all service containers.
 
-Name               | Type    | Default                       | Description
------------------- | ------- | ----------------------------- | -------------------------------------------------------
-MONGO_URL          | String  | 'mongodb://mongo:27017/post'  | url to connect to MongoDB instance
-FLUENTD_HOST       | String  | 'fluentd'                     | Hostname of Fluentd instance
-FLUENTD_PORT       | Number  | 24224                         | Port of Fluentd instance
-FLUENTD_TIMEOUT    | Number  | 3.0                           | Timeout (in sec) for Fluentd client
-FLUENTD_RECONNECT  | Number  | 600000                        | Reconnect Interval (in sec) for Fluentd client
+Name       | Type    | Default                       | Description
+---------- | ------- | ----------------------------- | ------------------------------------
+MONGO_URL  | String  | 'mongodb://mongo:27017/post'  | url to connect to MongoDB instance
 
 [npm-image]: https://img.shields.io/npm/v/hive-io-domain-example.svg
 [npm-url]: https://www.npmjs.com/package/hive-io-domain-example
