@@ -6,18 +6,19 @@ import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { Actor, Model, Schema } from 'hive-io'
 
-import PostId from '../../src/schemas/json/PostId.json'
+import ContentId from '../../src/schemas/json/ContentId.json'
 import ViewSchema from '../../src/schemas/json/View.json'
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v2/models/PostId': PostId
+  'https://hiveframework.io/api/models/ContentId': ContentId
 }
 
 chai.use(dirtyChai)
 
 // constants
 const viewData = { type: 'View', payload: { id: 'id' } }
+const viewTraceData = { type: 'View', payload: { id: 'id', traceparent: 'test' } }
 
 describe('ViewActor', () => {
   let ViewActor, viewActor, viewSchema, connectStub, closeSpy, endSpy, onSpy, requestSpy, setEncodingSpy
@@ -67,6 +68,17 @@ describe('ViewActor', () => {
 
   it('should process a View sent through an Actor System', async () => {
     const viewModel = await new Model(viewData, viewSchema)
+    await viewActor.perform(viewModel)
+
+    expect(connectStub.calledOnce).to.be.true()
+    expect(setEncodingSpy.calledOnce).to.be.true()
+    expect(onSpy.calledOnce).to.be.true()
+    expect(requestSpy.calledOnce).to.be.true()
+    expect(endSpy.calledOnce).to.be.true()
+  })
+
+  it('should process a View with trace data sent through an Actor System', async () => {
+    const viewModel = await new Model(viewTraceData, viewSchema)
     await viewActor.perform(viewModel)
 
     expect(connectStub.calledOnce).to.be.true()

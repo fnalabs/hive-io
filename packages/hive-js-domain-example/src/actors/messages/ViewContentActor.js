@@ -1,12 +1,15 @@
 // imports
 import { Actor, Schema } from 'hive-io'
 
-import PostIdSchema from '../../schemas/json/PostId.json'
+import ContentIdSchema from '../../schemas/json/ContentId.json'
 import ViewedContentSchema from '../../schemas/json/events/ViewedContent.json'
+
+import { trace } from '@opentelemetry/api'
+const tracer = trace.getTracer('hive-producer-js')
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v2/models/PostId': PostIdSchema
+  'https://hiveframework.io/api/models/ContentId': ContentIdSchema
 }
 
 /*
@@ -14,10 +17,13 @@ const REFS = {
  */
 class ViewContentActor extends Actor {
   async perform (_model, action) {
+    const span = tracer.startSpan('ViewContentActor.perform')
+
     action.type = 'ViewedContent'
     action.payload = { id: action.meta.request.params.id }
     const { model } = await super.perform(_model, action)
 
+    span.end()
     // NOTE: return model as event since this Producer isn't exposed publicly
     return { meta: { key: model.id }, event: model }
   }

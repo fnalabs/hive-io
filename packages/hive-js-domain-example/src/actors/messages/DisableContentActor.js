@@ -1,16 +1,19 @@
 // imports
 import { MessageActor, Schema } from 'hive-io'
 
+import ContentIdSchema from '../../schemas/json/ContentId.json'
 import ContentSchema from '../../schemas/json/Content.json'
-import PostIdSchema from '../../schemas/json/PostId.json'
-import PostSchema from '../../schemas/json/Post.json'
+import TextSchema from '../../schemas/json/Text.json'
 
 import DisabledContentSchema from '../../schemas/json/events/DisabledContent.json'
 
+import { trace } from '@opentelemetry/api'
+const tracer = trace.getTracer('hive-stream-processor-js')
+
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v2/models/Content': ContentSchema,
-  'https://hiveframework.io/api/v2/models/PostId': PostIdSchema
+  'https://hiveframework.io/api/models/ContentId': ContentIdSchema,
+  'https://hiveframework.io/api/models/Text': TextSchema
 }
 
 /*
@@ -20,10 +23,13 @@ class DisableContentActor extends MessageActor {
   async perform (modelInst, action) {
     if (modelInst.enabled === false) throw new Error('#DisableContent: content already disabled')
 
+    const span = tracer.startSpan('DisableContentActor.perform')
+
     const { command, event, model } = await super.perform(modelInst, action)
 
     model.enabled = false
 
+    span.end()
     return { meta: { key: model.id }, command, event, model }
   }
 }
@@ -33,7 +39,7 @@ class DisableContentActor extends MessageActor {
  */
 export default new Proxy(DisableContentActor, {
   construct: async function (DisableContentActor) {
-    const postSchema = await new Schema(PostSchema, REFS)
+    const postSchema = await new Schema(ContentSchema, REFS)
     const disabledContentSchema = await new Schema(DisabledContentSchema, REFS)
 
     return new DisableContentActor(disabledContentSchema, undefined, postSchema)

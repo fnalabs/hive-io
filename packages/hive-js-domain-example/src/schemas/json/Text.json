@@ -1,0 +1,26 @@
+{
+  "title": "Text",
+  "description": "Text value object used to create and modify Content",
+  "$id": "https://hiveframework.io/api/models/Text",
+  "type": "object",
+  "properties": {
+    "text": {
+      "description": "Content text",
+      "type": "string",
+      "maxLength": 280,
+      "minLength": 2
+    },
+    "edited": {
+      "description": "edited flag",
+      "type": "boolean",
+      "default": false
+    },
+    "enabled": {
+      "description": "enabled flag",
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "additionalProperties": false,
+  "required": ["text"]
+}

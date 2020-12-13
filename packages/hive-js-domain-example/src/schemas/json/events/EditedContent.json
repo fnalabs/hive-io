@@ -1,16 +1,16 @@
 {
   "title": "EditedContent",
-  "description": "event used to log overwritten Post Content",
-  "$id": "https://hiveframework.io/api/v2/events/EditedContent",
+  "description": "event used to log overwritten Content",
+  "$id": "https://hiveframework.io/api/events/EditedContent",
   "type": "object",
   "properties": {
     "id": {
-      "description": "Post Id Value Object",
-      "$id": "https://hiveframework.io/api/v2/models/PostId#/properties/id"
+      "description": "Content Id",
+      "$id": "https://hiveframework.io/api/models/ContentId#/properties/id"
     },
     "text": {
-      "description": "main Post Content",
-      "$id": "https://hiveframework.io/api/v2/models/Content#/properties/text"
+      "description": "Content text",
+      "$id": "https://hiveframework.io/api/models/Text#/properties/text"
     }
   },
   "additionalProperties": false,

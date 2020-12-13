@@ -1,0 +1,14 @@
+{
+  "title": "ContentId",
+  "description": "Id value object for Contents",
+  "$id": "https://hiveframework.io/api/models/ContentId",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "UUID v4 for unique Content Id",
+      "type": "string"
+    }
+  },
+  "required": ["id"],
+  "additionalProperties": false
+}

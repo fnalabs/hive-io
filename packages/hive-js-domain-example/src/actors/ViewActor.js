@@ -22,7 +22,9 @@ export default class ViewActor extends Actor {
   async perform (model) {
     this.connection = httpConnect()
 
-    HEADERS[':path'] = `/posts/${model.id}`
+    HEADERS[':path'] = `/contents/${model.id}`
+    if (model.traceparent) HEADERS.traceparent = model.traceparent
+
     const request = this.connection.request(HEADERS)
     request.setEncoding('utf8')
     request.on('end', this.onEnd)
