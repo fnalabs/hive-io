@@ -1,7 +1,7 @@
 {
-  "title": "Post",
-  "description": "validation schema used to create and modify Posts",
-  "$id": "https://hiveframework.io/api/v1/models/Post",
+  "title": "Content",
+  "description": "validation schema used to create and modify Content",
+  "$id": "https://hiveframework.io/api/models/Content",
   "type": "object",
   "properties": {
     "id": {
@@ -9,7 +9,7 @@
       "type": "string"
     },
     "text": {
-      "description": "main post content",
+      "description": "content text",
       "type": "string",
       "maxLength": 140,
       "minLength": 2

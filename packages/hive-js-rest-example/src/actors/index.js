@@ -1,1 +1,1 @@
-export { default as PostActor } from './PostActor'
+export { default as ContentActor } from './ContentActor'
