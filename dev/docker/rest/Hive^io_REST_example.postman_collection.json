@@ -10,9 +10,9 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {},
 				"url": {
-					"raw": "localhost/ping",
+					"raw": "https://localhost/ping",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -24,25 +24,25 @@
 			"response": []
 		},
 		{
-			"name": "all Posts",
+			"name": "all Content",
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {},
 				"url": {
-					"raw": "localhost/posts",
+					"raw": "https://localhost/contents",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
 					"path": [
-						"posts"
+						"contents"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "new Post",
+			"name": "new Content",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -56,19 +56,20 @@
 					"raw": "{\n\t\"text\": \"something\"\n}"
 				},
 				"url": {
-					"raw": "localhost/posts",
+					"raw": "https://localhost/contents",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
 					"path": [
-						"posts"
+						"contents"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "update Post",
+			"name": "update Content",
 			"request": {
 				"method": "PATCH",
 				"header": [
@@ -82,20 +83,21 @@
 					"raw": "{\n\t\"text\": \"something completely different\"\n}"
 				},
 				"url": {
-					"raw": "localhost/posts/{{postId}}",
+					"raw": "https://localhost/contents/{{contentId}}",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
 					"path": [
-						"posts",
-						"{{postId}}"
+						"contents",
+						"{{contentId}}"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "delete Post",
+			"name": "delete Content",
 			"request": {
 				"method": "DELETE",
 				"header": [],
@@ -104,32 +106,33 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "localhost/posts/{{postId}}",
+					"raw": "https://localhost/contents/{{contentId}}",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
 					"path": [
-						"posts",
-						"{{postId}}"
+						"contents",
+						"{{contentId}}"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "get Post",
+			"name": "get Content",
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {},
 				"url": {
-					"raw": "localhost/posts/{{postId}}",
+					"raw": "https://localhost/contents/{{contentId}}",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
 					"path": [
-						"posts",
-						"{{postId}}"
+						"contents",
+						"{{contentId}}"
 					]
 				}
 			},
@@ -160,11 +163,10 @@
 	],
 	"variable": [
 		{
-			"id": "8a7ba06e-a4c1-48f4-b508-650bdebd76e8",
-			"key": "postId",
-			"value": "850c6933-9f0f-4c23-bc63-ae164218a32f",
-			"type": "string",
-			"description": ""
+			"id": "a39d96ab-eca1-41a6-9921-67d1cbec8bc2",
+			"key": "contentId",
+			"value": "7419b61b-ec4f-425c-92b2-3490bc02e3f9",
+			"type": "string"
 		}
 	]
 }
