@@ -15,12 +15,6 @@ services:
     networks:
       - hive-io
     restart: on-failure
-  fluentd:
-    image: fluent/fluentd:v1.11.4-2.0
-    container_name: fluentd
-    networks:
-      - hive-io
-    restart: on-failure
 
   # producers
   hive-producer-js:
@@ -32,18 +26,17 @@ services:
     environment:
       ACTOR: ViewContentActor
       ACTOR_LIB: hive-io-domain-example
-      ACTOR_URLS: "/posts/:id"
+      ACTOR_URLS: "/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
+      TELEMETRY: "true"
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
       EVENT_STORE_TOPIC: view
       EVENT_STORE_BROKERS: "kafka:29092"
       EVENT_STORE_ID: producer-client
-      FLUENTD_HOST: fluentd
-      FLUENTD_PORT: 24224
-      FLUENTD_TIMEOUT: 3.0
-      FLUENTD_RECONNECT: 600000
     depends_on:
-      - fluentd
+      - collector
       - kafka
     command: npm run dev
     ports:
@@ -65,21 +58,20 @@ services:
     image: hive-stream-processor-js:development
     container_name: hive-stream-processor-js
     environment:
-      ACTOR: PostCommandActor
+      ACTOR: ContentCommandActor
       ACTOR_LIB: hive-io-domain-example
-      ACTOR_URLS: "/posts,/posts/:id"
+      ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
-      CACHE_URL: "redis://redis:6379"
+      TELEMETRY: "true"
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
       EVENT_STORE_PRODUCER_TOPIC: content
       EVENT_STORE_BROKERS: "kafka:29092"
       EVENT_STORE_ID: stream-processor-client
-      FLUENTD_HOST: fluentd
-      FLUENTD_PORT: 24224
-      FLUENTD_TIMEOUT: 3.0
-      FLUENTD_RECONNECT: 600000
+      CACHE_URL: "redis://redis:6379"
     depends_on:
-      - fluentd
+      - collector
       - kafka
       - redis
     command: npm run dev
@@ -137,22 +129,24 @@ services:
     image: hive-consumer-js:development
     container_name: hive-consumer-js
     environment:
-      ACTOR: PostEventActor
+      ACTOR: ContentEventActor
       ACTOR_LIB: hive-io-domain-example
       CLUSTER_SIZE: 1
       SECURE: "true"
+      TELEMETRY: "true"
+      # TODO: uncomment when MongoDB plugin updates dependencies
+      # TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_PLUGINS: '{"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
       EVENT_STORE_TOPIC: "content|view"
       EVENT_STORE_BROKERS: "kafka:29092"
       EVENT_STORE_ID: consumer-client
       EVENT_STORE_GROUP_ID: consumer-group
       EVENT_STORE_FROM_START: "true"
-      MONGO_URL: "mongodb://mongo:27017/post"
-      FLUENTD_HOST: fluentd
-      FLUENTD_PORT: 24224
-      FLUENTD_TIMEOUT: 3.0
-      FLUENTD_RECONNECT: 600000
+      MONGO_URL: "mongodb://mongo:27017/content"
     depends_on:
-      - fluentd
+      - collector
       - kafka
       - mongo
     command: npm run dev
@@ -162,12 +156,21 @@ services:
       - ../../../../containers/hive-consumer-js:/opt/app:rw
       - ../../../proxy/cert:/opt/app/cert:rw
       - /opt/app/node_modules
+      # NOTE: the following shared volumes are only necessary for framework development
       - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
       - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
+      # - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/@wdalmut/opentelemetry-plugin-mongoose:/opt/app/node_modules/@wdalmut/opentelemetry-plugin-mongoose:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/shimmer:/opt/app/node_modules/shimmer:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/mongodb:/opt/app/node_modules/mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/bl:/opt/app/node_modules/bl:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/bson:/opt/app/node_modules/bson:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/denque:/opt/app/node_modules/denque:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/require_optional:/opt/app/node_modules/require_optional:rw
     networks:
       - hive-io
   mongo:
-    image: mongo:4.4.1
+    image: mongo:4.4.2
     container_name: mongo
     networks:
       - hive-io
@@ -194,18 +197,20 @@ services:
     image: hive-base-js:development
     container_name: hive-base-js
     environment:
-      ACTOR: PostQueryActor
+      ACTOR: ContentQueryActor
       ACTOR_LIB: hive-io-domain-example
-      ACTOR_URLS: "/posts,/posts/:id"
+      ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
-      MONGO_URL: "mongodb://mongo:27017/post"
-      FLUENTD_HOST: fluentd
-      FLUENTD_PORT: 24224
-      FLUENTD_TIMEOUT: 3.0
-      FLUENTD_RECONNECT: 600000
+      TELEMETRY: "true"
+      # TODO: uncomment when MongoDB plugin updates dependencies
+      # TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_PLUGINS: '{"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      MONGO_URL: "mongodb://mongo:27017/content"
     depends_on:
-      - fluentd
+      - collector
       - hive-producer-js
       - mongo
     command: npm run dev
@@ -215,10 +220,40 @@ services:
       - ../../../../containers/hive-base-js:/opt/app:rw
       - ../../../proxy/cert:/opt/app/cert:rw
       - /opt/app/node_modules
+      # NOTE: the following shared volumes are only necessary for framework development
       - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
       - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
+      # - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/@wdalmut/opentelemetry-plugin-mongoose:/opt/app/node_modules/@wdalmut/opentelemetry-plugin-mongoose:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/shimmer:/opt/app/node_modules/shimmer:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/mongodb:/opt/app/node_modules/mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/bl:/opt/app/node_modules/bl:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/bson:/opt/app/node_modules/bson:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/denque:/opt/app/node_modules/denque:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/require_optional:/opt/app/node_modules/require_optional:rw
     networks:
       - hive-io
+
+  # Tracing
+  collector:
+    image: otel/opentelemetry-collector:0.16.0
+    container_name: collector
+    command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
+    depends_on:
+      - zipkin
+    volumes:
+      - ../../../collector/collector-config.yml:/conf/collector-config.yml
+    networks:
+      - hive-io
+    restart: on-failure
+  zipkin:
+    image: openzipkin/zipkin:2.23.1
+    container_name: zipkin
+    ports:
+      - 9411:9411
+    networks:
+      - hive-io
+    restart: on-failure
 
 # networking specifics
 networks:

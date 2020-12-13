@@ -7,18 +7,20 @@ services:
     image: hive-base-js:development
     container_name: hive-base-js
     environment:
-      ACTOR: PostActor
+      ACTOR: ContentActor
       ACTOR_LIB: hive-io-rest-example
-      ACTOR_URLS: "/posts,/posts/:postId"
+      ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
-      MONGO_URL: "mongodb://mongo:27017/post"
-      FLUENTD_HOST: fluentd
-      FLUENTD_PORT: 24224
-      FLUENTD_TIMEOUT: 3.0
-      FLUENTD_RECONNECT: 600000
+      TELEMETRY: "true"
+      # TODO: uncomment when MongoDB plugin updates dependencies
+      # TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_PLUGINS: '{"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      MONGO_URL: "mongodb://mongo:27017/content"
     depends_on:
-      - fluentd
+      - collector
       - mongo
     command: npm run dev
     ports:
@@ -27,32 +29,43 @@ services:
       - ../../../../containers/hive-base-js:/opt/app:rw
       - /opt/app/node_modules
       - /opt/app/cert
+      # NOTE: the following shared volumes are only necessary for framework development
       - ../../../../packages/hive-js-rest-example:/opt/app/node_modules/hive-io-rest-example:rw
       - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
+      # - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/@wdalmut/opentelemetry-plugin-mongoose:/opt/app/node_modules/@wdalmut/opentelemetry-plugin-mongoose:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/shimmer:/opt/app/node_modules/shimmer:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/mongodb:/opt/app/node_modules/mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/bl:/opt/app/node_modules/bl:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/bson:/opt/app/node_modules/bson:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/denque:/opt/app/node_modules/denque:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/require_optional:/opt/app/node_modules/require_optional:rw
     networks:
       - hive-io
-  fluentd:
-    image: fluent/fluentd:v1.11.4-2.0
-    container_name: fluentd
-    networks:
-      - hive-io
-    restart: on-failure
   mongo:
-    image: mongo:4.4.1
+    image: mongo:4.4.2
     container_name: mongo
     networks:
       - hive-io
     restart: on-failure
-  mongo-viewer:
-    image: mongo-express:0.54.0
-    container_name: mongo-viewer
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_SITE_BASEURL: "/mongo/"
+
+  # Tracing
+  collector:
+    image: otel/opentelemetry-collector:0.16.0
+    container_name: collector
+    command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
     depends_on:
-      - mongo
+      - zipkin
+    volumes:
+      - ../../../collector/collector-config.yml:/conf/collector-config.yml
+    networks:
+      - hive-io
+    restart: on-failure
+  zipkin:
+    image: openzipkin/zipkin:2.23.1
+    container_name: zipkin
     ports:
-      - 8081:8081
+      - 9411:9411
     networks:
       - hive-io
     restart: on-failure
