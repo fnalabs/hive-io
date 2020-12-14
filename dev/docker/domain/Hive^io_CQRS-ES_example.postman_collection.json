@@ -7,7 +7,6 @@
 	"item": [
 		{
 			"name": "Commands",
-			"description": "",
 			"item": [
 				{
 					"name": "CreateContent",
@@ -24,12 +23,13 @@
 							"raw": "{\n\t\"text\": \"something\"\n}"
 						},
 						"url": {
-							"raw": "localhost/posts",
+							"raw": "https://localhost/contents",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
 							"path": [
-								"posts"
+								"contents"
 							]
 						}
 					},
@@ -45,13 +45,14 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "localhost/posts/{{postId}}",
+							"raw": "https://localhost/contents/{{contentId}}",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
 							"path": [
-								"posts",
-								"{{postId}}"
+								"contents",
+								"{{contentId}}"
 							]
 						}
 					},
@@ -72,13 +73,14 @@
 							"raw": "{\n\t\"text\": \"something else\"\n}"
 						},
 						"url": {
-							"raw": "localhost/posts/{{postId}}",
+							"raw": "https://localhost/contents/{{contentId}}",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
 							"path": [
-								"posts",
-								"{{postId}}"
+								"contents",
+								"{{contentId}}"
 							]
 						}
 					},
@@ -94,13 +96,14 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "localhost/posts/{{postId}}",
+							"raw": "https://localhost/contents/{{contentId}}",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
 							"path": [
-								"posts",
-								"{{postId}}"
+								"contents",
+								"{{contentId}}"
 							]
 						}
 					},
@@ -110,21 +113,20 @@
 		},
 		{
 			"name": "Queries",
-			"description": "",
 			"item": [
 				{
 					"name": "all Posts",
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {},
 						"url": {
-							"raw": "localhost/posts",
+							"raw": "https://localhost/contents",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
 							"path": [
-								"posts"
+								"contents"
 							]
 						}
 					},
@@ -135,15 +137,15 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {},
 						"url": {
-							"raw": "localhost/posts/{{postId}}",
+							"raw": "https://localhost/contents/{{contentId}}",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
 							"path": [
-								"posts",
-								"{{postId}}"
+								"contents",
+								"{{contentId}}"
 							]
 						}
 					},
@@ -153,16 +155,15 @@
 		},
 		{
 			"name": "health",
-			"description": "",
 			"item": [
 				{
 					"name": "Producer health",
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {},
 						"url": {
-							"raw": "localhost:3000/ping",
+							"raw": "https://localhost:3000/ping",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
@@ -179,9 +180,9 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {},
 						"url": {
-							"raw": "localhost:3001/ping",
+							"raw": "https://localhost:3001/ping",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
@@ -198,9 +199,9 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {},
 						"url": {
-							"raw": "localhost:3002/ping",
+							"raw": "https://localhost:3002/ping",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
@@ -217,117 +218,15 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {},
 						"url": {
-							"raw": "localhost:3003/ping",
+							"raw": "https://localhost:3003/ping",
+							"protocol": "https",
 							"host": [
 								"localhost"
 							],
 							"port": "3003",
 							"path": [
 								"ping"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "badges",
-			"description": "",
-			"item": [
-				{
-					"name": "MicroBadger hive-rest-js",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {},
-						"url": {
-							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-rest-js/TV9L4ZHcs15GiDenffAdQYw16tQ=",
-							"protocol": "https",
-							"host": [
-								"hooks",
-								"microbadger",
-								"com"
-							],
-							"path": [
-								"images",
-								"fnalabs",
-								"hive-rest-js",
-								"TV9L4ZHcs15GiDenffAdQYw16tQ="
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "MicroBadger hive-producer-js",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {},
-						"url": {
-							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-producer-js/Bs1xKXLCo-GUo5--qHKMekyyTU4=",
-							"protocol": "https",
-							"host": [
-								"hooks",
-								"microbadger",
-								"com"
-							],
-							"path": [
-								"images",
-								"fnalabs",
-								"hive-producer-js",
-								"Bs1xKXLCo-GUo5--qHKMekyyTU4="
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "MicroBadger hive-stream-processor-js",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {},
-						"url": {
-							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-stream-processor-js/ywxbUkYYQJFaVhxiQrtU98uoDMc=",
-							"protocol": "https",
-							"host": [
-								"hooks",
-								"microbadger",
-								"com"
-							],
-							"path": [
-								"images",
-								"fnalabs",
-								"hive-stream-processor-js",
-								"ywxbUkYYQJFaVhxiQrtU98uoDMc="
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "MicroBadger hive-consumer-js",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {},
-						"url": {
-							"raw": "https://hooks.microbadger.com/images/fnalabs/hive-consumer-js/EqM_nJa4wW8Rbl5fFwAoXQU6TBI=",
-							"protocol": "https",
-							"host": [
-								"hooks",
-								"microbadger",
-								"com"
-							],
-							"path": [
-								"images",
-								"fnalabs",
-								"hive-consumer-js",
-								"EqM_nJa4wW8Rbl5fFwAoXQU6TBI="
 							]
 						}
 					},
@@ -360,11 +259,10 @@
 	],
 	"variable": [
 		{
-			"id": "3ccfeb48-b7f3-4494-bf8d-c7458ae7c7d8",
-			"key": "postId",
-			"value": "12b6be7b-8974-4a20-a857-6df700cbf637",
-			"type": "string",
-			"description": ""
+			"id": "f3e1b1d8-199f-4576-b8aa-576fd6d7c8cc",
+			"key": "contentId",
+			"value": "2dd7622c-dbbf-496f-8492-bae2d76b6c10",
+			"type": "string"
 		}
 	]
 }

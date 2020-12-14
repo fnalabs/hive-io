@@ -14,81 +14,70 @@ const getOne = { meta: { request: { method: 'GET', params: { id: '1' } } } }
 const postError = { meta: { request: { method: 'POST' } } }
 
 // tests
-describe('PostQueryActor', () => {
-  let model, PostQueryActor, postQueryActor, emitSpy, modelMock, repositorySpy
+describe('ContentQueryActor', () => {
+  let model, ContentQueryActor, contentQueryActor, modelMock, repositorySpy
 
   afterEach(() => {
-    emitSpy = null
     modelMock = null
     repositorySpy = null
 
-    PostQueryActor = null
-    postQueryActor = null
+    ContentQueryActor = null
+    contentQueryActor = null
   })
 
   beforeEach(async () => {
-    emitSpy = sinon.spy()
     modelMock = {
       find: sinon.stub().returnsThis(),
       findOne: sinon.stub().returnsThis(),
       exec: sinon.spy()
     }
     repositorySpy = sinon.spy()
-    PostQueryActor = proxyquire('../../src/actors/post/PostQueryActor', {
-      '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } },
-      '../../systems/LogSystem': new Proxy(Object, {
-        construct: async function (Object) {
-          return { emit: () => emitSpy() }
-        }
-      })
+    ContentQueryActor = proxyquire('../../src/actors/content/ContentQueryActor', {
+      '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } }
     })
-    postQueryActor = await new PostQueryActor()
+    contentQueryActor = await new ContentQueryActor()
   })
 
-  it('should create a PostQueryActor successfully', () => {
+  it('should create a ContentQueryActor successfully', () => {
     expect(repositorySpy.calledOnce).to.be.true()
     expect(modelMock.find.called).to.be.false()
     expect(modelMock.findOne.called).to.be.false()
     expect(modelMock.exec.called).to.be.false()
-    expect(emitSpy.called).to.be.false()
 
-    expect(postQueryActor).to.be.an.instanceof(Actor)
-    expect(postQueryActor.perform).to.be.a('function')
-    expect(postQueryActor.replay).to.be.a('function')
-    expect(postQueryActor.assign).to.be.a('function')
+    expect(contentQueryActor).to.be.an.instanceof(Actor)
+    expect(contentQueryActor.perform).to.be.a('function')
+    expect(contentQueryActor.replay).to.be.a('function')
+    expect(contentQueryActor.assign).to.be.a('function')
   })
 
-  it('should perform a get all posts request successfully', async () => {
-    await postQueryActor.perform(model, getAll)
+  it('should perform a get all contents request successfully', async () => {
+    await contentQueryActor.perform(model, getAll)
 
     expect(repositorySpy.calledOnce).to.be.true()
     expect(modelMock.find.calledOnce).to.be.true()
     expect(modelMock.findOne.called).to.be.false()
     expect(modelMock.exec.calledOnce).to.be.true()
-    expect(emitSpy.calledOnce).to.be.true()
   })
 
-  it('should perform a get single post request successfully', async () => {
-    await postQueryActor.perform(model, getOne)
+  it('should perform a get single content request successfully', async () => {
+    await contentQueryActor.perform(model, getOne)
 
     expect(repositorySpy.calledOnce).to.be.true()
     expect(modelMock.find.called).to.be.false()
     expect(modelMock.findOne.calledOnce).to.be.true()
     expect(modelMock.exec.calledOnce).to.be.true()
-    expect(emitSpy.calledTwice).to.be.true()
   })
 
   it('should throw an error if HTTP method is anything other than GET', async () => {
     try {
-      await postQueryActor.perform(model, postError)
+      await contentQueryActor.perform(model, postError)
     } catch (e) {
-      expect(e.message).to.equal('Post values can only be queried from this endpoint')
+      expect(e.message).to.equal('Content values can only be queried from this endpoint')
 
       expect(repositorySpy.calledOnce).to.be.true()
       expect(modelMock.find.called).to.be.false()
       expect(modelMock.findOne.called).to.be.false()
       expect(modelMock.exec.called).to.be.false()
-      expect(emitSpy.called).to.be.false()
     }
   })
 })

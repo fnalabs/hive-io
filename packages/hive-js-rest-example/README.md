@@ -19,21 +19,21 @@ An example REST module to help describe implementation details when leveraging t
 
 ## Overview
 
-This example contains a single resource to handle CRUD functionality of a `Post` object in a Restful implementation. It is a contrived but robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup>](https://hiveframework.io) framework.
+This example contains a single resource to handle CRUD functionality of a generic `Content` object in a Restful implementation. It is a contrived but fairly robust example to illustrate different ways to use Actors in the [Hive<sup>io</sup>](https://hiveframework.io) framework.
 
 ### Endpoints
 
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
 
-- `http://localhost/posts (GET, POST)`
-    - POST [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-rest-example/src/schemas/json/Post.json)
+- `http://localhost/contents (GET, POST)`
+    - POST [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-rest-example/src/schemas/json/Content.json)
         ```json
         {
           "text": "something"
         }
         ```
-- `http://localhost/posts/<postId> (GET, PATCH, DELETE)`
-    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-rest-example/src/schemas/json/Post.json)
+- `http://localhost/contents/<id> (GET, PATCH, DELETE)`
+    - PATCH [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-rest-example/src/schemas/json/Content.json)
         ```json
         {
           "text": "something different"
@@ -47,7 +47,9 @@ Once you get the app running using the [setup instructions](#getting-started) be
 
 ## Getting Started
 
-This is a straight forward CRUD example of a `Post` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It stores these `Post`s in MongoDB. It implements an Actor System to handle logging to Fluentd. Here's how to use it.
+This is a straight forward CRUD example of a `Content` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It stores these `Content`s in MongoDB. It leverages Hive<sup>io</sup>'s built-in telemetry solution with OpenTelemetry. Here's how to use it.
+
+***NOTE:*** This does not include error handling, authentication, and other strategies to keep the example straight forward.
 
 ### Prerequisites
 
@@ -75,31 +77,48 @@ To start using:
             build: .
             image: hive-base-js:production
             environment:
-              ACTOR: PostActor
+              ACTOR: ContentActor
               ACTOR_LIB: hive-io-rest-example
-              ACTOR_URLS: "/posts,/posts/:postId"
+              ACTOR_URLS: "/contents,/contents/:id"
               CLUSTER_SIZE: 1
               HTTP_VERSION: 1
               SECURE: "false"
-              MONGO_URL: "mongodb://mongo:27017/post"
-              FLUENTD_HOST: fluentd
-              FLUENTD_PORT: 24224
-              FLUENTD_TIMEOUT: 3.0
-              FLUENTD_RECONNECT: 600000
+              TELEMETRY: "true"
+              TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+              TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+              TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+              MONGO_URL: "mongodb://mongo:27017/content"
             depends_on:
-              - fluentd
+              - collector
               - mongo
             ports:
               - 80:3000
             networks:
               - hive-io
-          fluentd:
-            image: fluent/fluentd:v1.11.4-2.0
+          mongo:
+            image: mongo:4.4.2
             networks:
               - hive-io
             restart: on-failure
-          mongo:
-            image: mongo:4.4.1
+          # Tracing
+          collector:
+            image: otel/opentelemetry-collector:0.16.0
+            container_name: collector
+            command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
+            depends_on:
+              - zipkin
+            volumes:
+              # NOTE: you will need to provide a configuration for the collector
+              #       see https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
+              - ../../../collector/collector-config.yml:/conf/collector-config.yml
+            networks:
+              - hive-io
+            restart: on-failure
+          zipkin:
+            image: openzipkin/zipkin:2.23.1
+            container_name: zipkin
+            ports:
+              - 9411:9411
             networks:
               - hive-io
             restart: on-failure
@@ -119,13 +138,9 @@ The table below contains a reference to the custom environment variables used in
 
 - [hive-base-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-base-js#environment-variables)
 
-Name               | Type    | Default                       | Description
------------------- | ------- | ----------------------------- | -------------------------------------------------------
-MONGO_URL          | String  | 'mongodb://mongo:27017/post'  | url to connect to MongoDB instance
-FLUENTD_HOST       | String  | 'fluentd'                     | Hostname of Fluentd instance
-FLUENTD_PORT       | Number  | 24224                         | Port of Fluentd instance
-FLUENTD_TIMEOUT    | Number  | 3.0                           | Timeout (in sec) for Fluentd client
-FLUENTD_RECONNECT  | Number  | 600000                        | Reconnect Interval (in sec) for Fluentd client
+Name               | Type    | Default                          | Description
+------------------ | ------- | -------------------------------- | -------------------------------------------------------
+MONGO_URL          | String  | 'mongodb://mongo:27017/content'  | url to connect to MongoDB instance
 
 [npm-image]: https://img.shields.io/npm/v/hive-io-rest-example.svg
 [npm-url]: https://www.npmjs.com/package/hive-io-rest-example

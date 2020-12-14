@@ -22,7 +22,7 @@ jobs:
             - hive-io-repo-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Install dependencies
-          command:  npm run init
+          command:  npm run initialize
       - save_cache:
           key: hive-io-dependencies-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
           paths:

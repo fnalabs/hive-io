@@ -7,4 +7,6 @@ const { Model, Schema } = require('model-json-js')
 exports.Model = Model
 exports.Schema = Schema
 
-exports.System = require('./dist/System')
+const System = require('./dist/System')
+exports.System = System
+exports.Bus = System

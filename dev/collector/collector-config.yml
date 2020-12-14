@@ -1,0 +1,21 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        cors_allowed_origins:
+          - http://*
+
+exporters:
+  zipkin:
+    endpoint: "http://zipkin:9411/api/v2/spans"
+
+processors:
+  batch:
+  queued_retry:
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [zipkin]
+      processors: [batch, queued_retry]

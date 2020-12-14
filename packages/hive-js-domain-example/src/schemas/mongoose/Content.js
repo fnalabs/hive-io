@@ -2,9 +2,9 @@
 import { Schema } from 'mongoose'
 
 /*
- * class PostSchema
+ * class ContentSchema
  */
-export default class PostSchema extends Schema {
+export default class ContentSchema extends Schema {
   constructor () {
     super({
       _id: {
@@ -36,7 +36,7 @@ export default class PostSchema extends Schema {
         transform (doc, ret) {
           delete ret._id
           return {
-            type: 'Post',
+            type: 'Content',
             payload: ret
           }
         }
@@ -48,7 +48,7 @@ export default class PostSchema extends Schema {
         transform (doc, ret) {
           delete ret._id
           return {
-            type: 'Post',
+            type: 'Content',
             payload: ret
           }
         }

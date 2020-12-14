@@ -2,10 +2,10 @@
 // imports
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
-import proxyquire from 'proxyquire'
-import sinon from 'sinon'
 import { isUUID } from 'validator'
 import { Actor, Model } from 'hive-io'
+
+import ContentCommandActor from '../../src/actors/content/ContentCommandActor'
 
 chai.use(dirtyChai)
 
@@ -42,64 +42,47 @@ const enabledData = {
 }
 
 // tests
-describe('PostCommandActor', () => {
-  let PostCommandActor, postCommandActor, emitSpy
+describe('ContentCommandActor', () => {
+  let contentCommandActor
 
   afterEach(() => {
-    emitSpy = null
-
-    PostCommandActor = null
-    postCommandActor = null
-  })
-
-  beforeEach(() => {
-    emitSpy = sinon.spy()
-    PostCommandActor = proxyquire('../../src/actors/post/PostCommandActor', {
-      '../../systems/LogSystem': new Proxy(Object, {
-        construct: async function (Object) {
-          return { emit: () => emitSpy() }
-        }
-      })
-    })
+    contentCommandActor = null
   })
 
   describe('#constructor', () => {
-    it('should create a PostCommandActor successfully', async () => {
-      postCommandActor = await new PostCommandActor()
+    it('should create a ContentCommandActor successfully', async () => {
+      contentCommandActor = await new ContentCommandActor()
 
-      expect(postCommandActor).to.be.an.instanceof(Actor)
-      expect(postCommandActor.perform).to.be.a('function')
-      expect(postCommandActor.replay).to.be.a('function')
-      expect(postCommandActor.assign).to.be.a('function')
-
-      expect(emitSpy.called).to.be.false()
+      expect(contentCommandActor).to.be.an.instanceof(Actor)
+      expect(contentCommandActor.perform).to.be.a('function')
+      expect(contentCommandActor.replay).to.be.a('function')
+      expect(contentCommandActor.assign).to.be.a('function')
     })
   })
 
   describe('#perform', () => {
     context('CreateContent command', () => {
       it('should perform successfully', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
-        const { model } = await postCommandActor.perform(undefined, createData)
+        const { model } = await contentCommandActor.perform(undefined, createData)
 
         expect(model).to.be.an.instanceof(Model)
         expect(isUUID(model.id)).to.be.true()
         expect(model.text).to.equal('something')
         expect(model.edited).to.be.false()
         expect(model.enabled).to.be.true()
-        expect(emitSpy.calledOnce).to.be.true()
       })
 
       it('should throw an error for invalid data', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
         const data1 = {
           payload: { text: null },
           meta: { request: { params: {}, method: 'POST' } }
         }
         try {
-          await postCommandActor.perform(undefined, data1)
+          await contentCommandActor.perform(undefined, data1)
         } catch (e) {
           expect(e.message).to.equal('#type: value is not a string')
         }
@@ -109,17 +92,17 @@ describe('PostCommandActor', () => {
           meta: { request: { params: {}, method: 'POST' } }
         }
         try {
-          await postCommandActor.perform(undefined, data2)
+          await contentCommandActor.perform(undefined, data2)
         } catch (e) {
           expect(e.message).to.equal('#type: value is not a string')
         }
       })
 
       it('should throw an error if model already exists', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
         try {
-          await postCommandActor.perform({ id: '1' }, createData)
+          await contentCommandActor.perform({ id: '1' }, createData)
         } catch (e) {
           expect(e.message).to.equal('#CreateContent: 1 already exists')
         }
@@ -128,27 +111,26 @@ describe('PostCommandActor', () => {
 
     context('DisableContent command', () => {
       it('should perform successfully from snapshot', async () => {
-        const snapshot = { type: 'Post', payload: { id: '1', text: 'something', enabled: true, edited: false } }
+        const snapshot = { type: 'Content', payload: { id: '1', text: 'something', enabled: true, edited: false } }
 
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
-        const replayed = await postCommandActor.replay(snapshot)
-        const { model } = await postCommandActor.perform(replayed.model, disableData)
+        const replayed = await contentCommandActor.replay(snapshot)
+        const { model } = await contentCommandActor.perform(replayed.model, disableData)
 
         expect(model).to.be.an.instanceof(Model)
         expect(model.text).to.equal('something')
         expect(model.edited).to.be.false()
         expect(model.enabled).to.be.false()
-        expect(emitSpy.called).to.be.true()
       })
 
       it('should throw an error for content already disabled', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
-        const { model } = await postCommandActor.replay([createdData, disabledData])
+        const { model } = await contentCommandActor.replay([createdData, disabledData])
 
         try {
-          await postCommandActor.perform(model, disableData)
+          await contentCommandActor.perform(model, disableData)
         } catch (e) {
           expect(e.message).to.equal('#DisableContent: content already disabled')
         }
@@ -157,39 +139,38 @@ describe('PostCommandActor', () => {
 
     context('EditContent command', () => {
       it('should perform successfully', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
-        const replayed = await postCommandActor.replay([createdData, disabledData])
-        const { model } = await postCommandActor.perform(replayed.model, editData)
+        const replayed = await contentCommandActor.replay([createdData, disabledData])
+        const { model } = await contentCommandActor.perform(replayed.model, editData)
 
         expect(model).to.be.an.instanceof(Model)
         expect(model.text).to.equal('something else')
         expect(model.edited).to.be.true()
         expect(model.enabled).to.be.false()
-        expect(emitSpy.called).to.be.true()
       })
 
       it('should throw an error for invalid data', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
         const data = {
           payload: { text: null },
           meta: { request: { params: { id: 1 }, method: 'PATCH' } }
         }
-        const { model } = await postCommandActor.replay([createdData, disabledData])
+        const { model } = await contentCommandActor.replay([createdData, disabledData])
 
         try {
-          await postCommandActor.perform(model, data)
+          await contentCommandActor.perform(model, data)
         } catch (e) {
           expect(e.message).to.equal('#type: value is not a string')
         }
       })
 
       it('should throw an error for undefined model', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
         try {
-          await postCommandActor.perform(undefined, editData)
+          await contentCommandActor.perform(undefined, editData)
         } catch (e) {
           expect(e.message).to.equal('#EditContent: 1 doesn\'t exist')
         }
@@ -198,25 +179,24 @@ describe('PostCommandActor', () => {
 
     context('EnableContent command', () => {
       it('should perform successfully', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
-        const replayed = await postCommandActor.replay([createdData, disabledData, editedData])
-        const { model } = await postCommandActor.perform(replayed.model, enableData)
+        const replayed = await contentCommandActor.replay([createdData, disabledData, editedData])
+        const { model } = await contentCommandActor.perform(replayed.model, enableData)
 
         expect(model).to.be.an.instanceof(Model)
         expect(model.text).to.equal('something else')
         expect(model.edited).to.be.true()
         expect(model.enabled).to.be.true()
-        expect(emitSpy.called).to.be.true()
       })
 
       it('should throw an error for content already enabled', async () => {
-        postCommandActor = await new PostCommandActor()
+        contentCommandActor = await new ContentCommandActor()
 
-        const { model } = await postCommandActor.replay([createdData, disabledData, editedData, enabledData])
+        const { model } = await contentCommandActor.replay([createdData, disabledData, editedData, enabledData])
 
         try {
-          await postCommandActor.perform(model, enableData)
+          await contentCommandActor.perform(model, enableData)
         } catch (e) {
           expect(e.message).to.equal('#EnableContent: content already enabled')
         }
@@ -224,11 +204,11 @@ describe('PostCommandActor', () => {
     })
 
     it('should throw an error if passed a message it doesn\'t understand', async () => {
-      postCommandActor = await new PostCommandActor()
+      contentCommandActor = await new ContentCommandActor()
 
       const data1 = { type: 'Something' }
       try {
-        await postCommandActor.perform(undefined, data1)
+        await contentCommandActor.perform(undefined, data1)
       } catch (e) {
         expect(e.message).to.equal('Command|Event not recognized')
       }

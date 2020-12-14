@@ -10,7 +10,7 @@
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov > ../../coverage/hive-io-domain-example/coverage.lcov",
     "dev": "nodemon -e js,json -w src -x \"npm run build\" & nodemon -e js -w tst -x \"npm test\"",
     "fix": "standard --fix",
-    "init": "del node_modules && npm install --no-optional --no-package-lock",
+    "initialize": "del node_modules && npm install --no-optional --no-package-lock",
     "release": "npm test && npm run build",
     "pretest": "del coverage coverage.lcov .nyc_output",
     "test": "standard",
@@ -32,10 +32,12 @@
     "npm": ">=6"
   },
   "dependencies": {
-    "fluent-logger": "3.4.1",
+    "@opentelemetry/api": "0.13.0",
+    "@opentelemetry/plugin-mongodb": "0.11.0",
+    "@wdalmut/opentelemetry-plugin-mongoose": "0.2.3",
     "hive-io": "file:../hive-js",
-    "mongoose": "5.10.15",
-    "uuid": "8.3.1"
+    "mongoose": "5.11.7",
+    "uuid": "8.3.2"
   },
   "nyc": {
     "exclude": [

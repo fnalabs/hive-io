@@ -5,16 +5,16 @@ services:
     image: hive-base-js:production
     container_name: hive-base-js
     environment:
-      ACTOR: PostActor
+      ACTOR: ContentActor
       ACTOR_LIB: hive-io-rest-example
-      ACTOR_URLS: "/posts,/posts/:postId"
+      ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
-      MONGO_URL: "mongodb://mongo:27017/post"
-      FLUENTD_HOST: fluentd
-      FLUENTD_PORT: 24224
-      FLUENTD_TIMEOUT: 3.0
-      FLUENTD_RECONNECT: 600000
+      TELEMETRY: "true"
+      TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      MONGO_URL: "mongodb://mongo:27017/content"
     depends_on:
       - fluentd
       - mongo
@@ -22,15 +22,30 @@ services:
       - 443:3000
     networks:
       - hive-io
-  fluentd:
-    image: fluent/fluentd:v1.11.4-2.0
-    container_name: fluentd
+  mongo:
+    image: mongo:4.4.2
+    container_name: mongo
     networks:
       - hive-io
     restart: on-failure
-  mongo:
-    image: mongo:4.4.1
-    container_name: mongo
+
+  # Tracing
+  collector:
+    image: otel/opentelemetry-collector:0.16.0
+    container_name: collector
+    command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
+    depends_on:
+      - zipkin
+    volumes:
+      - ../../../collector/collector-config.yml:/conf/collector-config.yml
+    networks:
+      - hive-io
+    restart: on-failure
+  zipkin:
+    image: openzipkin/zipkin:2.23.1
+    container_name: zipkin
+    ports:
+      - 9411:9411
     networks:
       - hive-io
     restart: on-failure

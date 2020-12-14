@@ -35,7 +35,9 @@ To use, you'll need:
     - [Kafka](https://kafka.apache.org)
     - [Redis](https://redis.io)
 - **Recommended**
-    - Load Balancer (Layer 7)
+    - [OpenTelemetry Collector](https://hub.docker.com/r/otel/opentelemetry-collector)
+    - [Zipkin](https://hub.docker.com/r/openzipkin/zipkin)
+    - Load Balancer or Service Mesh
 
 ### Installing
 
@@ -61,6 +63,8 @@ Below is a table describing the possible environment variables to run the Hive<s
 Name                        | Type    | Default                       | Description
 --------------------------- | ------- | ----------------------------- | -------------------------------------------------------
 NODE_ENV                    | String  | 'production'                  | microservice runtime environment
+DEPLOY_ENV                  | String  | `NODE_ENV`                    | microservice deployment environment (QA, Stage, etc)
+HOSTNAME                    | String  |                               | microservice hostname
 PORT                        | Number  | 3000                          | microservice port to listen on
 CLUSTER_SIZE                | Number  | [total CPUs available]        | defaults to the total available CPUs allocated to the container or to the size you specify here
 HTTP_VERSION                | Number  | 2                             | HTTP version for backward compatibility
@@ -72,6 +76,11 @@ PROCESSOR_TYPE              | String  | 'producer'                    | type of 
 ACTOR                       | String  |                               | Actor (Model) the microservice is responsible for
 ACTOR_LIB                   | String  |                               | module where the ACTOR resides
 ACTOR_URLS                  | String  |                               | comma-separated URLs associated with the Actor
+TELEMETRY                   | String  | 'false'                       | whether to run OpenTelemetry integration
+TELEMETRY_PLUGINS           | String  |                               | JSON string of OpenTelemetry plugins to enable
+TELEMETRY_SERVICE_NAME      | String  | hive-stream-processor-js      | service name for OpenTelemetry
+TELEMETRY_URL_METRICS       | String  |                               | OpenTelemetry Collector URL for metrics
+TELEMETRY_URL_TRACES        | String  |                               | OpenTelemetry Collector URL for traces
 EVENT_STORE_PRODUCER_TOPIC  | String  |                               | Kafka topic the events will be stored under
 EVENT_STORE_CONSUMER_TOPIC  | String  |                               | Kafka topic the events will be consumed from
 EVENT_STORE_ID              | String  |                               | unique identifier for Kafka client connection

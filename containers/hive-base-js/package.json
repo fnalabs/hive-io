@@ -2,7 +2,7 @@
   "name": "hive-base",
   "version": "2.0.0",
   "private": true,
-  "description": "Starter kit for Hive^io Framework Base microservices leveraging Node.js in Docker",
+  "description": "Starter kit for Hive^io framework Base microservices leveraging Node.js in Docker",
   "main": "./bin/start",
   "scripts": {
     "prebuild": "del dist",
@@ -11,7 +11,7 @@
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov > ../../coverage/hive-base/coverage.lcov",
     "dev": "nodemon -e js,json -w src -x \"npm run start:dev\" & nodemon -e js -w tst -x \"npm test\"",
     "fix": "standard --fix",
-    "init": "del node_modules && npm install --no-optional --no-package-lock",
+    "initialize": "del node_modules && npm install --no-optional --no-package-lock",
     "release": "npm test && npm run build",
     "start": "NODE_ENV=production node ./bin/start",
     "start:dev": "npm run build && cross-env NODE_ENV=development node ./bin/start",
@@ -35,16 +35,18 @@
     "npm": ">=6"
   },
   "dependencies": {
-    "fastify": "3.8.0",
-    "fastify-cors": "4.1.0",
+    "@opentelemetry/exporter-collector": "0.13.0",
+    "@opentelemetry/node": "0.13.0",
+    "fastify": "3.9.1",
+    "fastify-cors": "5.1.0",
     "fastify-helmet": "5.0.3"
   },
   "devDependencies": {
-    "@babel/cli": "7.12.1",
-    "@babel/core": "7.12.3",
+    "@babel/cli": "7.12.10",
+    "@babel/core": "7.12.10",
     "@babel/plugin-proposal-class-properties": "7.12.1",
     "@babel/plugin-transform-modules-commonjs": "7.12.1",
-    "@babel/register": "7.12.1",
+    "@babel/register": "7.12.10",
     "babel-eslint": "10.1.0",
     "babel-plugin-add-module-exports": "1.0.4",
     "babel-plugin-istanbul": "6.0.0",
@@ -52,14 +54,14 @@
     "chai-as-promised": "7.1.1",
     "chai-http": "4.3.0",
     "codecov": "3.8.1",
-    "cross-env": "7.0.2",
+    "cross-env": "7.0.3",
     "del-cli": "3.0.1",
     "dirty-chai": "2.0.1",
     "mocha": "8.2.1",
     "nodemon": "2.0.6",
     "nyc": "15.1.0",
     "proxyquire": "2.1.3",
-    "sinon": "9.2.1",
+    "sinon": "9.2.2",
     "standard": "16.0.3"
   },
   "nyc": {

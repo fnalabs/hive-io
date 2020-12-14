@@ -1,16 +1,16 @@
 {
   "title": "EditContent",
-  "description": "command used to overwrite existing Post Content",
-  "$id": "https://hiveframework.io/api/v2/commands/EditContent",
+  "description": "command used to overwrite existing Content",
+  "$id": "https://hiveframework.io/api/commands/EditContent",
   "type": "object",
   "properties": {
     "id": {
-      "description": "Post Id Value Object",
-      "$id": "https://hiveframework.io/api/v2/models/PostId#/properties/id"
+      "description": "Content Id",
+      "$id": "https://hiveframework.io/api/models/ContentId#/properties/id"
     },
     "text": {
-      "description": "main Post Content",
-      "$id": "https://hiveframework.io/api/v2/models/Content#/properties/text"
+      "description": "Content text",
+      "$id": "https://hiveframework.io/api/models/Text#/properties/text"
     }
   },
   "additionalProperties": false,

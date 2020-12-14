@@ -1,6 +1,6 @@
 // imports
 import { v4 as uuidV4 } from 'uuid'
-import { Actor, Model, Schema } from 'hive-io'
+import { Actor, Schema } from 'hive-io'
 
 import {
   CreateContentActor,
@@ -8,39 +8,39 @@ import {
   EditContentActor,
   EnableContentActor
 } from '../messages'
-import LogSystem from '../../systems/LogSystem'
 
+import ContentIdSchema from '../../schemas/json/ContentId.json'
 import ContentSchema from '../../schemas/json/Content.json'
-import LogSchema from '../../schemas/json/Log.json'
-import PostIdSchema from '../../schemas/json/PostId.json'
-import PostSchema from '../../schemas/json/Post.json'
+import TextSchema from '../../schemas/json/Text.json'
+
+import { trace } from '@opentelemetry/api'
+const tracer = trace.getTracer('hive-stream-processor-js')
 
 // private properties
 const ACTORS = Symbol('MessageActors')
-const LOG_SCHEMA = Symbol('Log schema')
-const LOG_SYSTEM = Symbol('Log System')
 
 // constants
 const REFS = {
-  'https://hiveframework.io/api/v2/models/Content': ContentSchema,
-  'https://hiveframework.io/api/v2/models/PostId': PostIdSchema
+  'https://hiveframework.io/api/models/ContentId': ContentIdSchema,
+  'https://hiveframework.io/api/models/Text': TextSchema
 }
 
 /*
- * class PostCommandActor
+ * class ContentCommandActor
  */
-class PostCommandActor extends Actor {
-  constructor (postSchema, logSchema, logSystem, actors, repository) {
+class ContentCommandActor extends Actor {
+  constructor (postSchema, actors, repository) {
     super(postSchema, repository)
+
     Object.defineProperties(this, {
-      [ACTORS]: { value: actors },
-      [LOG_SCHEMA]: { value: logSchema },
-      [LOG_SYSTEM]: { value: logSystem }
+      [ACTORS]: { value: actors }
     })
   }
 
   async perform (model, action) {
-    if (action.type === 'Post') return super.perform(model, action)
+    if (action.type === 'Content') return super.perform(model, action)
+
+    const span = tracer.startSpan('ContentCommandActor.perform')
 
     let results
     switch (true) {
@@ -75,31 +75,24 @@ class PostCommandActor extends Actor {
         throw new Error('Command|Event not recognized')
     }
 
-    if (action.meta?.request) {
-      const log = await new Model({ type: 'Log', payload: { ...action.meta.request, actor: 'PostCommandActor' } }, this[LOG_SCHEMA], { immutable: true })
-      this[LOG_SYSTEM].emit(log)
-    }
-
+    span.end()
     return results
   }
 }
 
 /*
- * Proxy<PostCommandActor> for async initialization of the Schema w/ refs and MessageActors
+ * Proxy<ContentCommandActor> for async initialization of the Schema w/ refs and MessageActors
  */
-export default new Proxy(PostCommandActor, {
-  construct: async function (PostCommandActor, argsList) {
-    const postSchema = await new Schema(PostSchema, REFS)
-    const logSchema = await new Schema(LogSchema)
+export default new Proxy(ContentCommandActor, {
+  construct: async function (ContentCommandActor, argsList) {
+    const postSchema = await new Schema(ContentSchema, REFS)
 
     const createContentActor = await new CreateContentActor()
     const disableContentActor = await new DisableContentActor()
     const editContentActor = await new EditContentActor()
     const enableContentActor = await new EnableContentActor()
 
-    const logSystem = await new LogSystem()
-
-    return new PostCommandActor(postSchema, logSchema, logSystem, {
+    return new ContentCommandActor(postSchema, {
       createContentActor,
       disableContentActor,
       editContentActor,

@@ -6,41 +6,37 @@ import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { Actor, Model, Schema, System } from 'hive-io'
 
-import LogSchema from '../../src/schemas/json/Log.json'
+import ContentId from '../../src/schemas/json/ContentId.json'
+import ViewSchema from '../../src/schemas/json/View.json'
 
 chai.use(dirtyChai)
 
 // constants
-const logData = { type: 'Log', payload: { url: '/posts', params: { id: '1' }, method: 'GET' } }
+const REFS = {
+  'https://hiveframework.io/api/models/ContentId': ContentId
+}
+
+const viewData = { type: 'View', payload: { id: 'test' } }
 
 describe('LogSystem', () => {
-  let LogSystem, logSystem, logSchema, logModel, performSpy
+  let LogSystem, logSystem, viewSchema, viewModel, performSpy
 
   afterEach(() => {
     LogSystem = null
     logSystem = null
-    logSchema = null
-    logModel = null
+    viewSchema = null
+    viewModel = null
 
     performSpy = null
   })
 
   beforeEach(async () => {
-    class LogActor extends Actor {
-      perform () { performSpy() }
-    }
-
     performSpy = sinon.spy()
 
-    logSchema = await new Schema(LogSchema)
-    logModel = await new Model(logData, logSchema, { immutable: true })
+    viewSchema = await new Schema(ViewSchema, REFS)
+    viewModel = await new Model(viewData, viewSchema, { immutable: true })
 
     LogSystem = proxyquire('../../src/systems/LogSystem', {
-      '../actors/LogActor': new Proxy(LogActor, {
-        construct: async function (LogActor) {
-          return new LogActor(logSchema)
-        }
-      }),
       '../actors/ViewActor': class ViewActor extends Actor {
         perform () { performSpy() }
       }
@@ -56,7 +52,7 @@ describe('LogSystem', () => {
     expect(performSpy.called).to.be.false()
   })
 
-  it('should handle an emitted log event successfully', done => {
+  it('should handle an emitted view event successfully', done => {
     // define results Actor to assert results
     class ResultsActor extends Actor {
       perform () {
@@ -64,11 +60,12 @@ describe('LogSystem', () => {
         done()
       }
     }
-    const resultsActor = new ResultsActor(logSchema)
+    const resultsActor = new ResultsActor(viewSchema)
 
     // init test system
-    expect(logSystem.on(logSchema, resultsActor)).to.be.an.instanceof(System)
+    expect(logSystem.on(viewSchema, resultsActor)).to.be.an.instanceof(System)
     expect(performSpy.called).to.be.false()
-    expect(logSystem.emit(logModel))
+
+    logSystem.emit(viewModel)
   })
 })

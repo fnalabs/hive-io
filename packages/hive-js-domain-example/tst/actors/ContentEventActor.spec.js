@@ -35,107 +35,88 @@ const viewData = {
 }
 
 // tests
-describe('PostEventActor', () => {
-  let model, PostEventActor, postEventActor, emitSpy, modelMock, repositorySpy
+describe('ContentEventActor', () => {
+  let model, ContentEventActor, contentEventActor, modelMock, repositorySpy
 
   afterEach(() => {
-    emitSpy = null
     modelMock = null
     repositorySpy = null
 
-    PostEventActor = null
-    postEventActor = null
+    ContentEventActor = null
+    contentEventActor = null
   })
 
   describe('#constructor', () => {
     beforeEach(async () => {
-      emitSpy = sinon.spy()
       repositorySpy = sinon.spy()
-      PostEventActor = proxyquire('../../src/actors/post/PostEventActor', {
-        '../../util/mongoConnect': async () => { return { model: repositorySpy } },
-        '../../systems/LogSystem': new Proxy(Object, {
-          construct: async function (Object) {
-            return { emit: () => emitSpy() }
-          }
-        })
+      ContentEventActor = proxyquire('../../src/actors/content/ContentEventActor', {
+        '../../util/mongoConnect': async () => { return { model: repositorySpy } }
       })
     })
 
-    it('should create a PostEventActor successfully', async () => {
-      postEventActor = await new PostEventActor()
+    it('should create a ContentEventActor successfully', async () => {
+      contentEventActor = await new ContentEventActor()
 
       expect(repositorySpy.calledOnce).to.be.true()
 
-      expect(postEventActor).to.be.an.instanceof(Actor)
-      expect(postEventActor.perform).to.be.a('function')
-      expect(postEventActor.replay).to.be.a('function')
-      expect(postEventActor.assign).to.be.a('function')
-      expect(emitSpy.called).to.be.false()
+      expect(contentEventActor).to.be.an.instanceof(Actor)
+      expect(contentEventActor.perform).to.be.a('function')
+      expect(contentEventActor.replay).to.be.a('function')
+      expect(contentEventActor.assign).to.be.a('function')
     })
   })
 
   describe('#perform', () => {
     beforeEach(async () => {
-      emitSpy = sinon.spy()
       modelMock = {
         findOneAndUpdate: sinon.stub().returnsThis(),
         exec: sinon.spy()
       }
       repositorySpy = sinon.spy()
-      PostEventActor = proxyquire('../../src/actors/post/PostEventActor', {
-        '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } },
-        '../../systems/LogSystem': new Proxy(Object, {
-          construct: async function (Object) {
-            return { emit: () => emitSpy() }
-          }
-        })
+      ContentEventActor = proxyquire('../../src/actors/content/ContentEventActor', {
+        '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } }
       })
-      postEventActor = await new PostEventActor()
+      contentEventActor = await new ContentEventActor()
     })
 
     it('should perform CreatedContent successfully', async () => {
-      await postEventActor.perform(model, createdData)
+      await contentEventActor.perform(model, createdData)
 
       expect(repositorySpy.calledOnce).to.be.true()
       expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
       expect(modelMock.exec.calledOnce).to.be.true()
-      expect(emitSpy.calledOnce).to.be.true()
     })
 
     it('should perform DisabledContent successfully', async () => {
-      await postEventActor.perform(model, disabledData)
+      await contentEventActor.perform(model, disabledData)
 
       expect(repositorySpy.calledOnce).to.be.true()
       expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
       expect(modelMock.exec.calledOnce).to.be.true()
-      expect(emitSpy.calledOnce).to.be.true()
     })
 
     it('should perform EditedContent successfully', async () => {
-      await postEventActor.perform(model, editedData)
+      await contentEventActor.perform(model, editedData)
 
       expect(repositorySpy.calledOnce).to.be.true()
       expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
       expect(modelMock.exec.calledOnce).to.be.true()
-      expect(emitSpy.calledOnce).to.be.true()
     })
 
     it('should perform EnabledContent successfully', async () => {
-      await postEventActor.perform(model, enabledData)
+      await contentEventActor.perform(model, enabledData)
 
       expect(repositorySpy.calledOnce).to.be.true()
       expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
       expect(modelMock.exec.calledOnce).to.be.true()
-      expect(emitSpy.calledOnce).to.be.true()
     })
 
     it('should perform View successfully', async () => {
-      await postEventActor.perform(model, viewData)
+      await contentEventActor.perform(model, viewData)
 
       expect(repositorySpy.calledOnce).to.be.true()
       expect(modelMock.findOneAndUpdate.calledOnce).to.be.true()
       expect(modelMock.exec.calledOnce).to.be.true()
-      expect(emitSpy.calledOnce).to.be.true()
     })
 
     it('should throw an error if passed a message it doesn\'t understand', async () => {
@@ -144,7 +125,7 @@ describe('PostEventActor', () => {
         payload: { id: 'id' }
       }
       try {
-        await postEventActor.perform(model, data1)
+        await contentEventActor.perform(model, data1)
       } catch (e) {
         expect(e.message).to.equal('Event not recognized')
       }
