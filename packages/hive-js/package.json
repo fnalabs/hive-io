@@ -24,7 +24,7 @@
     "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov > ../../coverage/hive-io/coverage.lcov",
     "dev": "nodemon -e js,json -w src -x \"npm run build\" & nodemon -e js -w tst -x \"npm test\" & karma start",
     "document": "jsdoc --configure .jsdoc.json --verbose",
-    "postdocument": "sed -i 's/Documentation/hive-io/g' ../../docs/index.html ../../docs/Actor.html ../../docs/MessageActor.html ../../docs/Model.html ../../docs/Schema.html ../../docs/System.html",
+    "postdocument": "sed -i 's/Documentation/hive-io/g' ../../docs/index.html ../../docs/Actor.html ../../docs/MessageActor.html ../../docs/Model.html ../../docs/Schema.html ../../docs/System.html ../../docs/Bus.html",
     "fix": "standard --fix",
     "initialize": "del node_modules && npm install --no-optional --no-package-lock",
     "release": "npm test && npm run build",

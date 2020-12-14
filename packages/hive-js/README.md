@@ -33,6 +33,7 @@ npm install --save hive-io
 - [Model](https://fnalabs.github.io/hive-io/Model.html)
 - [Schema](https://fnalabs.github.io/hive-io/Schema.html)
 - [System](https://fnalabs.github.io/hive-io/System.html)
+- [Bus](https://fnalabs.github.io/hive-io/Bus.html)
 
 ## Examples
 
