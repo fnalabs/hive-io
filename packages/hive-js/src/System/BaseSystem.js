@@ -39,7 +39,7 @@ if (BROWSER_ENV) {
 }
 
 /**
- * Class that implements a Pub/Sub Actor System that works in all modern browsers and Node.js. It is a lightweight interface on top of <code>EventTarget</code> or <code>EventEmitter</code> for browsers and Node.js respectively. The API follows the far more succinct Node.js method names using <code>on</code> to bind Actor callbacks to schema types and <code>emit</code> to send models to any Actors waiting for those events to occur.
+ * Class that implements a Pub/Sub Actor Message System Bus that works in all modern browsers and Node.js. It is a lightweight interface on top of <code>EventTarget</code> or <code>EventEmitter</code> for browsers and Node.js respectively. The API follows the far more succinct Node.js method names using <code>on</code> to bind Actor callbacks to schema types and <code>emit</code> to send models to any Actors waiting for those events to occur.
  * @alias Bus
  * @example <caption>An example primary Actor using an Actor System to send logs to a supporting Actor for post processing.</caption>
  * import { parse, Actor, Model, Schema, System } from 'hive-io'
