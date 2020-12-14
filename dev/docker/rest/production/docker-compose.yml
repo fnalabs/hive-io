@@ -16,7 +16,7 @@ services:
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
       MONGO_URL: "mongodb://mongo:27017/content"
     depends_on:
-      - fluentd
+      - collector
       - mongo
     ports:
       - 443:3000
