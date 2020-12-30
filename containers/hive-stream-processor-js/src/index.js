@@ -1,19 +1,31 @@
 // imports
+import {
+  ACTOR,
+  ACTOR_LIB,
+  ACTOR_URLS,
+  HTTP_VERSION,
+  PING_URL,
+  PROCESSOR_TYPE,
+  SECURE,
+  TELEMETRY,
+  TELEMETRY_LIB_NAME,
+  TELEMETRY_LIB_VERSION
+} from './config'
 import './telemetry'
-import { ACTOR, ACTOR_LIB, ACTOR_URLS, HTTP_VERSION, PING_URL, PROCESSOR_TYPE, SECURE, TELEMETRY, TELEMETRY_SERVICE_NAME } from './config'
 
 import cors from 'fastify-cors'
 import helmet from 'fastify-helmet'
-import { context, propagation, trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { context, propagation, trace, SpanKind, StatusCode, ROOT_CONTEXT } from '@opentelemetry/api'
 import { HttpAttribute } from '@opentelemetry/semantic-conventions'
 
 import EventStore from './store'
 import Repository from './repository'
 
 // constants
+const flavor = HTTP_VERSION === 2 ? '2.0' : '1.1'
 const spanMap = new WeakMap()
 const spanNamePrefix = `hive^io - ${HTTP_VERSION === 2 ? 'HTTP/2' : SECURE ? 'HTTPS' : 'HTTP'}`
-const tracer = trace.getTracer(TELEMETRY_SERVICE_NAME)
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 let actor
 let repository
 let store
@@ -36,10 +48,11 @@ export function onRequestHook (request, reply, done) {
     return done()
   }
 
-  context.with(propagation.extract(request.raw.headers), () => {
+  context.with(propagation.extract(ROOT_CONTEXT, request.raw.headers), () => {
     const span = tracer.startSpan(spanName, {
       kind: SpanKind.SERVER,
       attributes: {
+        [HttpAttribute.HTTP_FLAVOR]: flavor,
         [HttpAttribute.HTTP_URL]: request.url,
         [HttpAttribute.HTTP_METHOD]: request.method,
         [HttpAttribute.HTTP_ROUTE]: request.routerPath,
@@ -49,6 +62,7 @@ export function onRequestHook (request, reply, done) {
     if (request.headers['user-agent']) {
       span.setAttribute(HttpAttribute.HTTP_USER_AGENT, request.headers['user-agent'])
     }
+    span.setStatus({ code: StatusCode.OK })
     spanMap.set(request, span)
 
     tracer.withSpan(span, () => {
@@ -100,20 +114,30 @@ export async function consumeHandler ({ message }) {
     ? { traceparent: Buffer.from(message.headers.traceparent).toString() }
     : {}
 
-  await context.with(propagation.extract(headers), async () => {
+  await context.with(propagation.extract(ROOT_CONTEXT, headers), async () => {
     const span = tracer.startSpan('hive^io - consume handler')
 
-    const value = JSON.parse(message.value)
+    await tracer.withSpan(span, async () => {
+      try {
+        let aggModel
+        const value = JSON.parse(message.value)
 
-    let aggModel
-    const cache = await repository.get(value.id)
-    if (cache) aggModel = await actor.replay(JSON.parse(cache)).model
+        const cache = await repository.get(value.id)
+        if (cache) aggModel = await actor.replay(JSON.parse(cache)).model
 
-    const { meta, model } = await actor.perform(aggModel, value)
-    if (isConsumer) await repository.update(model)
-    if (isStreamProcessor) await store.record(meta, model)
+        const { meta, model } = await actor.perform(aggModel, value)
+        if (isConsumer) await repository.update(model)
+        if (isStreamProcessor) await store.record(meta, model)
 
-    span.end()
+        span.setStatus({ code: StatusCode.OK })
+        span.end()
+      } catch (error) {
+        span.setStatus({ code: StatusCode.ERROR })
+        span.end()
+
+        throw error
+      }
+    })
   })
 }
 
@@ -130,7 +154,7 @@ export function healthHandler () {
 export async function mainHandler (request) {
   const span = tracer.startSpan('hive^io - request handler')
   const headers = {}
-  propagation.inject(headers)
+  propagation.inject(context.active(), headers)
 
   // construct standard action from referencing request body
   const action = {}
@@ -159,21 +183,29 @@ export async function mainHandler (request) {
     action.meta = { request }
   }
 
-  // call Actor to perform on request
-  let aggModel
-  const cache = await repository.get(action.meta.request.params.id)
-  if (cache) {
-    const aggregate = await actor.replay(JSON.parse(cache))
-    aggModel = aggregate.model
+  try {
+    // call Actor to perform on request
+    let aggModel
+    const cache = await repository.get(action.meta.request.params.id)
+    if (cache) {
+      const aggregate = await actor.replay(JSON.parse(cache))
+      aggModel = aggregate.model
+    }
+
+    span.addEvent('actor.perform start')
+    const { meta, event, model } = await actor.perform(aggModel, action)
+    await repository.record({ ...meta, headers }, event, model, cache)
+    span.addEvent('actor.perform end')
+    span.setStatus({ code: StatusCode.OK })
+    span.end()
+
+    return event
+  } catch (error) {
+    span.setStatus({ code: StatusCode.ERROR })
+    span.end()
+
+    throw error
   }
-
-  span.addEvent('actor.perform start')
-  const { meta, event, model } = await actor.perform(aggModel, action)
-  await repository.record({ ...meta, headers }, event, model, cache)
-  span.addEvent('actor.perform end')
-  span.end()
-
-  return event
 }
 
 /**

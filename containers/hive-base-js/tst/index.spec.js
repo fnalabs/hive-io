@@ -37,7 +37,9 @@ const fastifyMock = {
 }
 
 // spies/stubs
-const performStub = stub().resolves({ model: 'test' })
+const performStub = stub()
+  .onFirstCall().rejects(new Error('test'))
+  .resolves({ model: 'test' })
 
 const doneSpy = spy()
 
@@ -86,7 +88,8 @@ const proxyConfig = {
     propagation: { extract: extractSpy },
     trace: { getTracer: getTracerStub },
     StatusCode,
-    SpanKind
+    SpanKind,
+    ROOT_CONTEXT: {}
   },
   codecov: {
     ContentActor: class Actor {
@@ -201,11 +204,29 @@ describe('handlers', () => {
 
   describe('#mainHandler', () => {
     afterEach(() => {
-      performStub.resetHistory()
-
       startSpanStub.resetHistory()
+      setStatusSpy.resetHistory()
       addEventSpy.resetHistory()
       endSpy.resetHistory()
+    })
+
+    it('should handle thrown errors successfully to close the span', async () => {
+      const request = {}
+
+      try {
+        await mainHandler(request)
+      } catch (_) {}
+
+      expect(startSpanStub.calledOnce).to.be.true()
+      expect(endSpy.calledOnce).to.be.true()
+
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+
+      expect(addEventSpy.calledOnce).to.be.true()
+      expect(addEventSpy.calledWith('actor.perform start')).to.be.true()
+
+      expect(performStub.called).to.be.true()
     })
 
     it('should handle requests without a body successfully', async () => {
@@ -217,11 +238,14 @@ describe('handlers', () => {
       expect(startSpanStub.calledOnce).to.be.true()
       expect(endSpy.calledOnce).to.be.true()
 
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
+
       expect(addEventSpy.calledTwice).to.be.true()
       expect(addEventSpy.firstCall.calledWith('actor.perform start')).to.be.true()
       expect(addEventSpy.secondCall.calledWith('actor.perform end')).to.be.true()
 
-      expect(performStub.calledOnce).to.be.true()
+      expect(performStub.called).to.be.true()
     })
 
     it('should handle requests with only a body type successfully', async () => {
@@ -233,13 +257,16 @@ describe('handlers', () => {
       expect(startSpanStub.calledOnce).to.be.true()
       expect(endSpy.calledOnce).to.be.true()
 
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
+
       expect(addEventSpy.callCount).to.equal(4)
       expect(addEventSpy.firstCall.calledWith('processing FSA start')).to.be.true()
       expect(addEventSpy.secondCall.calledWith('processing FSA end')).to.be.true()
       expect(addEventSpy.thirdCall.calledWith('actor.perform start')).to.be.true()
       expect(addEventSpy.lastCall.calledWith('actor.perform end')).to.be.true()
 
-      expect(performStub.calledOnce).to.be.true()
+      expect(performStub.called).to.be.true()
     })
 
     it('should handle requests with short-circuit body successfully', async () => {
@@ -251,13 +278,16 @@ describe('handlers', () => {
       expect(startSpanStub.calledOnce).to.be.true()
       expect(endSpy.calledOnce).to.be.true()
 
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
+
       expect(addEventSpy.callCount).to.equal(4)
       expect(addEventSpy.firstCall.calledWith('processing JSON start')).to.be.true()
       expect(addEventSpy.secondCall.calledWith('processing JSON end')).to.be.true()
       expect(addEventSpy.thirdCall.calledWith('actor.perform start')).to.be.true()
       expect(addEventSpy.lastCall.calledWith('actor.perform end')).to.be.true()
 
-      expect(performStub.calledOnce).to.be.true()
+      expect(performStub.called).to.be.true()
     })
 
     it('should handle requests with serialized model with data successfully', async () => {
@@ -275,13 +305,16 @@ describe('handlers', () => {
       expect(startSpanStub.calledOnce).to.be.true()
       expect(endSpy.calledOnce).to.be.true()
 
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
+
       expect(addEventSpy.callCount).to.equal(4)
       expect(addEventSpy.firstCall.calledWith('processing FSA start')).to.be.true()
       expect(addEventSpy.secondCall.calledWith('processing FSA end')).to.be.true()
       expect(addEventSpy.thirdCall.calledWith('actor.perform start')).to.be.true()
       expect(addEventSpy.lastCall.calledWith('actor.perform end')).to.be.true()
 
-      expect(performStub.calledOnce).to.be.true()
+      expect(performStub.called).to.be.true()
     })
   })
 })
@@ -296,6 +329,7 @@ describe('hooks', () => {
       withStub.resetHistory()
       extractSpy.resetHistory()
       setAttributeSpy.resetHistory()
+      setStatusSpy.resetHistory()
       withSpanStub.resetHistory()
       doneSpy.resetHistory()
     })
@@ -316,6 +350,7 @@ describe('hooks', () => {
       expect(withStub.called).to.be.false()
       expect(extractSpy.called).to.be.false()
       expect(setAttributeSpy.called).to.be.false()
+      expect(setStatusSpy.called).to.be.false()
       expect(withSpanStub.called).to.be.false()
       expect(bindSpy.called).to.be.false()
 
@@ -333,6 +368,7 @@ describe('hooks', () => {
       expect(withStub.called).to.be.false()
       expect(extractSpy.called).to.be.false()
       expect(setAttributeSpy.called).to.be.false()
+      expect(setStatusSpy.called).to.be.false()
       expect(withSpanStub.called).to.be.false()
       expect(bindSpy.called).to.be.false()
 
@@ -348,6 +384,7 @@ describe('hooks', () => {
       expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET', {
         kind: 1,
         attributes: {
+          [HttpAttribute.HTTP_FLAVOR]: '2.0',
           [HttpAttribute.HTTP_URL]: requestMock.url,
           [HttpAttribute.HTTP_METHOD]: requestMock.method,
           [HttpAttribute.HTTP_ROUTE]: requestMock.routerPath,
@@ -358,12 +395,14 @@ describe('hooks', () => {
       expect(withStub.calledOnce).to.be.true()
 
       expect(extractSpy.calledOnce).to.be.true()
-      expect(extractSpy.calledWith(requestMock.raw.headers)).to.be.true()
+      expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, requestMock.raw.headers)).to.be.true()
 
       expect(setAttributeSpy.called).to.be.false()
 
-      expect(withSpanStub.calledOnce).to.be.true()
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK })).to.be.true()
 
+      expect(withSpanStub.calledOnce).to.be.true()
       expect(bindSpy.calledTwice).to.be.true()
       expect(bindSpy.firstCall.calledWith(requestMock.raw)).to.be.true()
       expect(bindSpy.secondCall.calledWith(replyMock.raw)).to.be.true()
@@ -380,6 +419,7 @@ describe('hooks', () => {
       expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET', {
         kind: 1,
         attributes: {
+          [HttpAttribute.HTTP_FLAVOR]: '2.0',
           [HttpAttribute.HTTP_URL]: requestMock.url,
           [HttpAttribute.HTTP_METHOD]: requestMock.method,
           [HttpAttribute.HTTP_ROUTE]: requestMock.routerPath,
@@ -390,13 +430,15 @@ describe('hooks', () => {
       expect(withStub.calledOnce).to.be.true()
 
       expect(extractSpy.calledOnce).to.be.true()
-      expect(extractSpy.calledWith(requestMock.raw.headers)).to.be.true()
+      expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, requestMock.raw.headers)).to.be.true()
 
       expect(setAttributeSpy.calledOnce).to.be.true()
       expect(setAttributeSpy.calledWith(HttpAttribute.HTTP_USER_AGENT, 'test'))
 
-      expect(withSpanStub.calledOnce).to.be.true()
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK })).to.be.true()
 
+      expect(withSpanStub.calledOnce).to.be.true()
       expect(bindSpy.calledTwice).to.be.true()
       expect(bindSpy.firstCall.calledWith(requestMock.raw)).to.be.true()
       expect(bindSpy.secondCall.calledWith(replyMock.raw)).to.be.true()
@@ -443,8 +485,8 @@ describe('hooks', () => {
         'error.stack': errorMock.stack
       })).to.be.true()
 
-      expect(setStatusSpy.calledOnce).to.be.true()
-      expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+      expect(setStatusSpy.calledTwice).to.be.true()
+      expect(setStatusSpy.secondCall.calledWith({ code: StatusCode.ERROR }))
 
       expect(doneSpy.calledTwice).to.be.true()
     })
@@ -461,8 +503,8 @@ describe('hooks', () => {
         'error.stack': errorMock.stack
       })).to.be.true()
 
-      expect(setStatusSpy.calledOnce).to.be.true()
-      expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+      expect(setStatusSpy.calledTwice).to.be.true()
+      expect(setStatusSpy.secondCall.calledWith({ code: StatusCode.ERROR }))
 
       expect(doneSpy.calledTwice).to.be.true()
     })
@@ -479,8 +521,8 @@ describe('hooks', () => {
         'error.stack': errorMock.stack
       })).to.be.true()
 
-      expect(setStatusSpy.calledOnce).to.be.true()
-      expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+      expect(setStatusSpy.calledTwice).to.be.true()
+      expect(setStatusSpy.secondCall.calledWith({ code: StatusCode.ERROR }))
 
       expect(doneSpy.calledTwice).to.be.true()
     })
