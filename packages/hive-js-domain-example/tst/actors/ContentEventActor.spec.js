@@ -3,7 +3,7 @@
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
 import proxyquire from 'proxyquire'
-import sinon from 'sinon'
+import { spy, stub } from 'sinon'
 import { Actor } from 'hive-io'
 
 chai.use(dirtyChai)
@@ -48,7 +48,7 @@ describe('ContentEventActor', () => {
 
   describe('#constructor', () => {
     beforeEach(async () => {
-      repositorySpy = sinon.spy()
+      repositorySpy = spy()
       ContentEventActor = proxyquire('../../src/actors/content/ContentEventActor', {
         '../../util/mongoConnect': async () => { return { model: repositorySpy } }
       })
@@ -69,10 +69,10 @@ describe('ContentEventActor', () => {
   describe('#perform', () => {
     beforeEach(async () => {
       modelMock = {
-        findOneAndUpdate: sinon.stub().returnsThis(),
-        exec: sinon.spy()
+        findOneAndUpdate: stub().returnsThis(),
+        exec: spy()
       }
-      repositorySpy = sinon.spy()
+      repositorySpy = spy()
       ContentEventActor = proxyquire('../../src/actors/content/ContentEventActor', {
         '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } }
       })

@@ -1,4 +1,7 @@
 // imports
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../config'
+
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor } from 'hive-io'
 
 import mongoConnect from '../util/mongoConnect'
@@ -11,8 +14,7 @@ import {
 
 import MongoSchema from '../schemas/mongoose/Content'
 
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-base-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 // private properties
 const ACTORS = Symbol('Actors')
@@ -35,29 +37,37 @@ class ContentActor extends Actor {
     let results
     if (!action.type) action.type = 'Content'
 
-    switch (action.meta.request.method) {
-      case 'GET':
-        results = await this[ACTORS].getContentActor.perform(model, action)
-        break
+    try {
+      switch (action.meta.request.method) {
+        case 'GET':
+          results = await this[ACTORS].getContentActor.perform(model, action)
+          break
 
-      case 'PATCH':
-        results = await this[ACTORS].putContentActor.perform(model, action)
-        break
+        case 'PATCH':
+          results = await this[ACTORS].putContentActor.perform(model, action)
+          break
 
-      case 'POST':
-        results = await this[ACTORS].postContentActor.perform(model, action)
-        break
+        case 'POST':
+          results = await this[ACTORS].postContentActor.perform(model, action)
+          break
 
-      case 'DELETE':
-        results = await this[ACTORS].deleteContentActor.perform(model, action)
-        break
+        case 'DELETE':
+          results = await this[ACTORS].deleteContentActor.perform(model, action)
+          break
 
-      default:
-        throw new Error('HTTP verb not supported')
+        default:
+          throw new Error('HTTP verb not supported')
+      }
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
+
+      return results
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
     }
-
-    span.end()
-    return results
   }
 }
 

@@ -1,4 +1,7 @@
 // imports
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
+
+import { context, propagation, trace, StatusCode } from '@opentelemetry/api'
 import { Actor, Model, Schema } from 'hive-io'
 
 import mongoConnect from '../../util/mongoConnect'
@@ -8,8 +11,7 @@ import ContentId from '../../schemas/json/ContentId.json'
 import ViewSchema from '../../schemas/json/View.json'
 import MongoSchema from '../../schemas/mongoose/Content'
 
-import { propagation, trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-base-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 // private properties
 const LOG_SYSTEM = Symbol('Log System')
@@ -40,19 +42,27 @@ class ContentQueryActor extends Actor {
 
     const { id } = action.meta.request.params
 
-    const model = id
-      ? await this.repository.findOne({ _id: id }).exec()
-      : await this.repository.find().exec()
+    try {
+      const model = id
+        ? await this.repository.findOne({ _id: id }).exec()
+        : await this.repository.find().exec()
 
-    // emit 'view' to count
-    if (id) {
-      const view = await new Model({ type: 'View', payload: { id } }, this[VIEW_SCHEMA])
-      propagation.inject(view)
-      this[LOG_SYSTEM].emit(view)
+      // emit 'view' to count
+      if (id) {
+        const view = await new Model({ type: 'View', payload: { id } }, this[VIEW_SCHEMA])
+        propagation.inject(context.active(), view)
+        this[LOG_SYSTEM].emit(view)
+      }
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
+
+      return { model }
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
     }
-
-    span.end()
-    return { model }
   }
 }
 

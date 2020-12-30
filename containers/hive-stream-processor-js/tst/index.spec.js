@@ -47,11 +47,14 @@ const getStub = stub()
 getStub.withArgs('unknown').resolves(null)
 getStub.withArgs('test').resolves('{ "model": "test" }')
 
-const performStub = stub().resolves({ event: 'test' })
+const performStub = stub()
+  .onFirstCall().rejects(new Error('test'))
+  .resolves({ event: 'test' })
 const replayStub = stub().resolves({ model: 'test' })
 
 const doneSpy = spy()
 
+const activeSpy = spy()
 const bindSpy = spy()
 const withStub = stub().callsFake(async (_, cb) => cb())
 
@@ -105,11 +108,12 @@ const proxyConfig = {
     async update () { updateSpy() }
   },
   '@opentelemetry/api': {
-    context: { bind: bindSpy, with: withStub },
+    context: { active: activeSpy, bind: bindSpy, with: withStub },
     propagation: { extract: extractSpy, inject: injectSpy },
     trace: { getTracer: getTracerStub },
     StatusCode,
-    SpanKind
+    SpanKind,
+    ROOT_CONTEXT: {}
   },
   codecov: {
     ContentActor: class Actor {
@@ -264,15 +268,16 @@ describe('handlers', () => {
     repoRecordSpy.resetHistory()
     updateSpy.resetHistory()
     getStub.resetHistory()
-
-    performStub.resetHistory()
     replayStub.resetHistory()
 
-    withStub.resetHistory()
+    activeSpy.resetHistory()
     extractSpy.resetHistory()
+    injectSpy.resetHistory()
+    withStub.resetHistory()
+    withSpanStub.resetHistory()
 
     startSpanStub.resetHistory()
-    injectSpy.resetHistory()
+    setStatusSpy.resetHistory()
     addEventSpy.resetHistory()
     endSpy.resetHistory()
   })
@@ -295,6 +300,31 @@ describe('handlers', () => {
     })
 
     describe('#consumeHandler', () => {
+      it('should handle thrown errors successfully to close the span', async () => {
+        const data = {
+          message: {
+            value: '{}',
+            headers: {}
+          }
+        }
+
+        try {
+          await consumeHandler(data)
+        } catch (_) {}
+
+        expect(withStub.calledOnce).to.be.true()
+        expect(extractSpy.calledOnce).to.be.true()
+        expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, data.message.headers)).to.be.true()
+        expect(withSpanStub.calledOnce).to.be.true()
+
+        expect(startSpanStub.calledOnce).to.be.true()
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+        expect(endSpy.calledOnce).to.be.true()
+
+        expect(performStub.called).to.be.true()
+      })
+
       it('should handle messages without a cache successfully', async () => {
         const data = {
           message: {
@@ -313,10 +343,15 @@ describe('handlers', () => {
 
         expect(withStub.calledOnce).to.be.true()
         expect(extractSpy.calledOnce).to.be.true()
+        expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, data.message.headers)).to.be.true()
+        expect(withSpanStub.calledOnce).to.be.true()
+
         expect(startSpanStub.calledOnce).to.be.true()
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
         expect(endSpy.calledOnce).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.called).to.be.false()
       })
 
@@ -338,21 +373,26 @@ describe('handlers', () => {
 
         expect(withStub.calledOnce).to.be.true()
         expect(extractSpy.calledOnce).to.be.true()
+        expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, data.message.headers)).to.be.true()
+        expect(withSpanStub.calledOnce).to.be.true()
+
         expect(startSpanStub.calledOnce).to.be.true()
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
         expect(endSpy.calledOnce).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.calledOnce).to.be.true()
       })
 
       it('should consume messages without trace headers successfully', async () => {
-        const testMessage = {
+        const data = {
           message: {
             value: '{ "id": "test" }',
             headers: {}
           }
         }
-        await consumeHandler(testMessage)
+        await consumeHandler(data)
 
         expect(storeRecordSpy.called).to.be.false()
 
@@ -361,10 +401,15 @@ describe('handlers', () => {
 
         expect(withStub.calledOnce).to.be.true()
         expect(extractSpy.calledOnce).to.be.true()
+        expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, data.message.headers)).to.be.true()
+        expect(withSpanStub.calledOnce).to.be.true()
+
         expect(startSpanStub.calledOnce).to.be.true()
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
         expect(endSpy.calledOnce).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.calledOnce).to.be.true()
       })
     })
@@ -400,10 +445,15 @@ describe('handlers', () => {
 
         expect(withStub.calledOnce).to.be.true()
         expect(extractSpy.calledOnce).to.be.true()
+        expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, data.message.headers)).to.be.true()
+        expect(withSpanStub.calledOnce).to.be.true()
+
         expect(startSpanStub.calledOnce).to.be.true()
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
         expect(endSpy.calledOnce).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.called).to.be.false()
       })
 
@@ -425,21 +475,26 @@ describe('handlers', () => {
 
         expect(withStub.calledOnce).to.be.true()
         expect(extractSpy.calledOnce).to.be.true()
+        expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, data.message.headers)).to.be.true()
+        expect(withSpanStub.calledOnce).to.be.true()
+
         expect(startSpanStub.calledOnce).to.be.true()
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
         expect(endSpy.calledOnce).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.calledOnce).to.be.true()
       })
 
       it('should consume messages without trace headers successfully', async () => {
-        const testMessage = {
+        const data = {
           message: {
             value: '{ "id": "test" }',
             headers: {}
           }
         }
-        await consumeHandler(testMessage)
+        await consumeHandler(data)
 
         expect(storeRecordSpy.calledOnce).to.be.true()
 
@@ -448,10 +503,15 @@ describe('handlers', () => {
 
         expect(withStub.calledOnce).to.be.true()
         expect(extractSpy.calledOnce).to.be.true()
+        expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, data.message.headers)).to.be.true()
+        expect(withSpanStub.calledOnce).to.be.true()
+
         expect(startSpanStub.calledOnce).to.be.true()
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
         expect(endSpy.calledOnce).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.calledOnce).to.be.true()
       })
     })
@@ -463,6 +523,31 @@ describe('handlers', () => {
     })
 
     describe('#mainHandler', () => {
+      before(() => {
+        performStub.resetHistory()
+      })
+
+      it('should handle thrown errors successfully to close the span', async () => {
+        const request = { params: { id: 'unknown' } }
+
+        try {
+          await mainHandler(request)
+        } catch (_) {}
+
+        expect(startSpanStub.calledOnce).to.be.true()
+        expect(injectSpy.calledOnce).to.be.true()
+        expect(activeSpy.calledOnce).to.be.true()
+        expect(endSpy.calledOnce).to.be.true()
+
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+
+        expect(addEventSpy.calledOnce).to.be.true()
+        expect(addEventSpy.calledWith('actor.perform start')).to.be.true()
+
+        expect(performStub.called).to.be.true()
+      })
+
       it('should handle requests without a body successfully', async () => {
         const request = { params: { id: 'unknown' } }
         const result = await mainHandler(request)
@@ -474,13 +559,17 @@ describe('handlers', () => {
 
         expect(startSpanStub.calledOnce).to.be.true()
         expect(injectSpy.calledOnce).to.be.true()
+        expect(activeSpy.calledOnce).to.be.true()
         expect(endSpy.calledOnce).to.be.true()
+
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
 
         expect(addEventSpy.calledTwice).to.be.true()
         expect(addEventSpy.firstCall.calledWith('actor.perform start')).to.be.true()
         expect(addEventSpy.secondCall.calledWith('actor.perform end')).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.called).to.be.false()
       })
 
@@ -495,7 +584,11 @@ describe('handlers', () => {
 
         expect(startSpanStub.calledOnce).to.be.true()
         expect(injectSpy.calledOnce).to.be.true()
+        expect(activeSpy.calledOnce).to.be.true()
         expect(endSpy.calledOnce).to.be.true()
+
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
 
         expect(addEventSpy.callCount).to.equal(4)
         expect(addEventSpy.firstCall.calledWith('processing FSA start')).to.be.true()
@@ -503,7 +596,7 @@ describe('handlers', () => {
         expect(addEventSpy.thirdCall.calledWith('actor.perform start')).to.be.true()
         expect(addEventSpy.lastCall.calledWith('actor.perform end')).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.calledOnce).to.be.true()
       })
 
@@ -518,7 +611,11 @@ describe('handlers', () => {
 
         expect(startSpanStub.calledOnce).to.be.true()
         expect(injectSpy.calledOnce).to.be.true()
+        expect(activeSpy.calledOnce).to.be.true()
         expect(endSpy.calledOnce).to.be.true()
+
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
 
         expect(addEventSpy.callCount).to.equal(4)
         expect(addEventSpy.firstCall.calledWith('processing JSON start')).to.be.true()
@@ -526,7 +623,7 @@ describe('handlers', () => {
         expect(addEventSpy.thirdCall.calledWith('actor.perform start')).to.be.true()
         expect(addEventSpy.lastCall.calledWith('actor.perform end')).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.calledOnce).to.be.true()
       })
 
@@ -548,7 +645,11 @@ describe('handlers', () => {
 
         expect(startSpanStub.calledOnce).to.be.true()
         expect(injectSpy.calledOnce).to.be.true()
+        expect(activeSpy.calledOnce).to.be.true()
         expect(endSpy.calledOnce).to.be.true()
+
+        expect(setStatusSpy.calledOnce).to.be.true()
+        expect(setStatusSpy.calledWith({ code: StatusCode.OK }))
 
         expect(addEventSpy.callCount).to.equal(4)
         expect(addEventSpy.firstCall.calledWith('processing FSA start')).to.be.true()
@@ -556,7 +657,7 @@ describe('handlers', () => {
         expect(addEventSpy.thirdCall.calledWith('actor.perform start')).to.be.true()
         expect(addEventSpy.lastCall.calledWith('actor.perform end')).to.be.true()
 
-        expect(performStub.calledOnce).to.be.true()
+        expect(performStub.called).to.be.true()
         expect(replayStub.calledOnce).to.be.true()
       })
     })
@@ -573,6 +674,7 @@ describe('hooks', () => {
       withStub.resetHistory()
       extractSpy.resetHistory()
       setAttributeSpy.resetHistory()
+      setStatusSpy.resetHistory()
       withSpanStub.resetHistory()
       doneSpy.resetHistory()
     })
@@ -593,6 +695,7 @@ describe('hooks', () => {
       expect(withStub.called).to.be.false()
       expect(extractSpy.called).to.be.false()
       expect(setAttributeSpy.called).to.be.false()
+      expect(setStatusSpy.called).to.be.false()
       expect(withSpanStub.called).to.be.false()
       expect(bindSpy.called).to.be.false()
 
@@ -610,6 +713,7 @@ describe('hooks', () => {
       expect(withStub.called).to.be.false()
       expect(extractSpy.called).to.be.false()
       expect(setAttributeSpy.called).to.be.false()
+      expect(setStatusSpy.called).to.be.false()
       expect(withSpanStub.called).to.be.false()
       expect(bindSpy.called).to.be.false()
 
@@ -625,6 +729,7 @@ describe('hooks', () => {
       expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET', {
         kind: 1,
         attributes: {
+          [HttpAttribute.HTTP_FLAVOR]: '2.0',
           [HttpAttribute.HTTP_URL]: requestMock.url,
           [HttpAttribute.HTTP_METHOD]: requestMock.method,
           [HttpAttribute.HTTP_ROUTE]: requestMock.routerPath,
@@ -635,9 +740,12 @@ describe('hooks', () => {
       expect(withStub.calledOnce).to.be.true()
 
       expect(extractSpy.calledOnce).to.be.true()
-      expect(extractSpy.calledWith(requestMock.raw.headers)).to.be.true()
+      expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, requestMock.raw.headers)).to.be.true()
 
       expect(setAttributeSpy.called).to.be.false()
+
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK })).to.be.true()
 
       expect(withSpanStub.calledOnce).to.be.true()
 
@@ -657,6 +765,7 @@ describe('hooks', () => {
       expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET', {
         kind: 1,
         attributes: {
+          [HttpAttribute.HTTP_FLAVOR]: '2.0',
           [HttpAttribute.HTTP_URL]: requestMock.url,
           [HttpAttribute.HTTP_METHOD]: requestMock.method,
           [HttpAttribute.HTTP_ROUTE]: requestMock.routerPath,
@@ -667,10 +776,13 @@ describe('hooks', () => {
       expect(withStub.calledOnce).to.be.true()
 
       expect(extractSpy.calledOnce).to.be.true()
-      expect(extractSpy.calledWith(requestMock.raw.headers)).to.be.true()
+      expect(extractSpy.calledWith(proxyConfig['@opentelemetry/api'].ROOT_CONTEXT, requestMock.raw.headers)).to.be.true()
 
       expect(setAttributeSpy.calledOnce).to.be.true()
       expect(setAttributeSpy.calledWith(HttpAttribute.HTTP_USER_AGENT, 'test'))
+
+      expect(setStatusSpy.calledOnce).to.be.true()
+      expect(setStatusSpy.calledWith({ code: StatusCode.OK })).to.be.true()
 
       expect(withSpanStub.calledOnce).to.be.true()
 
@@ -720,8 +832,8 @@ describe('hooks', () => {
         'error.stack': errorMock.stack
       })).to.be.true()
 
-      expect(setStatusSpy.calledOnce).to.be.true()
-      expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+      expect(setStatusSpy.calledTwice).to.be.true()
+      expect(setStatusSpy.secondCall.calledWith({ code: StatusCode.ERROR }))
 
       expect(doneSpy.calledTwice).to.be.true()
     })
@@ -738,8 +850,8 @@ describe('hooks', () => {
         'error.stack': errorMock.stack
       })).to.be.true()
 
-      expect(setStatusSpy.calledOnce).to.be.true()
-      expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+      expect(setStatusSpy.calledTwice).to.be.true()
+      expect(setStatusSpy.secondCall.calledWith({ code: StatusCode.ERROR }))
 
       expect(doneSpy.calledTwice).to.be.true()
     })
@@ -756,8 +868,8 @@ describe('hooks', () => {
         'error.stack': errorMock.stack
       })).to.be.true()
 
-      expect(setStatusSpy.calledOnce).to.be.true()
-      expect(setStatusSpy.calledWith({ code: StatusCode.ERROR }))
+      expect(setStatusSpy.calledTwice).to.be.true()
+      expect(setStatusSpy.secondCall.calledWith({ code: StatusCode.ERROR }))
 
       expect(doneSpy.calledTwice).to.be.true()
     })

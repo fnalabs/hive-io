@@ -130,7 +130,7 @@ services:
       EVENT_STORE_ID: consumer-client
       EVENT_STORE_GROUP_ID: consumer-group
       EVENT_STORE_FROM_START: "true"
-      MONGO_URL: "mongodb://mongo:27017/content"
+      MONGO_URL: "mongodb://mongo:27017/contents"
     depends_on:
       - collector
       - kafka
@@ -165,7 +165,7 @@ services:
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
-      MONGO_URL: "mongodb://mongo:27017/content"
+      MONGO_URL: "mongodb://mongo:27017/contents"
     depends_on:
       - collector
       - hive-producer-js
@@ -177,9 +177,9 @@ services:
     networks:
       - hive-io
 
-  # Tracing
+  # telemetry
   collector:
-    image: otel/opentelemetry-collector:0.16.0
+    image: otel/opentelemetry-collector:0.17.0
     container_name: collector
     command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
     depends_on:
@@ -198,7 +198,7 @@ services:
       - hive-io
     restart: on-failure
 
-# networking specifics
+# networking
 networks:
   hive-io:
     driver: bridge

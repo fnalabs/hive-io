@@ -1,11 +1,13 @@
 // imports
-import { v4 as uuidV4 } from 'uuid'
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
+
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
+import { v4 as uuidV4 } from 'uuid'
 
 import ContentSchema from '../../schemas/json/Content.json'
 
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-base-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 /*
  * class PostContentActor
@@ -16,15 +18,23 @@ class PostContentActor extends Actor {
 
     const Model = this.repository
 
-    // validate
-    await super.perform(model, action)
+    try {
+      // validate
+      await super.perform(model, action)
 
-    // upload to mongo
-    const content = { _id: uuidV4(), text: action.payload.text }
-    model = await new Model(content).save()
+      // upload to mongo
+      const content = { _id: uuidV4(), text: action.payload.text }
+      model = await new Model(content).save()
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
 
-    span.end()
-    return { model }
+      return { model }
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
+    }
   }
 }
 

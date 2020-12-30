@@ -1,10 +1,12 @@
 // imports
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
+
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
 
 import ContentSchema from '../../schemas/json/Content.json'
 
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-base-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 /*
  * class GetContentActor
@@ -17,12 +19,20 @@ class GetContentActor extends Actor {
     const conditions = { _id }
     const update = { $inc: { viewed: 1 } }
 
-    model = typeof _id === 'string'
-      ? await this.repository.findOneAndUpdate(conditions, update).exec()
-      : await this.repository.find().exec()
+    try {
+      model = typeof _id === 'string'
+        ? await this.repository.findOneAndUpdate(conditions, update).exec()
+        : await this.repository.find().exec()
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
 
-    span.end()
-    return { model }
+      return { model }
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
+    }
   }
 }
 

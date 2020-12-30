@@ -34,4 +34,12 @@ describe('ViewContentActor', () => {
     expect(event).to.be.an.instanceof(Model)
     expect(event).to.deep.equal({ id: '1' })
   })
+
+  it('should handle a View error successfully', async () => {
+    try {
+      await viewContentActor.perform()
+    } catch (error) {
+      expect(error).to.be.an.instanceOf(TypeError)
+    }
+  })
 })

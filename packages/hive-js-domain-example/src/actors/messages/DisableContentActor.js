@@ -1,4 +1,7 @@
 // imports
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
+
+import { trace, StatusCode } from '@opentelemetry/api'
 import { MessageActor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -7,8 +10,7 @@ import TextSchema from '../../schemas/json/Text.json'
 
 import DisabledContentSchema from '../../schemas/json/events/DisabledContent.json'
 
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-stream-processor-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 // constants
 const REFS = {
@@ -21,16 +23,25 @@ const REFS = {
  */
 class DisableContentActor extends MessageActor {
   async perform (modelInst, action) {
-    if (modelInst.enabled === false) throw new Error('#DisableContent: content already disabled')
-
     const span = tracer.startSpan('DisableContentActor.perform')
 
-    const { command, event, model } = await super.perform(modelInst, action)
+    try {
+      if (modelInst.enabled === false) throw new Error('#DisableContent: content already disabled')
 
-    model.enabled = false
+      const { command, event, model } = await super.perform(modelInst, action)
 
-    span.end()
-    return { meta: { key: model.id }, command, event, model }
+      model.enabled = false
+
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
+
+      return { meta: { key: model.id }, command, event, model }
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
+    }
   }
 }
 

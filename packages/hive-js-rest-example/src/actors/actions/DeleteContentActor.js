@@ -1,12 +1,12 @@
 // imports
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION, UPDATE_OPTIONS } from '../../config'
+
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
 
 import ContentSchema from '../../schemas/json/Content.json'
 
-import { UPDATE_OPTIONS } from '../../config'
-
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-base-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 /*
  * class DeleteContentActor
@@ -19,10 +19,18 @@ class DeleteContentActor extends Actor {
     const conditions = { _id: action.meta.request.params.id }
     const update = { $set: { enabled: false } }
 
-    model = await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
+    try {
+      model = await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
 
-    span.end()
-    return { model }
+      return { model }
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
+    }
   }
 }
 

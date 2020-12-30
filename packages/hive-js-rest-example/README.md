@@ -87,7 +87,7 @@ To start using:
               TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
-              MONGO_URL: "mongodb://mongo:27017/content"
+              MONGO_URL: "mongodb://mongo:27017/contents"
             depends_on:
               - collector
               - mongo
@@ -97,20 +97,20 @@ To start using:
               - hive-io
           mongo:
             image: mongo:4.4.2
+            container_name: mongo
             networks:
               - hive-io
             restart: on-failure
-          # Tracing
+
+          # telemetry
+          # NOTE: you will need to provide a configuration for the collector
+          #       see https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
           collector:
-            image: otel/opentelemetry-collector:0.16.0
+            image: otel/opentelemetry-collector:0.17.0
             container_name: collector
             command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
             depends_on:
               - zipkin
-            volumes:
-              # NOTE: you will need to provide a configuration for the collector
-              #       see https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
-              - ../../../collector/collector-config.yml:/conf/collector-config.yml
             networks:
               - hive-io
             restart: on-failure
@@ -122,7 +122,8 @@ To start using:
             networks:
               - hive-io
             restart: on-failure
-        # networking specifics
+
+        # networking
         networks:
           hive-io:
             driver: bridge

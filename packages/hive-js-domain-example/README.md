@@ -213,7 +213,7 @@ To start using:
               EVENT_STORE_ID: consumer-client
               EVENT_STORE_GROUP_ID: consumer-group
               EVENT_STORE_FROM_START: "true"
-              MONGO_URL: "mongodb://mongo:27017/content"
+              MONGO_URL: "mongodb://mongo:27017/contents"
             depends_on:
               - collector
               - kafka
@@ -222,6 +222,7 @@ To start using:
               - hive-io
           mongo:
             image: mongo:4.4.2
+            container_name: mongo
             networks:
               - hive-io
             restart: on-failure
@@ -244,7 +245,7 @@ To start using:
               TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
-              MONGO_URL: "mongodb://mongo:27017/content"
+              MONGO_URL: "mongodb://mongo:27017/contents"
             depends_on:
               - collector
               - hive-producer-js
@@ -252,13 +253,13 @@ To start using:
             networks:
               - hive-io
 
-          # Tracing
+          # telemetry
+          # NOTE: this is an example, you will need to define your own config
+          #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/collector
           collector:
-            # NOTE: this is an example, you will need to define your own config
-            #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/collector
-            image: otel/opentelemetry-collector:0.16.0
+            image: otel/opentelemetry-collector:0.17.0
             container_name: collector
-            command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
+            command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
             depends_on:
               - zipkin
             networks:
@@ -273,7 +274,7 @@ To start using:
               - hive-io
             restart: on-failure
 
-        # networking specifics
+        # networking
         networks:
           hive-io:
             driver: bridge

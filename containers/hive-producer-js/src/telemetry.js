@@ -14,17 +14,13 @@ import {
   TELEMETRY_URL_METRICS,
   TELEMETRY_URL_TRACES
 } from './config'
-import pkg from '../package.json'
 
 const attributes = {
   'container.id': TELEMETRY_SERVICE_INSTANCE_ID,
-  'container.image.name': `fnalabs/${pkg.name}-js`,
-  'container.image.tag': pkg.version,
+  'container.image.name': TELEMETRY_SERVICE_NAME,
   'deployment.environment': DEPLOY_ENV,
   [OperatingSystem.TYPE]: OperatingSystemValues.LINUX,
-  [OperatingSystem.DESCRIPTION]: 'Alpine Linux 3.11.6',
-  'service.name': TELEMETRY_SERVICE_NAME,
-  'service.instance.id': TELEMETRY_SERVICE_INSTANCE_ID
+  [OperatingSystem.DESCRIPTION]: 'Alpine Linux 3.11'
 }
 
 // setup metric exporter and provider
