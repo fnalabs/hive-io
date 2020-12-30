@@ -35,15 +35,14 @@
     "npm": ">=6"
   },
   "dependencies": {
-    "@opentelemetry/exporter-collector": "0.13.0",
-    "@opentelemetry/node": "0.13.0",
-    "@opentelemetry/plugin-ioredis": "0.11.0",
-    "fastify": "3.9.1",
+    "@opentelemetry/exporter-collector": "0.14.0",
+    "@opentelemetry/node": "0.14.0",
+    "@opentelemetry/plugin-ioredis": "0.12.0",
+    "fastify": "3.9.2",
     "fastify-cors": "5.1.0",
     "fastify-helmet": "5.0.3",
     "ioredis": "4.19.4",
     "kafkajs": "1.15.0",
-    "opentelemetry-plugin-kafkajs": "0.0.4",
     "redlock": "4.2.0"
   },
   "devDependencies": {
