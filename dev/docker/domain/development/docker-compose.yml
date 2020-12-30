@@ -134,9 +134,7 @@ services:
       CLUSTER_SIZE: 1
       SECURE: "true"
       TELEMETRY: "true"
-      # TODO: uncomment when MongoDB plugin updates dependencies
-      # TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
-      TELEMETRY_PLUGINS: '{"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
       EVENT_STORE_TOPIC: "content|view"
@@ -144,7 +142,7 @@ services:
       EVENT_STORE_ID: consumer-client
       EVENT_STORE_GROUP_ID: consumer-group
       EVENT_STORE_FROM_START: "true"
-      MONGO_URL: "mongodb://mongo:27017/content"
+      MONGO_URL: "mongodb://mongo:27017/contents"
     depends_on:
       - collector
       - kafka
@@ -159,7 +157,7 @@ services:
       # NOTE: the following shared volumes are only necessary for framework development
       - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
       - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
-      # - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
       - ../../../../packages/hive-js-rest-example/node_modules/@wdalmut/opentelemetry-plugin-mongoose:/opt/app/node_modules/@wdalmut/opentelemetry-plugin-mongoose:rw
       - ../../../../packages/hive-js-rest-example/node_modules/shimmer:/opt/app/node_modules/shimmer:rw
       - ../../../../packages/hive-js-rest-example/node_modules/mongodb:/opt/app/node_modules/mongodb:rw
@@ -203,12 +201,10 @@ services:
       CLUSTER_SIZE: 1
       SECURE: "true"
       TELEMETRY: "true"
-      # TODO: uncomment when MongoDB plugin updates dependencies
-      # TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
-      TELEMETRY_PLUGINS: '{"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
-      MONGO_URL: "mongodb://mongo:27017/content"
+      MONGO_URL: "mongodb://mongo:27017/contents"
     depends_on:
       - collector
       - hive-producer-js
@@ -223,7 +219,7 @@ services:
       # NOTE: the following shared volumes are only necessary for framework development
       - ../../../../packages/hive-js-domain-example:/opt/app/node_modules/hive-io-domain-example:rw
       - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
-      # - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
       - ../../../../packages/hive-js-rest-example/node_modules/@wdalmut/opentelemetry-plugin-mongoose:/opt/app/node_modules/@wdalmut/opentelemetry-plugin-mongoose:rw
       - ../../../../packages/hive-js-rest-example/node_modules/shimmer:/opt/app/node_modules/shimmer:rw
       - ../../../../packages/hive-js-rest-example/node_modules/mongodb:/opt/app/node_modules/mongodb:rw
@@ -234,9 +230,9 @@ services:
     networks:
       - hive-io
 
-  # Tracing
+  # telemetry
   collector:
-    image: otel/opentelemetry-collector:0.16.0
+    image: otel/opentelemetry-collector:0.17.0
     container_name: collector
     command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
     depends_on:
@@ -255,7 +251,7 @@ services:
       - hive-io
     restart: on-failure
 
-# networking specifics
+# networking
 networks:
   hive-io:
     driver: bridge

@@ -13,12 +13,10 @@ services:
       CLUSTER_SIZE: 1
       SECURE: "true"
       TELEMETRY: "true"
-      # TODO: uncomment when MongoDB plugin updates dependencies
-      # TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
-      TELEMETRY_PLUGINS: '{"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
-      MONGO_URL: "mongodb://mongo:27017/content"
+      MONGO_URL: "mongodb://mongo:27017/contents"
     depends_on:
       - collector
       - mongo
@@ -32,7 +30,7 @@ services:
       # NOTE: the following shared volumes are only necessary for framework development
       - ../../../../packages/hive-js-rest-example:/opt/app/node_modules/hive-io-rest-example:rw
       - ../../../../packages/hive-js:/opt/app/node_modules/hive-io:rw
-      # - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
+      - ../../../../packages/hive-js-rest-example/node_modules/@opentelemetry/plugin-mongodb:/opt/app/node_modules/@opentelemetry/plugin-mongodb:rw
       - ../../../../packages/hive-js-rest-example/node_modules/@wdalmut/opentelemetry-plugin-mongoose:/opt/app/node_modules/@wdalmut/opentelemetry-plugin-mongoose:rw
       - ../../../../packages/hive-js-rest-example/node_modules/shimmer:/opt/app/node_modules/shimmer:rw
       - ../../../../packages/hive-js-rest-example/node_modules/mongodb:/opt/app/node_modules/mongodb:rw
@@ -49,9 +47,9 @@ services:
       - hive-io
     restart: on-failure
 
-  # Tracing
+  # telelemtry
   collector:
-    image: otel/opentelemetry-collector:0.16.0
+    image: otel/opentelemetry-collector:0.17.0
     container_name: collector
     command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
     depends_on:
@@ -70,7 +68,7 @@ services:
       - hive-io
     restart: on-failure
 
-# networking specifics
+# networking
 networks:
   hive-io:
     driver: bridge
