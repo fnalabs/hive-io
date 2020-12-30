@@ -3,7 +3,7 @@
 import chai, { expect } from 'chai'
 import dirtyChai from 'dirty-chai'
 import proxyquire from 'proxyquire'
-import sinon from 'sinon'
+import { spy, stub } from 'sinon'
 import { Actor, Model, Schema } from 'hive-io'
 
 import ContentId from '../../src/schemas/json/ContentId.json'
@@ -37,13 +37,13 @@ describe('ViewActor', () => {
   })
 
   beforeEach(async () => {
-    closeSpy = sinon.spy()
-    endSpy = sinon.spy()
-    onSpy = sinon.spy()
-    requestSpy = sinon.spy()
-    setEncodingSpy = sinon.spy()
+    closeSpy = spy()
+    endSpy = spy()
+    onSpy = spy()
+    requestSpy = spy()
+    setEncodingSpy = spy()
 
-    connectStub = sinon.stub().returns({
+    connectStub = stub().returns({
       close () { closeSpy() },
       end () { endSpy() },
       on () { onSpy() },
@@ -89,7 +89,7 @@ describe('ViewActor', () => {
   })
 
   it('should handle "end" event successfully', () => {
-    const closeSpy = sinon.spy()
+    const closeSpy = spy()
     viewActor.connection = { close: () => closeSpy() }
     viewActor.onEnd()
 

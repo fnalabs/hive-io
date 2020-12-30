@@ -1,4 +1,7 @@
 // imports
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
+
+import { trace, StatusCode } from '@opentelemetry/api'
 import { MessageActor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -8,8 +11,7 @@ import TextSchema from '../../schemas/json/Text.json'
 import EditContentSchema from '../../schemas/json/commands/EditContent.json'
 import EditedContentSchema from '../../schemas/json/events/EditedContent.json'
 
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-stream-processor-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 // constants
 const REFS = {
@@ -22,16 +24,25 @@ const REFS = {
  */
 class EditContentActor extends MessageActor {
   async perform (modelInst, action) {
-    if (typeof modelInst === 'undefined') throw new Error(`#${action.type}: ${action.payload.id} doesn't exist`)
-
     const span = tracer.startSpan('EditContentActor.perform')
 
-    const { command, event, model } = await super.perform(modelInst, action)
+    try {
+      if (typeof modelInst === 'undefined') throw new Error(`#${action.type}: ${action.payload.id} doesn't exist`)
 
-    model.edited = true
+      const { command, event, model } = await super.perform(modelInst, action)
 
-    span.end()
-    return { meta: { key: model.id }, command, event, model }
+      model.edited = true
+
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
+
+      return { meta: { key: model.id }, command, event, model }
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
+    }
   }
 }
 

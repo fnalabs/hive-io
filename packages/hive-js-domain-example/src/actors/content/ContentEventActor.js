@@ -1,14 +1,14 @@
 // imports
-import { UPDATE_OPTIONS } from '../../config'
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION, UPDATE_OPTIONS } from '../../config'
 
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor } from 'hive-io'
 
 import mongoConnect from '../../util/mongoConnect'
 
 import MongoSchema from '../../schemas/mongoose/Content'
 
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-consumer-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 /*
  * class ContentEventActor
@@ -20,34 +20,42 @@ class ContentEventActor extends Actor {
     const id = action.payload.id
     const conditions = { _id: id }
 
-    let update
-    switch (action.type) {
-      case 'CreatedContent':
-        update = { _id: id, text: action.payload.text }
-        break
+    try {
+      let update
+      switch (action.type) {
+        case 'CreatedContent':
+          update = { _id: id, text: action.payload.text }
+          break
 
-      case 'DisabledContent':
-        update = { $set: { enabled: false } }
-        break
+        case 'DisabledContent':
+          update = { $set: { enabled: false } }
+          break
 
-      case 'EditedContent':
-        update = { $set: { text: action.payload.text, edited: true } }
-        break
+        case 'EditedContent':
+          update = { $set: { text: action.payload.text, edited: true } }
+          break
 
-      case 'EnabledContent':
-        update = { $set: { enabled: true } }
-        break
+        case 'EnabledContent':
+          update = { $set: { enabled: true } }
+          break
 
-      case 'ViewedContent':
-        update = { $inc: { viewed: 1 } }
-        break
+        case 'ViewedContent':
+          update = { $inc: { viewed: 1 } }
+          break
 
-      default:
-        throw new Error('Event not recognized')
+        default:
+          throw new Error('Event not recognized')
+      }
+      await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
+
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
     }
-
-    await this.repository.findOneAndUpdate(conditions, update, UPDATE_OPTIONS).exec()
-    span.end()
   }
 }
 

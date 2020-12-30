@@ -1,4 +1,7 @@
 // imports
+import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
+
+import { trace, StatusCode } from '@opentelemetry/api'
 import { MessageActor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -7,8 +10,7 @@ import TextSchema from '../../schemas/json/Text.json'
 
 import EnabledContentSchema from '../../schemas/json/events/EnabledContent.json'
 
-import { trace } from '@opentelemetry/api'
-const tracer = trace.getTracer('hive-stream-processor-js')
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 // constants
 const REFS = {
@@ -25,12 +27,21 @@ class EnableContentActor extends MessageActor {
 
     const span = tracer.startSpan('EnableContentActor.perform')
 
-    const { command, event, model } = await super.perform(modelInst, action)
+    try {
+      const { command, event, model } = await super.perform(modelInst, action)
 
-    model.enabled = true
+      model.enabled = true
 
-    span.end()
-    return { meta: { key: model.id }, command, event, model }
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
+
+      return { meta: { key: model.id }, command, event, model }
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      throw error
+    }
   }
 }
 
