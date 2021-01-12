@@ -85,21 +85,30 @@ To start using:
         FROM fnalabs/hive-base-js:latest
         RUN npm install hive-io-domain-example
         ```
+    - `Proxy.dockerfile`
+        ```dockerfile
+        FROM haproxy:2.3.3-alpine
+        EXPOSE 80
+        ```
     - `docker-compose.yml`
         ```yml
         version: '3.5'
         services:
           # proxy for layer 7 routing
           # NOTE: this is an example, you will need to define your own config
-          #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/proxy
+          #       ex. https://github.com/fnalabs/hive-io/blob/master/dev/docker/domain/example/haproxy.cfg
           proxy:
-            image: haproxy:2.3.2-alpine
-            container_name: proxy
+            build:
+              context: .
+              dockerfile: Proxy.dockerfile
+            image: hive-proxy:production
             depends_on:
               - hive-base-js
               - hive-stream-processor-js
             ports:
               - 80:80
+            volumes:
+              - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
             networks:
               - hive-io
             restart: on-failure
@@ -166,7 +175,7 @@ To start using:
 
           # log stream containers
           kafka:
-            image: confluentinc/cp-kafka:5.4.3
+            image: confluentinc/cp-kafka:6.0.1
             container_name: kafka
             depends_on:
               - zookeeper
@@ -181,7 +190,7 @@ To start using:
               - hive-io
             restart: on-failure
           zookeeper:
-            image: confluentinc/cp-zookeeper:5.4.3
+            image: confluentinc/cp-zookeeper:6.0.1
             container_name: zookeeper
             environment:
               ZOOKEEPER_CLIENT_PORT: 32181
@@ -221,7 +230,7 @@ To start using:
             networks:
               - hive-io
           mongo:
-            image: mongo:4.4.2
+            image: mongo:4.4.3
             container_name: mongo
             networks:
               - hive-io
@@ -255,18 +264,20 @@ To start using:
 
           # telemetry
           # NOTE: this is an example, you will need to define your own config
-          #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/collector
+          #       ex. https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
           collector:
             image: otel/opentelemetry-collector:0.17.0
             container_name: collector
             command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
             depends_on:
               - zipkin
+            volumes:
+              - ./collector-config.yml:/conf/collector-config.yml
             networks:
               - hive-io
             restart: on-failure
           zipkin:
-            image: openzipkin/zipkin:2.23.1
+            image: openzipkin/zipkin:2.23.2
             container_name: zipkin
             ports:
               - 9411:9411

@@ -1,0 +1,198 @@
+version: '3.5'
+services:
+  # proxy for layer 7 routing
+  # NOTE: this is an example, you will need to define your own config
+  #       ex. https://github.com/fnalabs/hive-io/blob/master/dev/docker/domain/example/haproxy.cfg
+  proxy:
+    build:
+      context: .
+      dockerfile: Proxy.dockerfile
+    image: hive-proxy:production
+    container_name: proxy
+    depends_on:
+      - hive-base-js
+      - hive-stream-processor-js
+    ports:
+      - 80:80
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # producers
+  hive-producer-js:
+    build:
+      context: .
+      dockerfile: Producer.dockerfile
+    image: hive-producer-js:production
+    container_name: hive-producer-js
+    environment:
+      ACTOR: ViewContentActor
+      ACTOR_LIB: hive-io-domain-example
+      ACTOR_URLS: "/contents/:id"
+      CLUSTER_SIZE: 1
+      HTTP_VERSION: 1
+      SECURE: "false"
+      TELEMETRY: "true"
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      EVENT_STORE_TOPIC: view
+      EVENT_STORE_BROKERS: "kafka:29092"
+      EVENT_STORE_ID: producer-client
+    depends_on:
+      - collector
+      - kafka
+    networks:
+      - hive-io
+
+  # stream processors
+  hive-stream-processor-js:
+    build:
+      context: .
+      dockerfile: Stream-Processor.dockerfile
+    image: hive-stream-processor-js:production
+    container_name: hive-stream-processor-js
+    environment:
+      ACTOR: ContentCommandActor
+      ACTOR_LIB: hive-io-domain-example
+      ACTOR_URLS: "/contents,/contents/:id"
+      CLUSTER_SIZE: 1
+      HTTP_VERSION: 1
+      SECURE: "false"
+      TELEMETRY: "true"
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      CACHE_URL: "redis://redis:6379"
+      EVENT_STORE_PRODUCER_TOPIC: content
+      EVENT_STORE_BROKERS: "kafka:29092"
+      EVENT_STORE_ID: stream-processor-client
+    depends_on:
+      - collector
+      - kafka
+      - redis
+    networks:
+      - hive-io
+  redis:
+    image: redis:6.0.9-alpine
+    container_name: redis
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # log stream containers
+  kafka:
+    image: confluentinc/cp-kafka:6.0.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:32181"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_COMPRESSION_TYPE: gzip
+    expose:
+      - 29092
+    networks:
+      - hive-io
+    restart: on-failure
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 32181
+    expose:
+      - 32181
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # consumers
+  hive-consumer-js:
+    build:
+      context: .
+      dockerfile: Consumer.dockerfile
+    image: hive-consumer-js:production
+    container_name: hive-consumer-js
+    environment:
+      ACTOR: ContentEventActor
+      ACTOR_LIB: hive-io-domain-example
+      CLUSTER_SIZE: 1
+      HTTP_VERSION: 1
+      SECURE: "false"
+      TELEMETRY: "true"
+      TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      EVENT_STORE_TOPIC: "content|view"
+      EVENT_STORE_BROKERS: "kafka:29092"
+      EVENT_STORE_ID: consumer-client
+      EVENT_STORE_GROUP_ID: consumer-group
+      EVENT_STORE_FROM_START: "true"
+      MONGO_URL: "mongodb://mongo:27017/contents"
+    depends_on:
+      - collector
+      - kafka
+      - mongo
+    networks:
+      - hive-io
+  mongo:
+    image: mongo:4.4.3
+    container_name: mongo
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # rest services
+  hive-base-js:
+    build:
+      context: .
+      dockerfile: Rest.dockerfile
+    image: hive-base-js:production
+    container_name: hive-base-js
+    environment:
+      ACTOR: ContentQueryActor
+      ACTOR_LIB: hive-io-domain-example
+      ACTOR_URLS: "/contents,/contents/:id"
+      CLUSTER_SIZE: 1
+      HTTP_VERSION: 1
+      SECURE: "false"
+      TELEMETRY: "true"
+      TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      MONGO_URL: "mongodb://mongo:27017/contents"
+    depends_on:
+      - collector
+      - hive-producer-js
+      - mongo
+    networks:
+      - hive-io
+
+  # telemetry
+  # NOTE: this is an example, you will need to define your own config
+  #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/collector
+  collector:
+    image: otel/opentelemetry-collector:0.17.0
+    container_name: collector
+    command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
+    depends_on:
+      - zipkin
+    volumes:
+      - ../../../collector/collector-config.yml:/conf/collector-config.yml
+    networks:
+      - hive-io
+    restart: on-failure
+  zipkin:
+    image: openzipkin/zipkin:2.23.2
+    container_name: zipkin
+    ports:
+      - 9411:9411
+    networks:
+      - hive-io
+    restart: on-failure
+
+# networking
+networks:
+  hive-io:
+    driver: bridge

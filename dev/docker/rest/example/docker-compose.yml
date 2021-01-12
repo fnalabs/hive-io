@@ -1,0 +1,58 @@
+version: '3.5'
+services:
+  hive-base-js:
+    build: .
+    image: hive-base-js:production
+    environment:
+      ACTOR: ContentActor
+      ACTOR_LIB: hive-io-rest-example
+      ACTOR_URLS: "/contents,/contents/:id"
+      CLUSTER_SIZE: 1
+      HTTP_VERSION: 1
+      SECURE: "false"
+      TELEMETRY: "true"
+      TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+      TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
+      TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
+      MONGO_URL: "mongodb://mongo:27017/contents"
+    depends_on:
+      - collector
+      - mongo
+    ports:
+      - 80:3000
+    networks:
+      - hive-io
+  mongo:
+    image: mongo:4.4.3
+    container_name: mongo
+    networks:
+      - hive-io
+    restart: on-failure
+
+  # telemetry
+  # NOTE: you will need to provide a configuration for the collector
+  #       see https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
+  collector:
+    image: otel/opentelemetry-collector:0.17.0
+    container_name: collector
+    command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
+    depends_on:
+      - zipkin
+    volumes:
+      - ../../../collector/collector-config.yml:/conf/collector-config.yml
+    networks:
+      - hive-io
+    restart: on-failure
+  zipkin:
+    image: openzipkin/zipkin:2.23.2
+    container_name: zipkin
+    ports:
+      - 9411:9411
+    networks:
+      - hive-io
+    restart: on-failure
+
+# networking
+networks:
+  hive-io:
+    driver: bridge

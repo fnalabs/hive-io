@@ -96,7 +96,7 @@ To start using:
             networks:
               - hive-io
           mongo:
-            image: mongo:4.4.2
+            image: mongo:4.4.3
             container_name: mongo
             networks:
               - hive-io
@@ -115,7 +115,7 @@ To start using:
               - hive-io
             restart: on-failure
           zipkin:
-            image: openzipkin/zipkin:2.23.1
+            image: openzipkin/zipkin:2.23.2
             container_name: zipkin
             ports:
               - 9411:9411
