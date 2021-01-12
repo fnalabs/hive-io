@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../config'
 
-import { trace, StatusCode } from '@opentelemetry/api'
+import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
 import { Actor } from 'hive-io'
 
 import mongoConnect from '../util/mongoConnect'
@@ -32,7 +32,7 @@ class ContentActor extends Actor {
   }
 
   async perform (model, action) {
-    const span = tracer.startSpan('ContentActor.perform')
+    const span = tracer.startSpan('ContentActor.perform', { kind: SpanKind.SERVER })
 
     let results
     if (!action.type) action.type = 'Content'
