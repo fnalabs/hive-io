@@ -10,6 +10,8 @@ services:
       ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -20,10 +22,12 @@ services:
       - mongo
     ports:
       - 443:3000
+    volumes:
+      - ../../../proxy/cert:/opt/app/cert:rw
     networks:
       - hive-io
   mongo:
-    image: mongo:4.4.2
+    image: mongo:4.4.3
     container_name: mongo
     networks:
       - hive-io
@@ -42,7 +46,7 @@ services:
       - hive-io
     restart: on-failure
   zipkin:
-    image: openzipkin/zipkin:2.23.1
+    image: openzipkin/zipkin:2.23.2
     container_name: zipkin
     ports:
       - 9411:9411

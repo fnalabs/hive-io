@@ -29,6 +29,8 @@ services:
       ACTOR_URLS: "/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
@@ -58,6 +60,8 @@ services:
       ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
@@ -84,7 +88,7 @@ services:
 
   # log stream containers
   kafka:
-    image: confluentinc/cp-kafka:5.4.3
+    image: confluentinc/cp-kafka:6.0.1
     container_name: kafka
     depends_on:
       - zookeeper
@@ -99,7 +103,7 @@ services:
       - hive-io
     restart: on-failure
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.4.3
+    image: confluentinc/cp-zookeeper:6.0.1
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
@@ -121,6 +125,8 @@ services:
       ACTOR_LIB: hive-io-domain-example
       CLUSTER_SIZE: 1
       SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -142,7 +148,7 @@ services:
     networks:
       - hive-io
   mongo:
-    image: mongo:4.4.2
+    image: mongo:4.4.3
     container_name: mongo
     networks:
       - hive-io
@@ -161,6 +167,8 @@ services:
       ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -190,7 +198,7 @@ services:
       - hive-io
     restart: on-failure
   zipkin:
-    image: openzipkin/zipkin:2.23.1
+    image: openzipkin/zipkin:2.23.2
     container_name: zipkin
     ports:
       - 9411:9411

@@ -1,6 +1,6 @@
-FROM haproxy:2.3.2-alpine
+FROM haproxy:2.3.3-alpine
 
-RUN apk --no-cache add ca-certificates \
-    && rm -rf /var/cache/apk/*
+RUN apk --no-cache add \
+        ca-certificates
 
 EXPOSE 443
