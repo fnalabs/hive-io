@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { trace, StatusCode } from '@opentelemetry/api'
+import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
 import { MessageActor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -23,7 +23,7 @@ const REFS = {
  */
 class DisableContentActor extends MessageActor {
   async perform (modelInst, action) {
-    const span = tracer.startSpan('DisableContentActor.perform')
+    const span = tracer.startSpan('DisableContentActor.perform', { kind: SpanKind.SERVER })
 
     try {
       if (modelInst.enabled === false) throw new Error('#DisableContent: content already disabled')

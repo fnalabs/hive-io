@@ -3,15 +3,13 @@ services:
   hive-base-js:
     build: .
     image: hive-base-js:production
-    container_name: hive-base-js
     environment:
       ACTOR: ContentActor
       ACTOR_LIB: hive-io-rest-example
       ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
-      SECURE: "true"
-      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
-      SSL_KEY: "/opt/app/cert/ssl-key.pem"
+      HTTP_VERSION: 1
+      SECURE: "false"
       TELEMETRY: "true"
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -21,9 +19,7 @@ services:
       - collector
       - mongo
     ports:
-      - 443:3000
-    volumes:
-      - ../../../proxy/cert:/opt/app/cert:rw
+      - 80:3000
     networks:
       - hive-io
   mongo:
@@ -34,6 +30,8 @@ services:
     restart: on-failure
 
   # telemetry
+  # NOTE: you will need to provide a configuration for the collector
+  #       see https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
   collector:
     image: otel/opentelemetry-collector:0.17.0
     container_name: collector

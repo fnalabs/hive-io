@@ -1,33 +1,40 @@
 #
 # Development build
 #
-FROM node:14.15.3-alpine as development
+FROM node:14.15.4-alpine as development
 
 # set environment variables
 ENV APP_PATH="/opt/app" \
     NODE_ENV="development" \
-    PORT="3000" \
-    SSL_CERT="/opt/app/cert/ssl-cert.pem" \
-    SSL_KEY="/opt/app/cert/ssl-key.pem"
+    PORT="3000"
 
 # Project code
 COPY . ${APP_PATH}/
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
-RUN apk --no-cache add bash-completion coreutils grep tree && \
-    bash -e ./bin/install && \
+RUN apk --no-cache add \
+        ca-certificates \
+        coreutils \
+        grep \
+        dumb-init \
+        openssl \
+        tree && \
+    mkdir cert && \
+    openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
+        -keyout cert/ssl-key.pem -out cert/ssl-cert.pem && \
+    npm install --quiet --no-optional && \
     npm run release
 
-# start with Alpine Linux Base image
-FROM node:14.15.3-alpine as production
+#
+# Production build
+#
+FROM node:14.15.4-alpine as production
 
 # set environment variables
 ENV APP_PATH="/opt/app" \
     NODE_ENV="production" \
-    PORT="3000" \
-    SSL_CERT="/opt/app/cert/ssl-cert.pem" \
-    SSL_KEY="/opt/app/cert/ssl-key.pem"
+    PORT="3000"
 
 COPY --from=development ${APP_PATH}/dist ${APP_PATH}/dist/
 COPY bin ${APP_PATH}/bin/
@@ -35,8 +42,13 @@ COPY package.json LICENSE README.md ${APP_PATH}/
 
 # change to workspace and run project install script
 WORKDIR ${APP_PATH}
-RUN apk --no-cache add bash && \
-    bash -e ./bin/install
+RUN apk --no-cache add \
+        ca-certificates \
+        dumb-init \
+        openssl && \
+    npm install --quiet --no-optional --production && \
+    npm prune --production && \
+    npm cache clean --force
 
 # expose standard Node.js port of 3000
 EXPOSE ${PORT}

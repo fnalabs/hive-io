@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION, UPDATE_OPTIONS } from '../../config'
 
-import { StatusCode, trace } from '@opentelemetry/api'
+import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
 
 import ContentSchema from '../../schemas/json/Content.json'
@@ -13,7 +13,7 @@ const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
  */
 class PutContentActor extends Actor {
   async perform (model, action) {
-    const span = tracer.startSpan('PutContentActor.perform')
+    const span = tracer.startSpan('PutContentActor.perform', { kind: SpanKind.SERVER })
 
     try {
       // validate

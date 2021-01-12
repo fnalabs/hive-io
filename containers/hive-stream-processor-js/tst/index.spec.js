@@ -708,7 +708,7 @@ describe('hooks', () => {
       expect(getCurrentSpanStub.calledOnce).to.be.true()
 
       expect(startSpanStub.calledOnce).to.be.true()
-      expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET')).to.be.true()
+      expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET - /test')).to.be.true()
 
       expect(withStub.called).to.be.false()
       expect(extractSpy.called).to.be.false()
@@ -726,7 +726,7 @@ describe('hooks', () => {
       expect(getCurrentSpanStub.calledTwice).to.be.true()
 
       expect(startSpanStub.calledOnce).to.be.true()
-      expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET', {
+      expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET - /test', {
         kind: 1,
         attributes: {
           [HttpAttribute.HTTP_FLAVOR]: '2.0',
@@ -762,7 +762,7 @@ describe('hooks', () => {
       expect(getCurrentSpanStub.calledThrice).to.be.true()
 
       expect(startSpanStub.calledOnce).to.be.true()
-      expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET', {
+      expect(startSpanStub.calledWith('hive^io - HTTP/2 - GET - /test', {
         kind: 1,
         attributes: {
           [HttpAttribute.HTTP_FLAVOR]: '2.0',

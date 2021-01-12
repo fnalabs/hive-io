@@ -3,6 +3,8 @@ services:
   hive-base-js:
     build:
       context: ../../../../containers/hive-base-js
+      # dockerfile: Dockerfile.full
+      # dockerfile: Dockerfile.slim
       target: development
     image: hive-base-js:development
     container_name: hive-base-js
@@ -12,6 +14,8 @@ services:
       ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
       SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -41,7 +45,7 @@ services:
     networks:
       - hive-io
   mongo:
-    image: mongo:4.4.2
+    image: mongo:4.4.3
     container_name: mongo
     networks:
       - hive-io
@@ -60,7 +64,7 @@ services:
       - hive-io
     restart: on-failure
   zipkin:
-    image: openzipkin/zipkin:2.23.1
+    image: openzipkin/zipkin:2.23.2
     container_name: zipkin
     ports:
       - 9411:9411
