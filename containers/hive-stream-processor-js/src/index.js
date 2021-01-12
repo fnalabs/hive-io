@@ -41,9 +41,9 @@ const isStreamProcessor = PROCESSOR_TYPE === 'stream_processor'
 export function onRequestHook (request, reply, done) {
   if (request.url === PING_URL) return done()
 
-  const spanName = `${spanNamePrefix} - ${request.method}`
+  const spanName = `${spanNamePrefix} - ${request.method} - ${request.routerPath}`
   if (tracer.getCurrentSpan()) {
-    const span = tracer.startSpan(spanName)
+    const span = tracer.startSpan(spanName, { kind: SpanKind.SERVER })
     spanMap.set(request, span)
     return done()
   }
@@ -115,7 +115,7 @@ export async function consumeHandler ({ message }) {
     : {}
 
   await context.with(propagation.extract(ROOT_CONTEXT, headers), async () => {
-    const span = tracer.startSpan('hive^io - consume handler')
+    const span = tracer.startSpan('hive^io - consume handler', { kind: SpanKind.SERVER })
 
     await tracer.withSpan(span, async () => {
       try {
@@ -152,7 +152,7 @@ export function healthHandler () {
  * handler for routing requests and translating incoming JSON data
  */
 export async function mainHandler (request) {
-  const span = tracer.startSpan('hive^io - request handler')
+  const span = tracer.startSpan('hive^io - request handler', { kind: SpanKind.SERVER })
   const headers = {}
   propagation.inject(context.active(), headers)
 
