@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { trace, StatusCode } from '@opentelemetry/api'
+import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -19,7 +19,7 @@ const REFS = {
  */
 class ViewContentActor extends Actor {
   async perform (_model, action) {
-    const span = tracer.startSpan('ViewContentActor.perform')
+    const span = tracer.startSpan('ViewContentActor.perform', { kind: SpanKind.SERVER })
 
     try {
       action.type = 'ViewedContent'

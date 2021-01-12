@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { trace, StatusCode } from '@opentelemetry/api'
+import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
 import { v4 as uuidV4 } from 'uuid'
 
@@ -42,7 +42,7 @@ class ContentCommandActor extends Actor {
   async perform (model, action) {
     if (action.type === 'Content') return super.perform(model, action)
 
-    const span = tracer.startSpan('ContentCommandActor.perform')
+    const span = tracer.startSpan('ContentCommandActor.perform', { kind: SpanKind.SERVER })
 
     try {
       let results
