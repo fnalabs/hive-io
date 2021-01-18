@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 import { metrics } from '@opentelemetry/api'
 import { CollectorMetricExporter, CollectorTraceExporter } from '@opentelemetry/exporter-collector'
 import { MeterProvider } from '@opentelemetry/metrics'
@@ -15,12 +17,14 @@ import {
   TELEMETRY_URL_TRACES
 } from './config'
 
+const OS_DESC = /PRETTY_NAME="([\w\\.\\/() ]+)"/m.exec(fs.readFileSync('/etc/os-release'))[1]
+
 const attributes = {
   'container.id': TELEMETRY_SERVICE_INSTANCE_ID,
   'container.image.name': TELEMETRY_SERVICE_NAME,
   'deployment.environment': DEPLOY_ENV,
   [OperatingSystem.TYPE]: OperatingSystemValues.LINUX,
-  [OperatingSystem.DESCRIPTION]: 'Alpine Linux 3.11'
+  [OperatingSystem.DESCRIPTION]: OS_DESC
 }
 
 // setup metric exporter and provider
