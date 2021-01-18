@@ -39,7 +39,7 @@ const DEFAULT_TELEMETRY_PLUGINS = {
   dns: { enabled: false }
 }
 
-export const TELEMETRY_LIB_NAME = `${pkg.name}-js`
+export const TELEMETRY_LIB_NAME = `fnalabs/${pkg.name}-js`
 export const TELEMETRY_LIB_VERSION = pkg.version
 
 export const TELEMETRY = process.env.TELEMETRY === 'true'
