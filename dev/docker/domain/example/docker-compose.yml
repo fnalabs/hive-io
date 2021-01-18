@@ -1,8 +1,8 @@
 version: '3.5'
 services:
   # proxy for layer 7 routing
-  # NOTE: this is an example, you will need to define your own config
-  #       ex. https://github.com/fnalabs/hive-io/blob/master/dev/docker/domain/example/haproxy.cfg
+  # TODO: you will need to define your own config for this example
+  #       https://github.com/fnalabs/hive-io/blob/master/dev/docker/domain/example/haproxy.cfg
   proxy:
     build:
       context: .
@@ -13,9 +13,9 @@ services:
       - hive-base-js
       - hive-stream-processor-js
     ports:
-      - 80:80
+      - 443:443
     volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
+      - ../../../proxy:/usr/local/etc/haproxy:rw
     networks:
       - hive-io
     restart: on-failure
@@ -32,8 +32,9 @@ services:
       ACTOR_LIB: hive-io-domain-example
       ACTOR_URLS: "/contents/:id"
       CLUSTER_SIZE: 1
-      HTTP_VERSION: 1
-      SECURE: "false"
+      SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
@@ -43,6 +44,8 @@ services:
     depends_on:
       - collector
       - kafka
+    volumes:
+      - ../../../proxy/cert:/opt/app/cert:rw
     networks:
       - hive-io
 
@@ -58,8 +61,9 @@ services:
       ACTOR_LIB: hive-io-domain-example
       ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
-      HTTP_VERSION: 1
-      SECURE: "false"
+      SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
       TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
@@ -71,6 +75,8 @@ services:
       - collector
       - kafka
       - redis
+    volumes:
+      - ../../../proxy/cert:/opt/app/cert:rw
     networks:
       - hive-io
   redis:
@@ -118,8 +124,9 @@ services:
       ACTOR: ContentEventActor
       ACTOR_LIB: hive-io-domain-example
       CLUSTER_SIZE: 1
-      HTTP_VERSION: 1
-      SECURE: "false"
+      SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -134,6 +141,8 @@ services:
       - collector
       - kafka
       - mongo
+    volumes:
+      - ../../../proxy/cert:/opt/app/cert:rw
     networks:
       - hive-io
   mongo:
@@ -155,8 +164,9 @@ services:
       ACTOR_LIB: hive-io-domain-example
       ACTOR_URLS: "/contents,/contents/:id"
       CLUSTER_SIZE: 1
-      HTTP_VERSION: 1
-      SECURE: "false"
+      SECURE: "true"
+      SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+      SSL_KEY: "/opt/app/cert/ssl-key.pem"
       TELEMETRY: "true"
       TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
       TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -166,12 +176,14 @@ services:
       - collector
       - hive-producer-js
       - mongo
+    volumes:
+      - ../../../proxy/cert:/opt/app/cert:rw
     networks:
       - hive-io
 
   # telemetry
-  # NOTE: this is an example, you will need to define your own config
-  #       ex. https://github.com/fnalabs/hive-io/tree/master/dev/collector
+  # TODO: you will need to define your own config for this example
+  #       https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
   collector:
     image: otel/opentelemetry-collector:0.17.0
     container_name: collector

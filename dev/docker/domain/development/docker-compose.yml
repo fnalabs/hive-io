@@ -21,7 +21,7 @@ services:
     build:
       context: ../../../../containers/hive-producer-js
       # dockerfile: Dockerfile.full
-      dockerfile: Dockerfile.slim
+      # dockerfile: Dockerfile.slim
       target: development
     image: hive-producer-js:development
     container_name: hive-producer-js
@@ -59,7 +59,7 @@ services:
     build:
       context: ../../../../containers/hive-stream-processor-js
       # dockerfile: Dockerfile.full
-      dockerfile: Dockerfile.slim
+      # dockerfile: Dockerfile.slim
       target: development
     image: hive-stream-processor-js:development
     container_name: hive-stream-processor-js
@@ -134,7 +134,7 @@ services:
     build:
       context: ../../../../containers/hive-consumer-js
       # dockerfile: Dockerfile.full
-      dockerfile: Dockerfile.slim
+      # dockerfile: Dockerfile.slim
       target: development
     image: hive-consumer-js:development
     container_name: hive-consumer-js
@@ -191,7 +191,7 @@ services:
     build:
       context: ../../../../containers/hive-base-js
       # dockerfile: Dockerfile.full
-      dockerfile: Dockerfile.slim
+      # dockerfile: Dockerfile.slim
       target: development
     image: hive-base-js:development
     container_name: hive-base-js
