@@ -25,14 +25,16 @@ This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/p
 
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
 
-- `http://localhost/contents (GET, POST)`
+***NOTE:*** The services are using locally generated SSL certs for the example so you may get a warning in a browser or change configuration in Postman to disable `SSL certificate verification`, etc.
+
+- `https://localhost/contents (GET, POST)`
     - POST [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/src/schemas/json/commands/CreateContent.json)
         ```json
         {
           "text": "something"
         }
         ```
-- `http://localhost/contents/<id> (GET, PATCH, DELETE)`
+- `https://localhost/contents/<id> (GET, PATCH, DELETE)`
     - PATCH [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/src/schemas/json/commands/EditContent.json)
         ```json
         {
@@ -64,6 +66,10 @@ To use, you'll need:
 
 To start using:
 
+**NOTE:** There is a chicken or egg scenario when you run this example for the first time. In this example, the topics are not created until events are sent from `hive-producer-js` and `hive-stream-processor-js`. Therefore, you will need to restart `hive-consumer-js` after the topics are created to finally see events flow through the system.
+
+**NOTE:** Because Kafka takes some time to start, you may need to restart the Hive<sup>io</sup> services once Kafka has stabilized.
+
 1. Create the following files:
     - `Producer.dockerfile`
         ```dockerfile
@@ -88,27 +94,30 @@ To start using:
     - `Proxy.dockerfile`
         ```dockerfile
         FROM haproxy:2.3.3-alpine
-        EXPOSE 80
+        RUN apk --no-cache add \
+                ca-certificates
+        EXPOSE 443
         ```
     - `docker-compose.yml`
         ```yml
         version: '3.5'
         services:
           # proxy for layer 7 routing
-          # NOTE: this is an example, you will need to define your own config
-          #       ex. https://github.com/fnalabs/hive-io/blob/master/dev/docker/domain/example/haproxy.cfg
+          # TODO: you will need to define your own config for this example
+          #       https://github.com/fnalabs/hive-io/blob/master/dev/docker/domain/example/haproxy.cfg
           proxy:
             build:
               context: .
               dockerfile: Proxy.dockerfile
             image: hive-proxy:production
+            container_name: proxy
             depends_on:
               - hive-base-js
               - hive-stream-processor-js
             ports:
-              - 80:80
+              - 443:443
             volumes:
-              - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
+              - .:/usr/local/etc/haproxy:rw
             networks:
               - hive-io
             restart: on-failure
@@ -125,8 +134,9 @@ To start using:
               ACTOR_LIB: hive-io-domain-example
               ACTOR_URLS: "/contents/:id"
               CLUSTER_SIZE: 1
-              HTTP_VERSION: 1
-              SECURE: "false"
+              SECURE: "true"
+              SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+              SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
@@ -136,6 +146,8 @@ To start using:
             depends_on:
               - collector
               - kafka
+            volumes:
+              - ./cert:/opt/app/cert:rw
             networks:
               - hive-io
 
@@ -151,8 +163,9 @@ To start using:
               ACTOR_LIB: hive-io-domain-example
               ACTOR_URLS: "/contents,/contents/:id"
               CLUSTER_SIZE: 1
-              HTTP_VERSION: 1
-              SECURE: "false"
+              SECURE: "true"
+              SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+              SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
@@ -164,6 +177,8 @@ To start using:
               - collector
               - kafka
               - redis
+            volumes:
+              - ./cert:/opt/app/cert:rw
             networks:
               - hive-io
           redis:
@@ -211,8 +226,9 @@ To start using:
               ACTOR: ContentEventActor
               ACTOR_LIB: hive-io-domain-example
               CLUSTER_SIZE: 1
-              HTTP_VERSION: 1
-              SECURE: "false"
+              SECURE: "true"
+              SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+              SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
               TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -227,6 +243,8 @@ To start using:
               - collector
               - kafka
               - mongo
+            volumes:
+              - ./cert:/opt/app/cert:rw
             networks:
               - hive-io
           mongo:
@@ -248,8 +266,9 @@ To start using:
               ACTOR_LIB: hive-io-domain-example
               ACTOR_URLS: "/contents,/contents/:id"
               CLUSTER_SIZE: 1
-              HTTP_VERSION: 1
-              SECURE: "false"
+              SECURE: "true"
+              SSL_CERT: "/opt/app/cert/ssl-cert.pem"
+              SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
               TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
@@ -259,12 +278,14 @@ To start using:
               - collector
               - hive-producer-js
               - mongo
+            volumes:
+              - ./cert:/opt/app/cert:rw
             networks:
               - hive-io
 
           # telemetry
-          # NOTE: this is an example, you will need to define your own config
-          #       ex. https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
+          # TODO: you will need to define your own config for this example
+          #       https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
           collector:
             image: otel/opentelemetry-collector:0.17.0
             container_name: collector
@@ -292,18 +313,23 @@ To start using:
         ```
 2. Run the following commands:
     ```sh
+    mkdir cert
+    rm -f cert/ssl.pem cert/ssl-cert.pem cert/ssl-key.pem
+    openssl req -x509 -out cert/ssl-cert.pem -keyout cert/ssl-key.pem \
+      -newkey rsa:2048 -nodes -sha256 \
+      -subj '/CN=localhost' -extensions EXT -config <( \
+      printf "keyUsage=digitalSignature\nextendedKeyUsage=serverAuth\n[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=@alt_names\n[alt_names]\nDNS.1=localhost\nDNS.2=proxy\nDNS.3=hive-base-js\nDNS.4=hive-consumer-js\nDNS.5=hive-producer-js\nDNS.6=hive-stream-processor-js")
+    cat cert/ssl-key.pem cert/ssl-cert.pem >> cert/ssl.pem
     docker-compose up
     ```
-
-**NOTE:** There is a chicken or egg scenario when you run this example for the first time. In this example, the topics are not created until events are sent from `hive-producer-js` and `hive-stream-processor-js`. Therefore, you will need to restart `hive-consumer-js` after the topics are created to finally see events flow through the system.
 
 ### Environment Variables
 
 The table below contains a reference to the custom environment variables used in the example. [Standard environment variables](https://hiveframework.io/environments) are documented for all service containers.
 
-Name       | Type    | Default                       | Description
----------- | ------- | ----------------------------- | ------------------------------------
-MONGO_URL  | String  | 'mongodb://mongo:27017/post'  | url to connect to MongoDB instance
+Name       | Type    | Default                           | Description
+---------- | ------- | --------------------------------- | -----------------------------------
+MONGO_URL  | String  | 'mongodb://mongo:27017/contents'  | url to connect to MongoDB instance
 
 [npm-image]: https://img.shields.io/npm/v/hive-io-domain-example.svg
 [npm-url]: https://www.npmjs.com/package/hive-io-domain-example

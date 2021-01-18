@@ -1,2 +1,6 @@
 FROM haproxy:2.3.3-alpine
-EXPOSE 80
+
+RUN apk --no-cache add \
+    ca-certificates
+
+EXPOSE 443

@@ -76,6 +76,7 @@ To start using:
           hive-base-js:
             build: .
             image: hive-base-js:production
+            container_name: hive-base-js
             environment:
               ACTOR: ContentActor
               ACTOR_LIB: hive-io-rest-example
@@ -103,14 +104,16 @@ To start using:
             restart: on-failure
 
           # telemetry
-          # NOTE: you will need to provide a configuration for the collector
-          #       see https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
+          # TODO: you will need to define your own config for this example
+          #       https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
           collector:
             image: otel/opentelemetry-collector:0.17.0
             container_name: collector
             command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
             depends_on:
               - zipkin
+            volumes:
+              - ./collector-config.yml:/conf/collector-config.yml
             networks:
               - hive-io
             restart: on-failure
@@ -139,9 +142,9 @@ The table below contains a reference to the custom environment variables used in
 
 - [hive-base-js](https://github.com/fnalabs/hive-io/tree/master/containers/hive-base-js#environment-variables)
 
-Name               | Type    | Default                          | Description
------------------- | ------- | -------------------------------- | -------------------------------------------------------
-MONGO_URL          | String  | 'mongodb://mongo:27017/content'  | url to connect to MongoDB instance
+Name       | Type    | Default                           | Description
+---------- | ------- | --------------------------------- | -----------------------------------
+MONGO_URL  | String  | 'mongodb://mongo:27017/contents'  | url to connect to MongoDB instance
 
 [npm-image]: https://img.shields.io/npm/v/hive-io-rest-example.svg
 [npm-url]: https://www.npmjs.com/package/hive-io-rest-example
