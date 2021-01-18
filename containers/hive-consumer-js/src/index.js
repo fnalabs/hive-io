@@ -22,7 +22,7 @@ import EventStore from './store'
 // constants
 const flavor = HTTP_VERSION === 2 ? '2.0' : '1.1'
 const spanMap = new WeakMap()
-const spanNamePrefix = `hive^io - ${HTTP_VERSION === 2 ? 'HTTP/2' : SECURE ? 'HTTPS' : 'HTTP'}`
+const spanNamePrefix = HTTP_VERSION === 2 ? 'HTTP/2' : SECURE ? 'HTTPS' : 'HTTP'
 const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 let actor
 
@@ -32,7 +32,7 @@ let actor
 export function onRequestHook (request, reply, done) {
   if (request.url === PING_URL) return done()
 
-  const spanName = `${spanNamePrefix} - ${request.method} - ${request.routerPath}`
+  const spanName = `${spanNamePrefix} ${request.method} ${request.routerPath}`
   if (tracer.getCurrentSpan()) {
     const span = tracer.startSpan(spanName, { kind: SpanKind.SERVER })
     spanMap.set(request, span)
@@ -106,7 +106,7 @@ export async function consumeHandler ({ message }) {
     : {}
 
   await context.with(propagation.extract(ROOT_CONTEXT, headers), async () => {
-    const span = tracer.startSpan('hive^io - consume handler', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('consume handler', { kind: SpanKind.SERVER })
 
     await tracer.withSpan(span, async () => {
       try {
@@ -134,7 +134,7 @@ export function healthHandler () {
  * handler for routing requests and translating incoming JSON data
  */
 export async function mainHandler (request) {
-  const span = tracer.startSpan('hive^io - request handler', { kind: SpanKind.SERVER })
+  const span = tracer.startSpan('request handler', { kind: SpanKind.SERVER })
 
   // construct standard action from referencing request body
   const action = {}
