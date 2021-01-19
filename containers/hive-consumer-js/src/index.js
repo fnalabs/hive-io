@@ -3,6 +3,9 @@ import {
   ACTOR,
   ACTOR_LIB,
   ACTOR_URLS,
+  EVENT_STORE_ID,
+  EVENT_STORE_GROUP_ID,
+  EVENT_STORE_TOPIC,
   HTTP_VERSION,
   PING_URL,
   SECURE,
@@ -15,11 +18,12 @@ import './telemetry'
 import cors from 'fastify-cors'
 import helmet from 'fastify-helmet'
 import { context, propagation, trace, SpanKind, StatusCode, ROOT_CONTEXT } from '@opentelemetry/api'
-import { HttpAttribute } from '@opentelemetry/semantic-conventions'
+import { HttpAttribute, MessagingAttribute, MessagingOperationName } from '@opentelemetry/semantic-conventions'
 
 import EventStore from './store'
 
 // constants
+const consumeSpanName = `${EVENT_STORE_TOPIC} ${MessagingOperationName.RECEIVE}`
 const flavor = HTTP_VERSION === 2 ? '2.0' : '1.1'
 const spanMap = new WeakMap()
 const spanNamePrefix = HTTP_VERSION === 2 ? 'HTTP/2' : SECURE ? 'HTTPS' : 'HTTP'
@@ -106,7 +110,17 @@ export async function consumeHandler ({ message }) {
     : {}
 
   await context.with(propagation.extract(ROOT_CONTEXT, headers), async () => {
-    const span = tracer.startSpan('consume handler', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan(consumeSpanName, {
+      kind: SpanKind.CONSUMER,
+      attributes: {
+        [MessagingAttribute.MESSAGING_SYSTEM]: 'kafka',
+        [MessagingAttribute.MESSAGING_DESTINATION]: EVENT_STORE_TOPIC,
+        [MessagingAttribute.MESSAGING_DESTINATION_KIND]: 'topic',
+        [MessagingAttribute.MESSAGING_OPERATION]: MessagingOperationName.RECEIVE,
+        'messaging.kafka.client_id': EVENT_STORE_ID,
+        'messaging.kafka.consumer_group': EVENT_STORE_GROUP_ID
+      }
+    })
 
     await tracer.withSpan(span, async () => {
       try {
