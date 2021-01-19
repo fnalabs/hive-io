@@ -9,10 +9,18 @@ import {
   EVENT_STORE_FROM_START,
   EVENT_STORE_PARTITIONS,
   EVENT_STORE_BUFFER,
-  EVENT_STORE_TIMEOUT
+  EVENT_STORE_TIMEOUT,
+  TELEMETRY_LIB_NAME,
+  TELEMETRY_LIB_VERSION
 } from './config'
 
+import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { MessagingAttribute, MessagingOperationName } from '@opentelemetry/semantic-conventions'
 import { Kafka, CompressionTypes } from 'kafkajs'
+
+// constants
+const produceSpanName = `${EVENT_STORE_PRODUCER_TOPIC} ${MessagingOperationName.SEND}`
+const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
 
 // private properties
 const CONSUMER = Symbol('Kafka Consumer')
@@ -110,6 +118,15 @@ export default class EventStore {
   }
 
   [RECORD_TIMEOUT] = async () => {
+    const span = tracer.startSpan(produceSpanName, {
+      kind: SpanKind.PRODUCER,
+      attributes: {
+        [MessagingAttribute.MESSAGING_SYSTEM]: 'kafka',
+        [MessagingAttribute.MESSAGING_DESTINATION]: EVENT_STORE_PRODUCER_TOPIC,
+        [MessagingAttribute.MESSAGING_DESTINATION_KIND]: 'topic'
+      }
+    })
+
     try {
       await this[PRODUCER].send({
         topic: this[TOPIC],
@@ -117,9 +134,15 @@ export default class EventStore {
         compression: CompressionTypes.GZIP
       })
 
+      span.setStatus({ code: StatusCode.OK })
+      span.end()
       this[RESET]()
-    } catch (e) {
-      console.error(`${EVENT_STORE_ID}: ${e}`)
+    } catch (error) {
+      span.setStatus({ code: StatusCode.ERROR })
+      span.end()
+
+      error.statusCode = 500
+      throw error
     }
   }
 

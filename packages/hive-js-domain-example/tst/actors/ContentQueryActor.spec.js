@@ -6,6 +6,7 @@ import proxyquire from 'proxyquire'
 import { spy, stub } from 'sinon'
 
 chai.use(dirtyChai)
+proxyquire.noCallThru()
 
 // constants
 const getAll = { meta: { request: { method: 'GET', params: {} } } }
@@ -33,7 +34,11 @@ describe('ContentQueryActor', () => {
       }
       repositorySpy = spy()
       ContentQueryActor = proxyquire('../../src/actors/content/ContentQueryActor', {
-        '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } }
+        '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } },
+        '../../systems/LogSystem': class System {
+          on () { spy() }
+          emit () { spy() }
+        }
       })
       contentQueryActor = await new ContentQueryActor()
     })
@@ -74,7 +79,11 @@ describe('ContentQueryActor', () => {
       }
       repositorySpy = spy()
       ContentQueryActor = proxyquire('../../src/actors/content/ContentQueryActor', {
-        '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } }
+        '../../util/mongoConnect': async () => { return { model () { repositorySpy(); return modelMock } } },
+        '../../systems/LogSystem': class System {
+          on () { spy() }
+          emit () { spy() }
+        }
       })
       contentQueryActor = await new ContentQueryActor()
     })
