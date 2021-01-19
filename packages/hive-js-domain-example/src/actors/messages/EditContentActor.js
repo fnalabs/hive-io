@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { trace, StatusCode } from '@opentelemetry/api'
 import { MessageActor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -24,7 +24,7 @@ const REFS = {
  */
 class EditContentActor extends MessageActor {
   async perform (modelInst, action) {
-    const span = tracer.startSpan('EditContentActor.perform', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('EditContentActor.perform')
 
     try {
       if (typeof modelInst === 'undefined') throw new Error(`#${action.type}: ${action.payload.id} doesn't exist`)

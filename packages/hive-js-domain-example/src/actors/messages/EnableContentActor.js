@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { trace, StatusCode } from '@opentelemetry/api'
 import { MessageActor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -25,7 +25,7 @@ class EnableContentActor extends MessageActor {
   async perform (modelInst, action) {
     if (modelInst.enabled === true) throw new Error('#EnableContent: content already enabled')
 
-    const span = tracer.startSpan('EnableContentActor.perform', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('EnableContentActor.perform')
 
     try {
       const { command, event, model } = await super.perform(modelInst, action)

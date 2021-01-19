@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION, UPDATE_OPTIONS } from '../../config'
 
-import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
 
 import ContentSchema from '../../schemas/json/Content.json'
@@ -13,7 +13,7 @@ const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
  */
 class DeleteContentActor extends Actor {
   async perform (model, action) {
-    const span = tracer.startSpan('DeleteContentActor.perform', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('DeleteContentActor.perform')
 
     // upload to mongo
     const conditions = { _id: action.meta.request.params.id }

@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION, UPDATE_OPTIONS } from '../../config'
 
-import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor } from 'hive-io'
 
 import mongoConnect from '../../util/mongoConnect'
@@ -15,7 +15,7 @@ const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
  */
 class ContentEventActor extends Actor {
   async perform (_model, action) {
-    const span = tracer.startSpan('ContentEventActor.perform', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('ContentEventActor.perform')
 
     const id = action.payload.id
     const conditions = { _id: id }

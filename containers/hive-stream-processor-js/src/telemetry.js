@@ -17,11 +17,10 @@ import {
   TELEMETRY_URL_TRACES
 } from './config'
 
-const OS_DESC = /PRETTY_NAME="([\w\\.\\/() ]+)"/m.exec(fs.readFileSync('/etc/os-release'))[1]
+const OS_DESC = /PRETTY_NAME="([\w\\.\\/()! ]+)"/m.exec(fs.readFileSync('/etc/os-release'))[1]
 
 const attributes = {
   'container.id': TELEMETRY_SERVICE_INSTANCE_ID,
-  'container.image.name': TELEMETRY_SERVICE_NAME,
   'deployment.environment': DEPLOY_ENV,
   [OperatingSystem.TYPE]: OperatingSystemValues.LINUX,
   [OperatingSystem.DESCRIPTION]: OS_DESC

@@ -32,8 +32,9 @@ export function onRequestHook (request, reply, done) {
 
   const spanName = `${spanNamePrefix} ${request.method} ${request.routerPath}`
   if (tracer.getCurrentSpan()) {
-    const span = tracer.startSpan(spanName, { kind: SpanKind.SERVER })
+    const span = tracer.startSpan(spanName)
     spanMap.set(request, span)
+
     return done()
   }
 
@@ -106,7 +107,7 @@ export function healthHandler () {
  * handler for routing requests and translating incoming JSON data
  */
 export async function mainHandler (request) {
-  const span = tracer.startSpan('request handler', { kind: SpanKind.SERVER })
+  const span = tracer.startSpan('request handler')
 
   // construct standard action from referencing request body
   const action = {}
