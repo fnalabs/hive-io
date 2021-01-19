@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { trace, StatusCode } from '@opentelemetry/api'
 import { Actor, Schema } from 'hive-io'
 import { v4 as uuidV4 } from 'uuid'
 
@@ -14,7 +14,7 @@ const tracer = trace.getTracer(TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION)
  */
 class PostContentActor extends Actor {
   async perform (model, action) {
-    const span = tracer.startSpan('PostContentActor.perform', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('PostContentActor.perform')
 
     const Model = this.repository
 

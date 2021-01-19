@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { context, propagation, trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { context, propagation, trace, StatusCode } from '@opentelemetry/api'
 import { Actor, Model, Schema } from 'hive-io'
 
 import mongoConnect from '../../util/mongoConnect'
@@ -38,7 +38,7 @@ class ContentQueryActor extends Actor {
   async perform (_model, action) {
     if (action.meta.request.method !== 'GET') throw new TypeError('Content values can only be queried from this endpoint')
 
-    const span = tracer.startSpan('ContentQueryActor.perform', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('ContentQueryActor.perform')
 
     const { id } = action.meta.request.params
 

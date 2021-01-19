@@ -1,7 +1,7 @@
 // imports
 import { TELEMETRY_LIB_NAME, TELEMETRY_LIB_VERSION } from '../../config'
 
-import { trace, SpanKind, StatusCode } from '@opentelemetry/api'
+import { trace, StatusCode } from '@opentelemetry/api'
 import { MessageActor, Schema } from 'hive-io'
 
 import ContentIdSchema from '../../schemas/json/ContentId.json'
@@ -26,7 +26,7 @@ class CreateContentActor extends MessageActor {
   async perform (modelInst, action) {
     if (typeof modelInst !== 'undefined') throw new Error(`#${action.type}: ${modelInst.id} already exists`)
 
-    const span = tracer.startSpan('CreateContentActor.perform', { kind: SpanKind.SERVER })
+    const span = tracer.startSpan('CreateContentActor.perform')
 
     try {
       const { command, event, model } = await super.perform(modelInst, action)
