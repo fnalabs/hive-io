@@ -339,7 +339,7 @@ describe('store', () => {
       expect(setTimeoutStub.calledOnce).to.be.true()
       expect(toJsonStub.calledOnce).to.be.true()
 
-      await expect(store.record(undefined, { toJSON () { return toJsonStub() } })).to.eventually.be.fulfilled()
+      await expect(store.record(undefined, { toJSON () { return toJsonStub() } })).to.eventually.be.rejected()
       expect(clearTimeoutStub.calledOnce).to.be.true()
       expect(sendStub.calledOnce).to.be.true()
       expect(setTimeoutStub.calledOnce).to.be.true()
