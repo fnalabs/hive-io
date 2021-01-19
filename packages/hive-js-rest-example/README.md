@@ -86,6 +86,7 @@ To start using:
               SECURE: "false"
               TELEMETRY: "true"
               TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+              TELEMETRY_SERVICE_NAME: content
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               MONGO_URL: "mongodb://mongo:27017/contents"

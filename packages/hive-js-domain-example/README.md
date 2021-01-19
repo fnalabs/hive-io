@@ -138,6 +138,7 @@ To start using:
               SSL_CERT: "/opt/app/cert/ssl-cert.pem"
               SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
+              TELEMETRY_SERVICE_NAME: produce
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               EVENT_STORE_TOPIC: view
@@ -167,6 +168,7 @@ To start using:
               SSL_CERT: "/opt/app/cert/ssl-cert.pem"
               SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
+              TELEMETRY_SERVICE_NAME: stream
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               CACHE_URL: "redis://redis:6379"
@@ -231,6 +233,7 @@ To start using:
               SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
               TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+              TELEMETRY_SERVICE_NAME: consume
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               EVENT_STORE_TOPIC: "content|view"
@@ -271,6 +274,7 @@ To start using:
               SSL_KEY: "/opt/app/cert/ssl-key.pem"
               TELEMETRY: "true"
               TELEMETRY_PLUGINS: '{"mongodb":{"enabled":true,"path":"@opentelemetry/plugin-mongodb"},"mongoose":{"enabled":true,"path":"@wdalmut/opentelemetry-plugin-mongoose"}}'
+              TELEMETRY_SERVICE_NAME: query
               TELEMETRY_URL_METRICS: "http://collector:55681/v1/metrics"
               TELEMETRY_URL_TRACES: "http://collector:55681/v1/trace"
               MONGO_URL: "mongodb://mongo:27017/contents"
