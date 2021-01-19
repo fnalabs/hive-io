@@ -15,6 +15,7 @@ const REFS = {
 }
 
 chai.use(dirtyChai)
+proxyquire.noCallThru()
 
 // constants
 const viewData = { type: 'View', payload: { id: 'id' } }
