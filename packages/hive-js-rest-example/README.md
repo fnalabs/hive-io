@@ -49,7 +49,7 @@ Once you get the app running using the [setup instructions](#getting-started) be
 
 This is a straight forward CRUD example of a `Content` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It stores these `Content`s in MongoDB. It leverages Hive<sup>io</sup>'s built-in telemetry solution with OpenTelemetry. Here's how to use it.
 
-***NOTE:*** This does not include error handling, authentication, and other strategies to keep the example straight forward.
+***NOTE:*** This does not include robust error handling, authentication, and other strategies to keep the example straight forward.
 
 ### Prerequisites
 
@@ -67,7 +67,7 @@ To start using:
     - `Dockerfile`
         ```dockerfile
         FROM fnalabs/hive-base-js:latest
-        RUN npm install hive-io-rest-example
+        RUN npm install --production --no-optional hive-io-rest-example
         ```
     - `docker-compose.yml`
         ```yml
@@ -108,7 +108,7 @@ To start using:
           # TODO: you will need to define your own config for this example
           #       https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
           collector:
-            image: otel/opentelemetry-collector:0.17.0
+            image: otel/opentelemetry-collector:0.18.0
             container_name: collector
             command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
             depends_on:
