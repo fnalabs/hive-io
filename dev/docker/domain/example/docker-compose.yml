@@ -82,7 +82,7 @@ services:
     networks:
       - hive-io
   redis:
-    image: redis:6.0.9-alpine
+    image: redis:6.0.10-alpine
     container_name: redis
     networks:
       - hive-io
@@ -189,7 +189,7 @@ services:
   # TODO: you will need to define your own config for this example
   #       https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
   collector:
-    image: otel/opentelemetry-collector:0.17.0
+    image: otel/opentelemetry-collector:0.18.0
     container_name: collector
     command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
     depends_on:

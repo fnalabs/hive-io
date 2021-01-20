@@ -25,8 +25,6 @@ This example evolves the previous [hive-io-rest-example](https://www.npmjs.com/p
 
 Once you get the app running using the [setup instructions](#getting-started) below, you can use the application from the following endpoint(s):
 
-***NOTE:*** The services are using locally generated SSL certs for the example so you may get a warning in a browser or change configuration in Postman to disable `SSL certificate verification`, etc.
-
 - `https://localhost/contents (GET, POST)`
     - POST [API JSON Schema](https://github.com/fnalabs/hive-io/blob/master/packages/hive-js-domain-example/src/schemas/json/commands/CreateContent.json)
         ```json
@@ -45,13 +43,15 @@ Once you get the app running using the [setup instructions](#getting-started) be
 
 ***NOTE:*** Network [data models](https://hiveframework.io/model) follow the Flux Standard Action specification for network transport. `type` and `payload` are derived from the routes and data sent respectively in this example.
 
+***NOTE:*** The services are using locally generated SSL certs for the example so you may get a warning in a browser or change configuration in Postman to disable `SSL certificate verification`, etc.
+
 ### [Source Code](https://github.com/fnalabs/hive-io/tree/master/packages/hive-js-domain-example)
 
 ## Getting Started
 
 This is a straight forward CQRS/ES example of a `Content` Entity that contains text, a couple Boolean flags, and a count of how many views it has. It is a highly distributed application with the expectation that `viewed` traffic will be much larger than `text` management traffic. It stores these `Content`s in MongoDB. It leverages Hive<sup>io</sup>'s built-in telemetry solution with OpenTelemetry. Here's how to use it.
 
-***NOTE:*** This does not include error handling, authentication, and other strategies to keep the example straight forward.
+***NOTE:*** This does not include robust error handling, authentication, and other strategies to keep the example straight forward.
 
 ### Prerequisites
 
@@ -74,26 +74,26 @@ To start using:
     - `Producer.dockerfile`
         ```dockerfile
         FROM fnalabs/hive-producer-js:latest
-        RUN npm install hive-io-domain-example
+        RUN npm install --production --no-optional hive-io-domain-example
         ```
     - `Stream-Processor.dockerfile`
         ```dockerfile
         FROM fnalabs/hive-stream-processor-js:latest
-        RUN npm install hive-io-domain-example
+        RUN npm install --production --no-optional hive-io-domain-example
         ```
     - `Consumer.dockerfile`
         ```dockerfile
         FROM fnalabs/hive-consumer-js:latest
-        RUN npm install hive-io-domain-example
+        RUN npm install --production --no-optional hive-io-domain-example
         ```
     - `Rest.dockerfile`
         ```dockerfile
         FROM fnalabs/hive-base-js:latest
-        RUN npm install hive-io-domain-example
+        RUN npm install --production --no-optional hive-io-domain-example
         ```
     - `Proxy.dockerfile`
         ```dockerfile
-        FROM haproxy:2.3.3-alpine
+        FROM haproxy:2.3.4-alpine
         RUN apk --no-cache add \
                 ca-certificates
         EXPOSE 443
@@ -184,7 +184,7 @@ To start using:
             networks:
               - hive-io
           redis:
-            image: redis:6.0.9-alpine
+            image: redis:6.0.10-alpine
             container_name: redis
             networks:
               - hive-io
@@ -291,7 +291,7 @@ To start using:
           # TODO: you will need to define your own config for this example
           #       https://github.com/fnalabs/hive-io/blob/master/dev/collector/collector-config.yml
           collector:
-            image: otel/opentelemetry-collector:0.17.0
+            image: otel/opentelemetry-collector:0.18.0
             container_name: collector
             command: ["--config=/conf/collector-config.yml", "--log-level=ERROR"]
             depends_on:

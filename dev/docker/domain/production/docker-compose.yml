@@ -82,7 +82,7 @@ services:
     networks:
       - hive-io
   redis:
-    image: redis:6.0.9-alpine
+    image: redis:6.0.10-alpine
     container_name: redis
     networks:
       - hive-io
@@ -191,7 +191,7 @@ services:
 
   # telemetry
   collector:
-    image: otel/opentelemetry-collector:0.17.0
+    image: otel/opentelemetry-collector:0.18.0
     container_name: collector
     command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
     depends_on:
