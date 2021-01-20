@@ -54,7 +54,7 @@ services:
 
   # telelemtry
   collector:
-    image: otel/opentelemetry-collector:0.17.0
+    image: otel/opentelemetry-collector:0.18.0
     container_name: collector
     command: ["--config=/conf/collector-config.yml", "--log-level=WARN"]
     depends_on:
