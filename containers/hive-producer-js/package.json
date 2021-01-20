@@ -37,7 +37,7 @@
   "dependencies": {
     "@opentelemetry/exporter-collector": "0.14.0",
     "@opentelemetry/node": "0.14.0",
-    "fastify": "3.9.2",
+    "fastify": "3.10.1",
     "fastify-cors": "5.1.0",
     "fastify-helmet": "5.1.0",
     "kafkajs": "1.15.0"

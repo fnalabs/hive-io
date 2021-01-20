@@ -37,8 +37,8 @@
   "dependencies": {
     "@opentelemetry/exporter-collector": "0.14.0",
     "@opentelemetry/node": "0.14.0",
-    "@opentelemetry/plugin-ioredis": "0.12.0",
-    "fastify": "3.9.2",
+    "@opentelemetry/plugin-ioredis": "0.12.1",
+    "fastify": "3.10.1",
     "fastify-cors": "5.1.0",
     "fastify-helmet": "5.1.0",
     "ioredis": "4.19.4",
