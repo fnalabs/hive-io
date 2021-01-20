@@ -1,6 +1,6 @@
 {
   "name": "hive-consumer",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "private": true,
   "description": "Starter kit for Hive^io framework Consumer microservices leveraging Node.js in Docker",
   "main": "./bin/start",
